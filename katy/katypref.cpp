@@ -130,8 +130,8 @@ void KatyPreferences::saveIndentingPage()
 QString KatyPreferences::describeFont(QFont font)
 {
     QFontDatabase fontDB;
-    QString format("%1, %2, %3pt, %4");
-    return format.arg(font.family()).arg(fontDB.styleString(font)).arg(font.pointSize()).arg(QFont::encodingName(font.charSet()));
+    QString format("%1, %2, %3pt");
+    return format.arg(font.family()).arg(fontDB.styleString(font)).arg(font.pointSize());
 }
 
 void KatyPreferences::slotApply()

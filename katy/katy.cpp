@@ -46,18 +46,14 @@
 #include <kconfig.h>
 #include <kurl.h>
 #include <kfiledialog.h>
-
 #include <kedittoolbar.h>
-
 #include <kstdaccel.h>
 #include <kaction.h>
 #include <kstdaction.h>
-
 #include <krecentdocument.h>
-
 #include <kdebug.h>
-
 #include <kmessagebox.h>
+#include <kstatusbar.h>
 
 enum StatusBarItems
 {
