@@ -23,6 +23,7 @@
 #include "textdocument.h"
 #include "texteditor.h"
 #include "katypref.h"
+#include "katytabstospacesimpl.h"
 
 #include <qdragobject.h>
 #include <qlineedit.h>
@@ -129,6 +130,9 @@ void Katy::setupActions()
 
     m_openRecentAction = KStdAction::openRecent(this, SLOT(fileOpenRecent(const KURL&)), actionCollection());
     m_openRecentAction->loadEntries(KGlobal::config());
+
+    m_tabsToSpacesAction = new KAction(i18n("Tabs to Spaces"), 0, this, SLOT(editTabsToSpaces()), actionCollection(), "edit_tabs_to_spaces");
+    m_spacesToTabsAction = new KAction(i18n("Spaces to Tabs"), 0, this, SLOT(editSpacesToTabs()), actionCollection(), "edit_spaces_to_tabs");
 
     createGUI();
 }
@@ -300,6 +304,26 @@ void Katy::fileChangeEOLType()
     }
 }
 
+void Katy::editTabsToSpaces()
+{
+    int spaces;
+    bool leadingOnly;
+    if (KatyTabsToSpacesImpl::tabsToSpaces(this, spaces, leadingOnly) == QDialog::Accepted)
+    {
+        m_view->document()->tabsToSpaces(spaces, leadingOnly);
+    }
+}
+
+void Katy::editSpacesToTabs()
+{
+    int spaces;
+    bool leadingOnly;
+    if (KatyTabsToSpacesImpl::spacesToTabs(this, spaces, leadingOnly) == QDialog::Accepted)
+    {
+        m_view->document()->spacesToTabs(spaces, leadingOnly);
+    }
+}
+
 void Katy::showToolbar()
 {
     // this is all very cut and paste code for showing/hiding the
@@ -372,3 +396,4 @@ void Katy::changeEOLType(const TextDocument::EOLType type)
             break;
     }
 }
+

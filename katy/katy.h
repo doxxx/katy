@@ -25,11 +25,10 @@
 #include <config.h>
 #endif
 
-#include <kapp.h>
 #include <kmainwindow.h>
 
+//#include "katyapp.h"
 #include "katyview.h"
-#include "katyiface.h"
 
 class QPrinter;
 class KToggleAction;
@@ -98,6 +97,8 @@ private slots:
     void fileSaveAs();
     void filePrint();
     void fileChangeEOLType();
+    void editTabsToSpaces();
+    void editSpacesToTabs();
     void showToolbar();
     void showStatusbar();
     void configureKeys();
@@ -114,12 +115,14 @@ private:
 private:
     KatyView *m_view;
 
-    QPrinter   *m_printer;
+    QPrinter *m_printer;
+
     KToggleAction *m_toolbarAction;
     KToggleAction *m_statusbarAction;
     KSelectAction *m_eolTypeAction;
-
     KRecentFilesAction *m_openRecentAction;
+    KAction *m_tabsToSpacesAction;
+    KAction *m_spacesToTabsAction;
 };
 
 #endif // KATY_H
