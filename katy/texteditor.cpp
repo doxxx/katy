@@ -74,19 +74,12 @@ TextEditor::~TextEditor()
 void TextEditor::setDocument(TextDocument *doc)
 {
     m_document = doc;
-    m_cursorLine = 0;
-    m_cursorColumn = 0;
-    m_selectionAnchorLine = -1;
-    m_selectionAnchorColumn = -1;
-
-    setContentsPos(0, 0);
 
     connect(m_document, SIGNAL(lineChanged(int, TextLine, TextLine)), SLOT(document_lineChanged(int, TextLine, TextLine)));
     connect(m_document, SIGNAL(linesInserted(int, TextLineList)), SLOT(document_linesInserted(int, TextLineList)));
     connect(m_document, SIGNAL(linesRemoved(int, int)), SLOT(document_linesRemoved(int, int)));
 
-    recalculateDocumentSize();
-    viewport()->update();
+    resetView();
 }
 
 SelectionRange TextEditor::selectionRange()
@@ -603,6 +596,20 @@ void TextEditor::deselect()
     m_selectionEndColumn = -1;
 
     repaintLines(topLine, bottomLine);
+}
+
+void TextEditor::resetView()
+{
+    m_cursorLine = 0;
+    m_cursorColumn = 0;
+    m_selectionAnchorLine = -1;
+    m_selectionAnchorColumn = -1;
+
+    recalculateDocumentSize();
+
+    setContentsPos(0, 0);
+
+    viewport()->update();
 }
 
 void TextEditor::cut()
@@ -1363,5 +1370,4 @@ void TextEditor::contentsMouseDoubleClickEvent(QMouseEvent *event)
         moveCursorWordRight(TRUE);
     }
 }
-
 

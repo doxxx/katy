@@ -106,6 +106,8 @@ public:
     void moveCursorDocumentEnd(bool extendSelection=FALSE);
     void deselect();
 
+    void resetView();
+
 public slots:
     void cut();
     void copy();
