@@ -63,12 +63,20 @@ public:
     /**
      * Returns the TextDocument used.
      */
-    TextDocument *document();
+    TextDocument *document()
+    {
+        return m_document;
+    }
 
     /**
      * Sets the TextDocument to be used.
      */
     void setDocument(TextDocument *doc);
+
+    DocumentPosition documentPosition()
+    {
+        return DocumentPosition(m_cursorLine, m_cursorColumn);
+    }
 
     /**
      * Returns the selection range.
@@ -79,6 +87,8 @@ public:
      * Returns the selected text.
      */
     QString selectedText();
+
+    void setSelectedText(QString newText);
 
     // Operations
     void moveCursorTo(int line, int column, bool extendSelection=FALSE);
