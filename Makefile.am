@@ -21,3 +21,4 @@ dist-hook:
 	  || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
 	  || cp -p $$d/$$file $(distdir)/$$file || :; \
 	done
+
