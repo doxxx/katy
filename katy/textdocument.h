@@ -75,9 +75,11 @@ public:
     TextLineList::ConstIterator endLineIterator();
     EOLType eolType();
     void setEOLType(EOLType type);
+    QString text(int startLine, int startColumn, int endLine, int endColumn);
 
     void openURL(const KURL& url);
 
+    void insertText(int line, int column, QString text);
     void insertLine(int line, TextLine newLine, bool after=FALSE);
     void removeLine(int line);
     void splitLine(int line, int column);

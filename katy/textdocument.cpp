@@ -65,6 +65,25 @@ void TextDocument::setEOLType(TextDocument::EOLType type)
     m_eolType = type;
 }
 
+QString TextDocument::text(int startLine, int startColumn, int endLine, int endColumn)
+{
+    QString text;
+
+    if (startLine == endLine)
+    {
+        text = m_lines[startLine].text.mid(startColumn, endColumn - startColumn);
+    }
+    else
+    {
+        text = m_lines[startLine].text.mid(startColumn) + '\n';
+        for (int i = startLine + 1; i < endLine; i++)
+            text += m_lines[i].text + '\n';
+        text += m_lines[endLine].text.left(endColumn);
+    }
+
+    return text;
+}
+
 void TextDocument::openURL(const KURL& url)
 {
     QString target;
@@ -173,6 +192,23 @@ bool TextDocument::loadTempFile(QString filename)
     return true;
 }
 
+void TextDocument::insertText(int line, int column, QString text)
+{*******************************************************************************
+    QStringList lines = QStringList::split(QChar('\n'), text, TRUE);
+    if (lines.count() == 1)
+    {
+
+    }
+    else
+    {
+        splitLine(line, column);
+        insertText(line, column,
+        for (QStringList::Iterator it = lines.begin(); it != lines.end(); ++it)
+        {
+        }
+    }
+}
+
 void TextDocument::insertLine(int line, TextLine newLine, bool after)
 {
     TextDocument::TextLineList::Iterator it = m_lines.at(line);
@@ -209,3 +245,4 @@ void TextDocument::joinLines(int line)
     setLine(line, newLine);
     removeLine(line + 1);
 }
+
