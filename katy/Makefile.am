@@ -6,7 +6,7 @@ SUBDIRS = pics doc
 
 # this is the program that gets installed.  it's name is used for all
 # of the other Makefile.am variables
-bin_PROGRAMS = katy katy_client
+bin_PROGRAMS = katy #katy_client
 
 # set the include path for X, qt and KDE
 INCLUDES = $(all_includes)
@@ -31,9 +31,9 @@ noinst_HEADERS = katy.h katyapp.h katyview.h katypref.h \
 	textdocument.h texteditor.h
 
 # client stuff
-katy_client_LDFLAGS = $(KDE_RPATH) $(all_libraries)
-katy_client_LDADD = $(LIB_KDECORE)
-katy_client_SOURCES = katy_client.cpp
+#katy_client_LDFLAGS = $(KDE_RPATH) $(all_libraries)
+#katy_client_LDADD = $(LIB_KDECORE)
+#katy_client_SOURCES = katy_client.cpp
 
 # let automoc handle all of the meta source files (moc)
 METASOURCES = AUTO
