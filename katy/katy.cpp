@@ -82,7 +82,7 @@ Katy::Katy()
     connect(m_view, SIGNAL(signalChangeStatusbar(const QString&)), this, SLOT(changeStatusbar(const QString&)));
     connect(m_view, SIGNAL(signalChangeCaption(const QString&, bool)), this, SLOT(setCaption(const QString&, bool)));
 
-    setCaption("Untitled", false);
+    setCaption("Untitled", FALSE);
 }
 
 Katy::~Katy()
@@ -157,7 +157,7 @@ bool Katy::queryClose()
         switch (KMessageBox::warningYesNoCancel(this, i18n("Save changes to document?")))
         {
             case KMessageBox::Yes:
-                m_view->document()->save();
+                fileSave();
                 return TRUE;
             case KMessageBox::No:
                 return TRUE;
@@ -253,7 +253,14 @@ void Katy::fileSave()
     // the Save shortcut is pressed (usually CTRL+S) or the Save toolbar
     // button is clicked
 
-    m_view->document()->save();
+    if (m_view->document()->url().isEmpty())
+    {
+        fileSaveAs();
+    }
+    else
+    {
+        m_view->document()->save();
+    }
 }
 
 void Katy::fileSaveAs()
@@ -262,7 +269,7 @@ void Katy::fileSaveAs()
     KURL file_url = KFileDialog::getSaveURL();
     if (!file_url.isEmpty() && !file_url.isMalformed())
     {
-        // save your info, here
+        m_view->document()->saveURL(file_url);
         // add new url to recent documents list
         m_openRecentAction->addURL(file_url);
     }
