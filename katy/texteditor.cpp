@@ -1235,22 +1235,30 @@ void TextEditor::keyPressEvent(QKeyEvent *event)
         case Key_Backspace:
             if (!deleteSelection())
             {
-                if (m_cursorColumn > 0)
+                if (controlPressed)
                 {
-                    eraseCursor();
-                    TextLine line = m_document->line(m_cursorLine);
-                    line.text.remove(--m_cursorColumn, 1);
-                    m_document->setLine(m_cursorLine, line);
-                    ensureCursorVisible();
+                    moveCursorWordLeft(TRUE);
+                    deleteSelection();
                 }
-                else if (m_cursorLine > 0)
+                else
                 {
-                    eraseCursor();
-                    TextLine line = m_document->line(m_cursorLine - 1);
-                    m_cursorLine--;
-                    m_cursorColumn = line.text.length();
-                    m_document->joinLines(m_cursorLine);
-                    ensureCursorVisible();
+                    if (m_cursorColumn > 0)
+                    {
+                        eraseCursor();
+                        TextLine line = m_document->line(m_cursorLine);
+                        line.text.remove(--m_cursorColumn, 1);
+                        m_document->setLine(m_cursorLine, line);
+                        ensureCursorVisible();
+                    }
+                    else if (m_cursorLine > 0)
+                    {
+                        eraseCursor();
+                        TextLine line = m_document->line(m_cursorLine - 1);
+                        m_cursorLine--;
+                        m_cursorColumn = line.text.length();
+                        m_document->joinLines(m_cursorLine);
+                        ensureCursorVisible();
+                    }
                 }
             }
             break;
