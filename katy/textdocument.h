@@ -133,7 +133,6 @@ public:
 
 public:
     TextDocument();
-    TextDocument(const KURL& url);
     ~TextDocument();
 
     KURL url();

@@ -43,13 +43,6 @@ TextDocument::TextDocument()
     m_lastModifiedTime = -1;
 }
 
-TextDocument::TextDocument(const KURL& url)
-{
-    TextDocument();
-
-    openURL(url);
-}
-
 TextDocument::~TextDocument()
 {
 }
