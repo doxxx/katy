@@ -1,8 +1,21 @@
 /*
+ * Class for Text Editor widget
+ * Copyright (c) by Gordon Tyler <gordon@doxxx.net>
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
  */
 
 #ifndef TEXTEDITOR_H
@@ -71,6 +84,8 @@ public:
     void moveCursorTo(int line, int column, bool extendSelection=FALSE);
     void moveCursorLeft(bool extendSelection=FALSE);
     void moveCursorRight(bool extendSelection=FALSE);
+    void moveCursorWordLeft(bool extendSelection=FALSE);
+    void moveCursorWordRight(bool extendSelection=FALSE);
     void moveCursorUp(bool extendSelection=FALSE);
     void moveCursorDown(bool extendSelection=FALSE);
     void moveCursorPageUp(bool extendSelection=FALSE);
@@ -98,6 +113,7 @@ protected:
     void keyPressEvent(QKeyEvent *event);
     void contentsMousePressEvent(QMouseEvent *event);
     void contentsMouseMoveEvent(QMouseEvent *event);
+    void contentsMouseDoubleClickEvent(QMouseEvent *event);
 
     void recalculateDocumentSize();
     void recalculateDocumentSize(QString newLineText);
@@ -111,7 +127,7 @@ protected:
     int calculateTextWidth(QFontMetrics fontMetrics, QString text, int length=-1);
     void paintText(QPainter *p, int x, int y, QString text, int start=0, int end=-1);
     void pointToLineColumn(QPoint p, int &line, int &column);
-    void deleteSelection();
+    bool deleteSelection();
     bool textIsPrint(QString text);
 
 private:
@@ -125,6 +141,7 @@ private:
     int m_selectionAnchorColumn;
     int m_selectionEndLine;
     int m_selectionEndColumn;
+    QFont m_font;
 
     // configurable data
 };

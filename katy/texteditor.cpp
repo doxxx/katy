@@ -1,8 +1,21 @@
 /*
+ * Class for Text Editor widget
+ * Copyright (c) by Gordon Tyler <gordon@doxxx.net>
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
  */
 
 #include "texteditor.h"
@@ -225,6 +238,147 @@ void TextEditor::moveCursorRight(bool extendSelection)
         {
             cursorLine++;
             cursorColumn = 0;
+        }
+    }
+
+    if (extendSelection)
+        extendSelectionTo(cursorLine, cursorColumn);
+    else
+        deselect();
+
+    eraseCursor();
+
+    m_cursorColumn = cursorColumn;
+    m_cursorLine = cursorLine;
+
+    ensureCursorVisible();
+}
+
+void TextEditor::moveCursorWordLeft(bool extendSelection )
+{
+    int cursorColumn = m_cursorColumn,
+          cursorLine = m_cursorLine;
+
+    QString text; // current line
+    QChar c; // current char
+    QChar prevc; // previous char
+    bool stop = FALSE;
+
+    text = m_document->line(cursorLine).text;
+
+    if (cursorColumn == text.length())
+    {
+        if (cursorColumn > 0)
+        {
+            cursorColumn--;
+            c = text[cursorColumn];
+        }
+        else
+        {
+            if (cursorLine > 0)
+            {
+                cursorLine--;
+                text = m_document->line(cursorLine).text;
+                cursorColumn = text.length();
+            }
+
+            stop = TRUE;
+        }
+    }
+    else if (cursorColumn == 0)
+    {
+        if (cursorLine > 0)
+        {
+            cursorLine--;
+            text = m_document->line(cursorLine).text;
+            cursorColumn = text.length();
+        }
+
+        stop = TRUE;
+    }
+    else
+    {
+        cursorColumn--;
+        c = text[cursorColumn];
+    }
+
+    while (!stop)
+    {
+        if (cursorColumn > 0)
+        {
+            prevc = c;
+            cursorColumn--;
+            c = text[cursorColumn];
+        }
+        else
+        {
+            stop = TRUE;
+        }
+
+        if ((prevc.isLetterOrNumber() && !c.isLetterOrNumber()) || (prevc.isPunct() && !c.isPunct()))
+        {
+            cursorColumn++;
+            stop = TRUE;
+            continue;
+        }
+    }
+
+    if (extendSelection)
+        extendSelectionTo(cursorLine, cursorColumn);
+    else
+        deselect();
+
+    eraseCursor();
+
+    m_cursorColumn = cursorColumn;
+    m_cursorLine = cursorLine;
+
+    ensureCursorVisible();
+}
+
+void TextEditor::moveCursorWordRight(bool extendSelection )
+{
+    int cursorColumn = m_cursorColumn,
+          cursorLine = m_cursorLine;
+
+    QString text; // current line
+    QChar c; // current char
+    QChar prevc; // previous char
+    bool stop = FALSE;
+
+    text = m_document->line(cursorLine).text;
+
+    if (cursorColumn == text.length())
+    {
+        if (cursorLine < m_document->lineCount() - 1)
+        {
+            cursorLine++;
+            cursorColumn = 0;
+            stop = TRUE;
+        }
+    }
+    else
+    {
+        c = text[cursorColumn];
+    }
+
+    while (!stop)
+    {
+        if (cursorColumn < text.length())
+        {
+            prevc = c;
+            cursorColumn++;
+            c = text[cursorColumn];
+        }
+        else
+        {
+            stop = TRUE;
+        }
+
+        if ((!prevc.isLetterOrNumber() && c.isLetterOrNumber()) || (!prevc.isPunct() && c.isPunct()))
+        {
+            stop = TRUE;
+            continue;
         }
     }
 
@@ -794,11 +948,11 @@ void TextEditor::pointToLineColumn(QPoint p, int &line, int &column)
     }
 }
 
-void TextEditor::deleteSelection()
+bool TextEditor::deleteSelection()
 {
     SelectionRange range = selectionRange();
     if (!range.hasSelection)
-        return;
+        return FALSE;
 
     deselect();
 
@@ -807,14 +961,16 @@ void TextEditor::deleteSelection()
     m_cursorLine = range.startLine;
     m_cursorColumn = range.startColumn;
     ensureCursorVisible();
+
+    return TRUE;
 }
 
 bool TextEditor::textIsPrint(QString text)
 {
     for (int i = 0; i < text.length(); i++)
         if (!text[i].isPrint())
-            return false;
-    return true;
+            return FALSE;
+    return TRUE;
 }
 
 void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
@@ -979,11 +1135,17 @@ void TextEditor::keyPressEvent(QKeyEvent *event)
     switch (event->key())
     {
         case Key_Left:
-            moveCursorLeft(shiftPressed);
+            if (controlPressed)
+                moveCursorWordLeft(shiftPressed);
+            else
+                moveCursorLeft(shiftPressed);
             break;
 
         case Key_Right:
-            moveCursorRight(shiftPressed);
+            if (controlPressed)
+                moveCursorWordRight(shiftPressed);
+            else
+                moveCursorRight(shiftPressed);
             break;
 
         case Key_Up:
@@ -1018,6 +1180,7 @@ void TextEditor::keyPressEvent(QKeyEvent *event)
 
         case Key_Enter:
         case Key_Return:
+            deleteSelection();
             eraseCursor();
             m_document->splitLine(m_cursorLine, m_cursorColumn);
             m_cursorColumn = 0;
@@ -1026,39 +1189,45 @@ void TextEditor::keyPressEvent(QKeyEvent *event)
             break;
 
         case Key_Backspace:
-            if (m_cursorColumn > 0)
+            if (!deleteSelection())
             {
-                eraseCursor();
-                TextLine line = m_document->line(m_cursorLine);
-                line.text.remove(--m_cursorColumn, 1);
-                m_document->setLine(m_cursorLine, line);
-                ensureCursorVisible();
-            }
-            else if (m_cursorLine > 0)
-            {
-                eraseCursor();
-                TextLine line = m_document->line(m_cursorLine - 1);
-                m_cursorLine--;
-                m_cursorColumn = line.text.length();
-                m_document->joinLines(m_cursorLine);
-                ensureCursorVisible();
+                if (m_cursorColumn > 0)
+                {
+                    eraseCursor();
+                    TextLine line = m_document->line(m_cursorLine);
+                    line.text.remove(--m_cursorColumn, 1);
+                    m_document->setLine(m_cursorLine, line);
+                    ensureCursorVisible();
+                }
+                else if (m_cursorLine > 0)
+                {
+                    eraseCursor();
+                    TextLine line = m_document->line(m_cursorLine - 1);
+                    m_cursorLine--;
+                    m_cursorColumn = line.text.length();
+                    m_document->joinLines(m_cursorLine);
+                    ensureCursorVisible();
+                }
             }
             break;
 
         case Key_Delete:
-            if (m_cursorColumn == m_document->line(m_cursorLine).text.length())
+            if (!deleteSelection())
             {
-                eraseCursor();
-                m_document->joinLines(m_cursorLine);
-                ensureCursorVisible();
-            }
-            else
-            {
-                eraseCursor();
-                TextLine line = m_document->line(m_cursorLine);
-                line.text.remove(m_cursorColumn, 1);
-                m_document->setLine(m_cursorLine, line);
-                ensureCursorVisible();
+                if (m_cursorColumn == m_document->line(m_cursorLine).text.length())
+                {
+                    eraseCursor();
+                    m_document->joinLines(m_cursorLine);
+                    ensureCursorVisible();
+                }
+                else
+                {
+                    eraseCursor();
+                    TextLine line = m_document->line(m_cursorLine);
+                    line.text.remove(m_cursorColumn, 1);
+                    m_document->setLine(m_cursorLine, line);
+                    ensureCursorVisible();
+                }
             }
             break;
 
@@ -1088,8 +1257,8 @@ void TextEditor::contentsMousePressEvent(QMouseEvent *event)
 
     pointToLineColumn(event->pos(), line, col);
 
-    bool leftButton = (event->button() & LeftButton == LeftButton);
-    bool shiftPressed = (event->state() & ShiftButton == ShiftButton);
+    bool leftButton = ((event->button() & LeftButton) == LeftButton);
+    bool shiftPressed = ((event->state() & ShiftButton) == ShiftButton);
 
     if (leftButton)
     {
@@ -1103,10 +1272,26 @@ void TextEditor::contentsMouseMoveEvent(QMouseEvent *event)
 
     pointToLineColumn(event->pos(), line, col);
 
-    bool leftButton = (event->state() & LeftButton == LeftButton);
+    bool leftButton = ((event->state() & LeftButton) == LeftButton);
 
     if (leftButton)
     {
         moveCursorTo(line, col, TRUE);
     }
 }
+
+void TextEditor::contentsMouseDoubleClickEvent(QMouseEvent *event)
+{
+    int line, col;
+
+    pointToLineColumn(event->pos(), line, col);
+
+    bool leftButton = ((event->button() & LeftButton) == LeftButton);
+
+    if (leftButton)
+    {
+        moveCursorWordLeft();
+        moveCursorWordRight(TRUE);
+    }
+}
+
