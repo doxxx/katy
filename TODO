@@ -18,6 +18,4 @@ Make a distinction between character position and column position on a line
 
 Default button in preferences
 
-Select to end of line, can't unselect if you click beyond end of same line (cursor doesn't move, therefore selection stays)
-
 Smart Home/End
