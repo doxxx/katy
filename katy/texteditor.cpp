@@ -268,12 +268,6 @@ void TextEditor::recalculateDocumentSize()
     // Calculate the document height
     documentHeight = m_document->lineCount() * fontMetrics.lineSpacing();
 
-//    documentWidth = QMAX(documentWidth, viewport()->width());
-
-    // Add a single pixel border on all sides
-    //documentWidth += 2;
-    //documentHeight += 2;
-
     // Tell the scroll widget the new size of our document
     resizeContents(documentWidth, documentHeight);
 }
@@ -401,28 +395,29 @@ void TextEditor::paintText(QPainter *p, int x, int y, int w, int h, QString text
             {
                 int tempWidth = fontMetrics.width(temp);
                 p->drawText(cx, y, tempWidth, lineHeight, AlignLeft | AlignTop, temp);
-                cx += fontMetrics.width(temp);
+                cx += tempWidth;
                 temp.truncate(0);
             }
 
-            temp.fill(' ', 8 - (i % 8));
-            int tempWidth = fontMetrics.width(temp);
-            p->eraseRect(cx, y, tempWidth, lineHeight);
-            cx += tempWidth;
-            temp.truncate(0);
+            int tabWidth = fontMetrics.width(' ') * (8 - (i % 8));
+            p->eraseRect(cx, y, tabWidth, lineHeight);
+            cx += tabWidth;
         }
         else
         {
             temp += c;
         }
     }
-    p->drawText(x, y, w, h, ExpandTabs, text, length);
+
+    if (temp.length() > 0)
+    {
+        int tempWidth = fontMetrics.width(temp);
+        p->drawText(cx, y, tempWidth, lineHeight, AlignLeft | AlignTop, temp);
+    }
 }
 
 void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 {
-//    kdDebug() << "drawContents " << cx << " " << cy << " " << cw << " " << ch << endl;
-
     p->setBackgroundMode(OpaqueMode);
 
     if (m_document != NULL)
@@ -433,8 +428,6 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
         int endLine = (cy + ch) / lineHeight + 1;
         int viewWidth = viewport()->width();
         SelectionRange selRange = selectionRange();
-
-        kdDebug() << "viewWidth = " << viewWidth << endl;
 
         if (startLine < 0)
             startLine = 0;
@@ -491,7 +484,6 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
                         int textWidth = calculateTextWidth(fontMetrics, text);
                         paintText(p, 0, lineHeight * i, textWidth, lineHeight, text);
 
-                        kdDebug() << "Erasing " << textWidth << ", " << lineHeight * i << ", " << viewWidth - textWidth << ", " << lineHeight << endl;
                         p->eraseRect(textWidth, lineHeight * i, viewWidth - textWidth, lineHeight);
                     }
                     else if (i == selRange.endLine)
@@ -513,7 +505,6 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
                         p->setPen(KGlobalSettings::textColor()); // TODO: Make configurable
                         p->setBackgroundColor(KGlobalSettings::baseColor()); // TODO: Make configurable
                         int textWidth = calculateTextWidth(fontMetrics, text);
-                        // TODO: Replace this with our own text drawing function, maybe?
                         paintText(p, 0, lineHeight * i, textWidth, lineHeight, text);
 
                         p->eraseRect(textWidth, lineHeight * i, viewWidth - textWidth, lineHeight);
@@ -536,9 +527,7 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
                     p->setPen(KGlobalSettings::textColor()); // TODO: Make configurable
                     p->setBackgroundColor(KGlobalSettings::baseColor()); // TODO: Make configurable
                     int textWidth = calculateTextWidth(fontMetrics, text);
-                    // TODO: Replace this with our own text drawing function, maybe?
                     paintText(p, 0, lineHeight * i, textWidth, lineHeight, text);
-                    // p->drawText(1, lineHeight + i * lineHeight, text); // TODO: Replace this with our own text drawing function
 
                     p->eraseRect(textWidth, lineHeight * i, viewWidth - textWidth, lineHeight);
                 }
