@@ -200,24 +200,22 @@ Position TextDocument::insertText(int line, int column, QString text)
 
         splitLine(line, column);
         insertText(line, column, lines[0]);
-        lines.remove(lines[0]);
-        insertText(line + lines.count() - 1, 0, lines[lines.count() - 1]);
-        TextLine lastLine = lines[lines.count() - 1];
-        lines.remove(lines[lines.count() - 1]);
 
+        TextLineList insertedLines;
         TextLineList::Iterator it = m_lines.at(line + 1);
-        TextLineList textLines;
 
-        for (int i = 0; i < lines.count(); ++i, ++it)
+        for (int i = 1; i < lines.count() - 1; ++i)
         {
             TextLine textLine(lines[i]);
-            textLines << textLine;
+            insertedLines << textLine;
             m_lines.insert(it, textLine);
         }
 
-        emit linesInserted(line + 1, textLines);
+        emit linesInserted(line + 1, insertedLines);
 
-        return Position(line + lines.count() + 1, lastLine.text.length());
+        insertText(line + lines.count() - 1, 0, lines[lines.count() - 1]);
+
+        return Position(line + lines.count() - 1, lines[lines.count() - 1].length());
     }
     else
     {
@@ -227,18 +225,6 @@ Position TextDocument::insertText(int line, int column, QString text)
         return Position(line, column + text.length());
     }
 }
-
-/*void TextDocument::insertLine(int line, TextLine newLine, bool after)
-{
-    TextLineList::Iterator it = m_lines.at(line);
-
-    if (after)
-        it++;
-
-    m_lines.insert(it, newLine);
-
-    emit linesInserted(line, TextLineList() << newLine);
-}*/
 
 void TextDocument::insertLines(int line, TextLineList newLines, bool after)
 {
@@ -254,15 +240,6 @@ void TextDocument::insertLines(int line, TextLineList newLines, bool after)
 
     emit linesInserted(line, newLines);
 }
-
-/*void TextDocument::removeLine(int line)
-{
-    TextLineList::Iterator it = m_lines.at(line);
-
-    m_lines.remove(it);
-
-    emit linesRemoved(line, 1);
-}*/
 
 void TextDocument::removeLines(int line, int count)
 {
