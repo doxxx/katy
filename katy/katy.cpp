@@ -242,6 +242,11 @@ void Katy::readOptions(KConfig *config)
     showToolbar();
     m_statusbarAction->setChecked(config->readBoolEntry("ShowStatusbar", true));
     showStatusbar();
+    QSize size = config->readSizeEntry("DefaultSize");
+    if (!size.isEmpty())
+    {
+        resize(size);
+    }
 }
 
 void Katy::saveOptions(KConfig *config)
@@ -249,6 +254,7 @@ void Katy::saveOptions(KConfig *config)
     KConfigGroupSaver configGroupSaver(config, "Window");
     config->writeEntry("ShowToolbar", m_toolbarAction->isChecked());
     config->writeEntry("ShowStatusbar", m_statusbarAction->isChecked());
+    config->writeEntry("DefaultSize", size());
 }
 
 void Katy::saveProperties(KConfig *config)
