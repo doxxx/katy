@@ -57,6 +57,20 @@ bool TextDocument::modified()
     return m_modified;
 }
 
+void TextDocument::setModified(bool modified)
+{
+    if (modified)
+    {
+        m_modified = true;
+        emit documentModified();
+    }
+    else
+    {
+        m_modified = false;
+        emit documentNotModified();
+    }
+}
+
 int TextDocument::lineCount()
 {
     return m_lines.count();
@@ -391,20 +405,20 @@ void TextDocument::removeText(int startLine, int startColumn, int endLine, int e
     }
 }
 
-void TextDocument::removeLines(int line, int count)
+void TextDocument::removeLines(int startLine, int count)
 {
-    TextLineList::Iterator it = m_lines.at(line);
+    TextLineList::Iterator it = m_lines.at(startLine);
 
     int i;
 
-    for (i = count; i > 0 && it != m_lines.end(); --i)
+    for (i = 0; i < count && it != m_lines.end(); ++i)
     {
         m_lines.remove(it);
-        it = m_lines.at(line);
+        it = m_lines.at(startLine);
     }
 
     setModified(true);
-    emit linesRemoved(line, count - i);
+    emit linesRemoved(startLine, count - i);
 }
 
 void TextDocument::splitLine(int line, int column)
@@ -423,16 +437,105 @@ void TextDocument::joinLines(int line)
     removeLines(line + 1, 1);
 }
 
-void TextDocument::setModified(bool modified)
+Position TextDocument::insertTab(int line, int column, bool useSpaces, int indentSize)
 {
-    if (modified)
+    Position retPos(line, column);
+    QString spaces;
+    spaces.fill(' ', indentSize);
+
+    TextLine newLine = m_lines[line];
+    if (useSpaces)
     {
-        m_modified = true;
-        emit documentModified();
+        newLine.text.insert(column, spaces);
+        retPos.column += spaces.length();
     }
     else
     {
-        m_modified = false;
-        emit documentNotModified();
+        newLine.text.insert(column, '\t');
+        retPos.column++;
+    }
+
+    setLine(line, newLine);
+
+    return retPos;
+}
+
+void TextDocument::indentLines(int startLine, int count, bool useSpaces, int indentSize)
+{
+    TextLineList::Iterator it = m_lines.at(startLine);
+
+    int i;
+    QString spaces;
+
+    spaces.fill(' ', indentSize);
+
+    for (i = 0; i < count && it != m_lines.end(); ++i, ++it)
+    {
+        TextLine newLine = *it;
+        if (useSpaces)
+            newLine.text.prepend(spaces);
+        else
+            newLine.text.prepend('\t');
+        setLine(startLine + i, newLine);
+    }
+}
+
+void TextDocument::unindentLines(int startLine, int count, bool useSpaces, int indentSize)
+{
+    kdError() << "Not implemented" << endl;
+}
+
+void TextDocument::tabsToSpaces(int numberOfSpaces, bool leadingTabsOnly)
+{
+    TextLineList::Iterator it = m_lines.at(0);
+
+    QString spaces;
+
+    spaces.fill(' ', numberOfSpaces);
+
+    for (int lineIndex = 0; it != m_lines.end(); ++it, ++lineIndex)
+    {
+        TextLine newLine = *it;
+        for (int i = 0; i < newLine.text.length(); i++)
+        {
+            QChar c = newLine.text[i];
+            if (c == QChar(9))
+            {
+                newLine.text.replace(i, 1, spaces);
+                i += numberOfSpaces - 1;
+            }
+            else if (!c.isSpace() && leadingTabsOnly)
+            {
+                break;
+            }
+        }
+        setLine(lineIndex, newLine);
+    }
+}
+
+void TextDocument::spacesToTabs(int numberOfSpaces, bool leadingSpacesOnly)
+{
+    TextLineList::Iterator it = m_lines.at(0);
+
+    QString spaces;
+
+    spaces.fill(' ', numberOfSpaces);
+
+    for (int lineIndex = 0; it != m_lines.end(); ++it, ++lineIndex)
+    {
+        TextLine newLine = *it;
+        for (int i = 0; i < newLine.text.length(); i++)
+        {
+            QChar c = newLine.text[i];
+            if (c.isSpace() && newLine.text.mid(i, numberOfSpaces) == spaces)
+            {
+                newLine.text.replace(i, numberOfSpaces, QString("\t"));
+            }
+            else if (!c.isSpace() && leadingSpacesOnly)
+            {
+                break;
+            }
+        }
+        setLine(lineIndex, newLine);
     }
 }

@@ -122,9 +122,14 @@ public:
     Position insertText(int line, int column, QString text);
     void insertLines(int line, TextLineList newLines, bool after=FALSE);
     void removeText(int startLine, int startColumn, int endLine, int endColumn);
-    void removeLines(int line, int count);
+    void removeLines(int startLine, int count);
     void splitLine(int line, int column);
     void joinLines(int line);
+    Position insertTab(int line, int column, bool useSpaces, int indentSize);
+    void indentLines(int startLine, int count, bool useSpaces, int indentSize);
+    void unindentLines(int startLine, int count, bool useSpaces, int indentSize);
+    void tabsToSpaces(int numberOfSpaces, bool leadingTabsOnly);
+    void spacesToTabs(int numberOfSpaces, bool leadingSpacesOnly);
 
 signals:
     void lineChanged(int line, TextLine oldLine, TextLine newLine);
