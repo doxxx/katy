@@ -20,10 +20,10 @@ katy_LDADD = $(LIB_KFILE)
 # which sources should be compiled for katy
 katy_SOURCES = main.cpp katyapp.cpp katy.cpp katyview.cpp \
 	katypref.cpp textdocument.cpp texteditor.cpp \
-	katyprefappearance.cpp katyprefindenting.cpp \
-	katytabstospaces.cpp katytabstospacesimpl.cpp \
-	katyfind.cpp katyfindimpl.cpp katyreplace.cpp \
-	katyreplaceimpl.cpp katyreplacing.cpp \
+	katyprefappearance.ui katyprefindenting.ui \
+	katytabstospaces.ui katytabstospacesimpl.cpp \
+	katyfind.ui katyfindimpl.cpp katyreplace.ui \
+	katyreplaceimpl.cpp katyreplacing.ui \
 	katyreplacingimpl.cpp
 
 # data files for katy
@@ -32,11 +32,8 @@ katy_data_DATA = katyui.rc
 
 # these are the headers for your project
 noinst_HEADERS = katy.h katyapp.h katyview.h katypref.h \
-	textdocument.h texteditor.h katyprefappearance.h \
-	katyprefindenting.h katytabstospaces.h \
-	katytabstospacesimpl.h katyfind.h katyfindimpl.h \
-	katyreplace.h katyreplaceimpl.h katyreplacing.h \
-	katyreplacingimpl.h
+	textdocument.h texteditor.h katytabstospacesimpl.h \
+	katyfindimpl.h katyreplaceimpl.h katyreplacingimpl.h
 
 # client stuff
 #katy_client_LDFLAGS = $(KDE_RPATH) $(all_libraries)
