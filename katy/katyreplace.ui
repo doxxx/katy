@@ -1,0 +1,207 @@
+<!DOCTYPE UI><UI>
+<class>KatyReplace</class>
+<include location="global">klocale.h</include>
+<widget>
+    <class>QWidget</class>
+    <property stdset="1">
+        <name>name</name>
+        <cstring>KatyReplace</cstring>
+    </property>
+    <property stdset="1">
+        <name>geometry</name>
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>278</width>
+            <height>159</height>
+        </rect>
+    </property>
+    <property stdset="1">
+        <name>caption</name>
+        <string>Replace</string>
+    </property>
+    <vbox>
+        <property stdset="1">
+            <name>margin</name>
+            <number>11</number>
+        </property>
+        <property stdset="1">
+            <name>spacing</name>
+            <number>6</number>
+        </property>
+        <widget>
+            <class>QLayoutWidget</class>
+            <property stdset="1">
+                <name>name</name>
+                <cstring>Layout2</cstring>
+            </property>
+            <hbox>
+                <property stdset="1">
+                    <name>margin</name>
+                    <number>0</number>
+                </property>
+                <property stdset="1">
+                    <name>spacing</name>
+                    <number>6</number>
+                </property>
+                <widget>
+                    <class>QLabel</class>
+                    <property stdset="1">
+                        <name>name</name>
+                        <cstring>findTextLabel</cstring>
+                    </property>
+                    <property stdset="1">
+                        <name>text</name>
+                        <string>Find:</string>
+                    </property>
+                </widget>
+                <widget>
+                    <class>QLineEdit</class>
+                    <property stdset="1">
+                        <name>name</name>
+                        <cstring>findText</cstring>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+        <widget>
+            <class>QLayoutWidget</class>
+            <property stdset="1">
+                <name>name</name>
+                <cstring>Layout3</cstring>
+            </property>
+            <hbox>
+                <property stdset="1">
+                    <name>margin</name>
+                    <number>0</number>
+                </property>
+                <property stdset="1">
+                    <name>spacing</name>
+                    <number>6</number>
+                </property>
+                <widget>
+                    <class>QLabel</class>
+                    <property stdset="1">
+                        <name>name</name>
+                        <cstring>replaceTextLabel</cstring>
+                    </property>
+                    <property stdset="1">
+                        <name>text</name>
+                        <string>Replace:</string>
+                    </property>
+                </widget>
+                <widget>
+                    <class>QLineEdit</class>
+                    <property stdset="1">
+                        <name>name</name>
+                        <cstring>replaceText</cstring>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+        <widget>
+            <class>QLayoutWidget</class>
+            <property stdset="1">
+                <name>name</name>
+                <cstring>Layout1</cstring>
+            </property>
+            <hbox>
+                <property stdset="1">
+                    <name>margin</name>
+                    <number>0</number>
+                </property>
+                <property stdset="1">
+                    <name>spacing</name>
+                    <number>6</number>
+                </property>
+                <widget>
+                    <class>QGroupBox</class>
+                    <property stdset="1">
+                        <name>name</name>
+                        <cstring>optionsGroup</cstring>
+                    </property>
+                    <property stdset="1">
+                        <name>title</name>
+                        <string>Options</string>
+                    </property>
+                    <vbox>
+                        <property stdset="1">
+                            <name>margin</name>
+                            <number>11</number>
+                        </property>
+                        <property stdset="1">
+                            <name>spacing</name>
+                            <number>6</number>
+                        </property>
+                        <widget>
+                            <class>QCheckBox</class>
+                            <property stdset="1">
+                                <name>name</name>
+                                <cstring>caseSensitive</cstring>
+                            </property>
+                            <property stdset="1">
+                                <name>text</name>
+                                <string>Case sensitive</string>
+                            </property>
+                        </widget>
+                        <widget>
+                            <class>QCheckBox</class>
+                            <property stdset="1">
+                                <name>name</name>
+                                <cstring>regularExpression</cstring>
+                            </property>
+                            <property stdset="1">
+                                <name>text</name>
+                                <string>Regular expression</string>
+                            </property>
+                        </widget>
+                    </vbox>
+                </widget>
+                <widget>
+                    <class>QButtonGroup</class>
+                    <property stdset="1">
+                        <name>name</name>
+                        <cstring>directionGroup</cstring>
+                    </property>
+                    <property stdset="1">
+                        <name>title</name>
+                        <string>Direction</string>
+                    </property>
+                    <vbox>
+                        <property stdset="1">
+                            <name>margin</name>
+                            <number>11</number>
+                        </property>
+                        <property stdset="1">
+                            <name>spacing</name>
+                            <number>6</number>
+                        </property>
+                        <widget>
+                            <class>QRadioButton</class>
+                            <property stdset="1">
+                                <name>name</name>
+                                <cstring>forward</cstring>
+                            </property>
+                            <property stdset="1">
+                                <name>text</name>
+                                <string>Forward</string>
+                            </property>
+                        </widget>
+                        <widget>
+                            <class>QRadioButton</class>
+                            <property stdset="1">
+                                <name>name</name>
+                                <cstring>backward</cstring>
+                            </property>
+                            <property stdset="1">
+                                <name>text</name>
+                                <string>Backward</string>
+                            </property>
+                        </widget>
+                    </vbox>
+                </widget>
+            </hbox>
+        </widget>
+    </vbox>
+</widget>
+</UI>
