@@ -4,3 +4,5 @@ datadir = $(kde_htmldir)/en/katy
 
 html: index.docbook
 	ksgml2html index.docbook en
+
+EXTRA_DIST = index.docbook
