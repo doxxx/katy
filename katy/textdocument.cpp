@@ -34,8 +34,8 @@ TextDocument::TextDocument()
 {
     m_url = KURL();
     m_eolType = EOL_LF;
-    m_loaded = false;
-    m_modified = false;
+    m_loaded = FALSE;
+    m_modified = FALSE;
     m_lines.append(TextLine(QString("")));
 }
 
@@ -67,7 +67,7 @@ void TextDocument::setModified(bool modified)
     }
     else
     {
-        m_modified = false;
+        m_modified = FALSE;
         emit documentNotModified();
     }
 }
@@ -142,7 +142,7 @@ void TextDocument::openURL(const KURL& url)
         {
             m_url = url;
             m_loaded = true;
-            setModified(false);
+            setModified(FALSE);
         }
 
         // and remove the temp file
@@ -156,7 +156,7 @@ bool TextDocument::loadTempFile(QString filename)
     if (!file.open(IO_ReadOnly))
     {
         kdError() << "TextDocument::loadTempFile(): Could not open temporary file "  << filename << " for reading" << endl;
-        return false;
+        return FALSE;
     }
 
     QTextCodec *codec = QTextCodec::codecForLocale();
@@ -166,8 +166,8 @@ bool TextDocument::loadTempFile(QString filename)
     QString line;
     QChar c;
     EOLType eolType = EOL_Unknown;
-    bool foundEOL = false;
-    bool mixedEOLType = false;
+    bool foundEOL = FALSE;
+    bool mixedEOLType = FALSE;
 
     while (!file.atEnd())
     {
@@ -215,7 +215,7 @@ bool TextDocument::loadTempFile(QString filename)
         {
             lines.append(line);
             line.truncate(0);
-            foundEOL = false;
+            foundEOL = FALSE;
         }
         else
         {
@@ -239,7 +239,7 @@ bool TextDocument::loadTempFile(QString filename)
     else
         m_eolType = eolType;
 
-    return true;
+    return TRUE;
 }
 
 void TextDocument::save()
@@ -262,10 +262,13 @@ void TextDocument::saveURL(const KURL& url)
 
     if (url.isLocalFile())
     {
-        if (!KIO::NetAccess::del(url))
+        if (KIO::NetAccess::exists(url))
         {
-            kdError() << "TextDocument::saveURL(): Could not delete destination file " << url.prettyURL() << endl;
-            return;
+            if (!KIO::NetAccess::del(url))
+            {
+                kdError() << "TextDocument::saveURL(): Could not delete destination file " << url.prettyURL() << endl;
+                return;
+            }
         }
 
         if (!KIO::NetAccess::copy(KURL(tempfile.name()), url))
@@ -284,7 +287,7 @@ void TextDocument::saveURL(const KURL& url)
     }
 
     m_url = url;
-    setModified(false);
+    setModified(FALSE);
 
     tempfile.unlink();
 }
@@ -295,7 +298,7 @@ bool TextDocument::saveTempFile(QString filename)
     if (!file.open(IO_WriteOnly))
     {
         kdError() << "TextDocument::saveURL(): Could not open temporary file "  << filename << " for writing" << endl;
-        return false;
+        return FALSE;
     }
 
     QTextStream textStream(&file);
@@ -328,7 +331,7 @@ bool TextDocument::saveTempFile(QString filename)
 
     file.close();
 
-    return true;
+    return TRUE;
 }
 
 DocumentPosition TextDocument::insertText(int line, int column, QString text)
@@ -350,7 +353,7 @@ DocumentPosition TextDocument::insertText(int line, int column, QString text)
             m_lines.insert(it, textLine);
         }
 
-        setModified(true);
+        setModified(TRUE);
         emit linesInserted(line + 1, insertedLines);
 
         insertText(line + lines.count() - 1, 0, lines[lines.count() - 1]);
@@ -361,7 +364,7 @@ DocumentPosition TextDocument::insertText(int line, int column, QString text)
     {
         TextLine oldLine = m_lines[line];
         m_lines[line].text.insert(column, text);
-        setModified(true);
+        setModified(TRUE);
         emit lineChanged(line, oldLine, m_lines[line]);
         return DocumentPosition(line, column + text.length());
     }
@@ -379,7 +382,7 @@ void TextDocument::insertLines(int line, TextLineList newLines, bool after)
     for (newIt = newLines.begin(); newIt != newLines.end(); ++newIt)
         m_lines.insert(it, (*newIt));
 
-    setModified(true);
+    setModified(TRUE);
     emit linesInserted(line, newLines);
 }
 
@@ -391,7 +394,7 @@ void TextDocument::removeText(int startLine, int startColumn, int endLine, int e
     {
         oldLine = m_lines[startLine];
         m_lines[startLine].text.remove(startColumn, endColumn - startColumn);
-        setModified(true);
+        setModified(TRUE);
         emit lineChanged(startLine, oldLine, m_lines[startLine]);
     }
     else
@@ -399,7 +402,7 @@ void TextDocument::removeText(int startLine, int startColumn, int endLine, int e
         oldLine = m_lines[startLine];
         m_lines[startLine].text.truncate(startColumn);
         m_lines[startLine].text += m_lines[endLine].text.mid(endColumn, m_lines[endLine].text.length());
-        setModified(true);
+        setModified(TRUE);
         emit lineChanged(startLine, oldLine, m_lines[startLine]);
 
         removeLines(startLine + 1, endLine - startLine);
@@ -418,7 +421,7 @@ void TextDocument::removeLines(int startLine, int count)
         it = m_lines.at(startLine);
     }
 
-    setModified(true);
+    setModified(TRUE);
     emit linesRemoved(startLine, count - i);
 }
 
