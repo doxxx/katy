@@ -71,11 +71,6 @@ TextEditor::~TextEditor()
         killTimer(m_cursorTimerId);
 }
 
-TextDocument *TextEditor::document()
-{
-    return m_document;
-}
-
 void TextEditor::setDocument(TextDocument *doc)
 {
     m_document = doc;
@@ -150,6 +145,16 @@ QString TextEditor::selectedText()
         return NULL;
 
     return m_document->text(range.startLine, range.startColumn, range.endLine, range.endColumn);
+}
+
+void TextEditor::setSelectedText(QString newText)
+{
+    deleteSelection();
+    eraseCursor();
+    DocumentPosition pos = m_document->insertText(m_cursorLine, m_cursorColumn, newText);
+    m_cursorLine = pos.line;
+    m_cursorColumn = pos.column;
+    ensureCursorVisible();
 }
 
 void TextEditor::moveCursorTo(int line, int column, bool extendSelection )
@@ -619,7 +624,7 @@ void TextEditor::paste()
     deleteSelection();
 
     eraseCursor();
-    Position pos = m_document->insertText(m_cursorLine, m_cursorColumn, text);
+    DocumentPosition pos = m_document->insertText(m_cursorLine, m_cursorColumn, text);
     m_cursorLine = pos.line;
     m_cursorColumn = pos.column;
     ensureCursorVisible();
@@ -1001,7 +1006,7 @@ bool TextEditor::deleteSelection()
 
 bool TextEditor::textIsPrint(QString text)
 {
-    for (int i = 0; i < text.length(); i++)
+    for (uint i = 0; i < text.length(); i++)
         if (!text[i].isPrint())
             return FALSE;
     return TRUE;
@@ -1279,7 +1284,7 @@ void TextEditor::keyPressEvent(QKeyEvent *event)
             }
             else
             {
-                Position newPos = m_document->insertTab(m_cursorLine, m_cursorColumn, katyapp->readConfig_UseSpaces(), katyapp->readConfig_IndentSize());
+                DocumentPosition newPos = m_document->insertTab(m_cursorLine, m_cursorColumn, katyapp->readConfig_UseSpaces(), katyapp->readConfig_IndentSize());
                 moveCursorTo(newPos.line, newPos.column);
             }
             break;
@@ -1292,7 +1297,7 @@ void TextEditor::keyPressEvent(QKeyEvent *event)
                 {
                     deleteSelection();
                     eraseCursor();
-                    Position pos = m_document->insertText(m_cursorLine, m_cursorColumn, event->text());
+                    DocumentPosition pos = m_document->insertText(m_cursorLine, m_cursorColumn, event->text());
                     m_cursorLine = pos.line;
                     m_cursorColumn = pos.column;
                     ensureCursorVisible();
@@ -1348,4 +1353,5 @@ void TextEditor::contentsMouseDoubleClickEvent(QMouseEvent *event)
         moveCursorWordRight(TRUE);
     }
 }
+
 
