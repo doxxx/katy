@@ -764,23 +764,57 @@ void TextEditor::paintText(QPainter *p, int x, int y, QString text, int start, i
     }
 }
 
-void TextEditor::pointToLineCol(QPoint p, int &line, int &col)
+void TextEditor::pointToLineColumn(QPoint p, int &line, int &column)
 {
     QFontMetrics fontMetrics = viewport()->fontMetrics();
 
     line = p.y() / fontMetrics.lineSpacing();
 
-    if (line < 0 || line >= m_document->lineCount())
+    if (line < 0)
+    {
+        line = 0;
+        column = 0;
         return;
+    }
+
+    if (line >= m_document->lineCount())
+    {
+        line = m_document->lineCount() - 1;
+        column = m_document->line(line).text.length();
+        return;
+    }
 
     QString text = m_document->line(line).text;
 
-    for (col = 0; col < text.length(); col++)
+    for (column = 0; column < text.length(); column++)
     {
-        int x = calculateTextWidth(fontMetrics, text, col);
-        if (p.x() <= x + fontMetrics.width(text[col]) / 2)
+        int x = calculateTextWidth(fontMetrics, text, column);
+        if (p.x() <= x + fontMetrics.width(text[column]) / 2)
             break;
     }
+}
+
+void TextEditor::deleteSelection()
+{
+    SelectionRange range = selectionRange();
+    if (!range.hasSelection)
+        return;
+
+    deselect();
+
+    eraseCursor();
+    m_document->removeText(range.startLine, range.startColumn, range.endLine, range.endColumn);
+    m_cursorLine = range.startLine;
+    m_cursorColumn = range.startColumn;
+    ensureCursorVisible();
+}
+
+bool TextEditor::textIsPrint(QString text)
+{
+    for (int i = 0; i < text.length(); i++)
+        if (!text[i].isPrint())
+            return false;
+    return true;
 }
 
 void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
@@ -1052,7 +1086,7 @@ void TextEditor::contentsMousePressEvent(QMouseEvent *event)
 {
     int line, col;
 
-    pointToLineCol(event->pos(), line, col);
+    pointToLineColumn(event->pos(), line, col);
 
     bool leftButton = (event->button() & LeftButton == LeftButton);
     bool shiftPressed = (event->state() & ShiftButton == ShiftButton);
@@ -1067,7 +1101,7 @@ void TextEditor::contentsMouseMoveEvent(QMouseEvent *event)
 {
     int line, col;
 
-    pointToLineCol(event->pos(), line, col);
+    pointToLineColumn(event->pos(), line, col);
 
     bool leftButton = (event->state() & LeftButton == LeftButton);
 
@@ -1076,24 +1110,3 @@ void TextEditor::contentsMouseMoveEvent(QMouseEvent *event)
         moveCursorTo(line, col, TRUE);
     }
 }
-
-void TextEditor::deleteSelection()
-{
-    SelectionRange range = selectionRange();
-    if (!range.hasSelection)
-        return;
-
-    eraseCursor();
-    m_document->removeText(range.startLine, range.startColumn, range.endLine, range.endColumn);
-    deselect();
-    m_cursorLine = range.startLine;
-    m_cursorColumn = range.startColumn;
-    ensureCursorVisible();
-}
-
-bool TextEditor::textIsPrint(QString text)
-{
-    // FIXME: This needs to actually test it
-    return true;
-}
-
