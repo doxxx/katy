@@ -62,20 +62,25 @@ enum StatusBarItems
 };
 
 Katy::Katy()
-    : KMainWindow( 0, "Katy" ),
-      m_view(new KatyView(this)),
-      m_printer(0)
+    : KMainWindow()
 {
     // accept dnd
     setAcceptDrops(true);
 
-    // tell the KMainWindow that this is indeed the main widget
+    // We don't support printing, yet
+    m_printer = NULL;
+
+    // Initialise the main view
+    m_view = new KatyView(this);
     setCentralWidget(m_view);
 
-    // then, setup our actions
+    // Setup actions
     setupActions();
+    
+    // Read config options
+    readOptions(katyapp->config());
 
-    // and a status bar
+    // Setup the status bar
     statusBar()->insertItem(i18n("Line %1").arg("999999"), StatusBar_Line, 0, TRUE);
     statusBar()->insertItem(i18n("Column %1").arg("9999"), StatusBar_Column, 0, TRUE);
     updateLineColumn(m_view->editor()->documentPosition().line, m_view->editor()->documentPosition().column);
@@ -93,6 +98,7 @@ Katy::Katy()
 
 Katy::~Katy()
 {
+    saveOptions(katyapp->config());
     katyapp->removeWindow(this);
 }
 
@@ -172,15 +178,31 @@ bool Katy::queryClose()
         {
             case KMessageBox::Yes:
                 fileSave();
-                return TRUE;
+                return true;
             case KMessageBox::No:
-                return TRUE;
+                return true;
             default: // cancel
-                return FALSE;
+                return false;
         }
     }
 
     return true;
+}
+
+void Katy::readOptions(KConfig *config)
+{
+    KConfigGroupSaver configGroupSaver(config, "Window");
+    m_toolbarAction->setChecked(config->readBoolEntry("ShowToolbar", true));
+    showToolbar();
+    m_statusbarAction->setChecked(config->readBoolEntry("ShowStatusbar", true));
+    showStatusbar();
+}
+
+void Katy::saveOptions(KConfig *config)
+{
+    KConfigGroupSaver configGroupSaver(config, "Window");
+    config->writeEntry("ShowToolbar", m_toolbarAction->isChecked());
+    config->writeEntry("ShowStatusbar", m_statusbarAction->isChecked());
 }
 
 void Katy::saveProperties(KConfig *config)
@@ -288,20 +310,17 @@ void Katy::fileSave()
 
 void Katy::fileSaveAs()
 {
-    // this slot is called whenever the File->Save As menu is selected,
     KURL file_url = KFileDialog::getSaveURL();
     if (!file_url.isEmpty() && !file_url.isMalformed())
     {
         m_view->document()->saveURL(file_url);
-        // add new url to recent documents list
-        m_openRecentAction->addURL(file_url);
     }
 }
 
 void Katy::fileSaveAll()
 {
-    Katy *window;
-    for (window = katyapp->windows().first(); window; window = katyapp->windows().next())
+    KatyListIterator it = katyapp->windowsIterator();
+    for (Katy *window = it.toFirst(); window; ++it, window = it.current())
     {
         window->fileSave();
     }
@@ -314,10 +333,10 @@ void Katy::fileClose()
 
 void Katy::fileCloseAll()
 {
-    Katy *window;
-    for (window = katyapp->windows().first(); window; window = katyapp->windows().next())
+    KatyListIterator it = katyapp->windowsIterator();
+    for (Katy *window = it.toFirst(); window; ++it, window = it.current())
     {
-        window->close();
+        window->fileClose();
     }
 }
 

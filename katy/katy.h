@@ -27,8 +27,6 @@
 
 #include <kmainwindow.h>
 
-#include <qptrlist.h>
-
 #include "katyview.h"
 #include "textdocument.h"
 
@@ -78,6 +76,9 @@ protected:
 protected:
     bool queryExit();
     bool queryClose();
+    
+    void readOptions(KConfig *config);
+    void saveOptions(KConfig *config);
 
     /**
      * This function is called when it is time for the app to save its
