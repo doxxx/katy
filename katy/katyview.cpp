@@ -63,7 +63,7 @@ void KatyView::openURL(const KURL& url)
     connect(m_document, SIGNAL(documentModified()), this, SLOT(slotDocumentModified()));
     connect(m_document, SIGNAL(documentNotModified()), this, SLOT(slotDocumentNotModified()));
 
-    emit signalChangeCaption(url.url(), false);
+    emit signalChangeCaption(url.url(), FALSE);
 }
 
 TextDocument *KatyView::document()
@@ -78,11 +78,17 @@ TextEditor *KatyView::editor()
 
 void KatyView::slotDocumentModified()
 {
-    emit signalChangeCaption(m_document->url().url(), true);
+    if (m_document->url().isEmpty())
+        emit signalChangeCaption("Untitled", TRUE);
+    else
+        emit signalChangeCaption(m_document->url().url(), TRUE);
 }
 
 void KatyView::slotDocumentNotModified()
 {
-    emit signalChangeCaption(m_document->url().url(), false);
+    if (m_document->url().isEmpty())
+        emit signalChangeCaption("Untitled", FALSE);
+    else
+        emit signalChangeCaption(m_document->url().url(), FALSE);
 }
 
