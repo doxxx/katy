@@ -111,6 +111,8 @@ protected:
     int calculateTextWidth(QFontMetrics fontMetrics, QString text, int length=-1);
     void paintText(QPainter *p, int x, int y, QString text, int start=0, int end=-1);
     void pointToLineCol(QPoint p, int &line, int &col);
+    void deleteSelection();
+    bool textIsPrint(QString text);
 
 private:
     // runtime data

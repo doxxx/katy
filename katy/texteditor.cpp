@@ -446,7 +446,7 @@ void TextEditor::cut()
 {
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(selectedText());
-//    delete();
+    deleteSelection();
 }
 
 void TextEditor::copy()
@@ -460,15 +460,12 @@ void TextEditor::paste()
     QClipboard *clipboard = QApplication::clipboard();
     QString text = clipboard->text();
 
+    deleteSelection();
+
     eraseCursor();
-    /*TextLine line = m_document->line(m_cursorLine);
-      line.text.insert(m_cursorColumn, text);
-      m_document->setLine(m_cursorLine, line);
-      m_cursorColumn += text.length();*/
     Position pos = m_document->insertText(m_cursorLine, m_cursorColumn, text);
     m_cursorLine = pos.line;
     m_cursorColumn = pos.column;
-
     ensureCursorVisible();
 }
 
@@ -1034,15 +1031,15 @@ void TextEditor::keyPressEvent(QKeyEvent *event)
         default:
             if (event->text().length() > 0)
             {
-                eraseCursor();
-                /*TextLine line = m_document->line(m_cursorLine);
-                line.text.insert(m_cursorColumn, event->text());
-                m_document->setLine(m_cursorLine, line);
-                m_cursorColumn += event->text().length();*/
-                Position pos = m_document->insertText(m_cursorLine, m_cursorColumn, event->text());
-                m_cursorLine = pos.line;
-                m_cursorColumn = pos.column;
-                ensureCursorVisible();
+                if (textIsPrint(event->text()))
+                {
+                    deleteSelection();
+                    eraseCursor();
+                    Position pos = m_document->insertText(m_cursorLine, m_cursorColumn, event->text());
+                    m_cursorLine = pos.line;
+                    m_cursorColumn = pos.column;
+                    ensureCursorVisible();
+                }
             }
             else
             {
@@ -1078,5 +1075,25 @@ void TextEditor::contentsMouseMoveEvent(QMouseEvent *event)
     {
         moveCursorTo(line, col, TRUE);
     }
+}
+
+void TextEditor::deleteSelection()
+{
+    SelectionRange range = selectionRange();
+    if (!range.hasSelection)
+        return;
+
+    eraseCursor();
+    m_document->removeText(range.startLine, range.startColumn, range.endLine, range.endColumn);
+    deselect();
+    m_cursorLine = range.startLine;
+    m_cursorColumn = range.startColumn;
+    ensureCursorVisible();
+}
+
+bool TextEditor::textIsPrint(QString text)
+{
+    // FIXME: This needs to actually test it
+    return true;
 }
 
