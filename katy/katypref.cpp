@@ -146,3 +146,4 @@ void KatyPreferences::slotChanged() {
     m_changed = TRUE;
 }
 
+#include "katypref.moc"

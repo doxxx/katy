@@ -94,3 +94,4 @@ void KatyView::slotDocumentExternallyChanged() {
         m_editor->resetView();
     }
 }
+#include "katyview.moc"

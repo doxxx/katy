@@ -33,3 +33,4 @@ int KatyReplaceImpl::show(QWidget *parent, QString &findText, QString &replaceTe
 
     return result;
 }
+#include "katyreplaceimpl.moc"

@@ -590,3 +590,4 @@ void Katy::activateWindow() {
     raise();
     setActiveWindow();
 }
+#include "katy.moc"

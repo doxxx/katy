@@ -4,4 +4,4 @@ Makefile
 Makefile.in
 katy
 katy_meta_unload.cpp
-*.moc.cpp
+*.moc*

@@ -50,3 +50,4 @@ int KatyReplacingImpl::ask(QWidget *parent) {
     return dlg.exec();
 }
 
+#include "katyreplacingimpl.moc"

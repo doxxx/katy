@@ -1201,3 +1201,4 @@ void TextEditor::contentsMouseDoubleClickEvent(QMouseEvent *event) {
     }
 }
 
+#include "texteditor.moc"

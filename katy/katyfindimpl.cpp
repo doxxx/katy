@@ -31,3 +31,4 @@ int KatyFindImpl::show(QWidget *parent, QString &findText, bool &backward, bool 
 
     return result;
 }
+#include "katyfindimpl.moc"

@@ -703,3 +703,4 @@ DocumentPosition TextDocument::findWordEnd(DocumentPosition start, bool right) {
     return pos;
 }
 
+#include "textdocument.moc"

@@ -35,3 +35,4 @@ int KatyTabsToSpacesImpl::spacesToTabs(QWidget *parent, int &numberOfSpaces, boo
     return result;
 }
 
+#include "katytabstospacesimpl.moc"

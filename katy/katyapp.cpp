@@ -180,3 +180,4 @@ void KatyApp::updateWindowsMenu() {
 
     oldActions.clear();
 }
+#include "katyapp.moc"
