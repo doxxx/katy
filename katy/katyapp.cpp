@@ -27,7 +27,7 @@
 #include <kglobal.h>
 
 KatyApp::KatyApp()
-    : alreadyRestored(false)
+    : alreadyRestored(FALSE)
 {
 }
 
