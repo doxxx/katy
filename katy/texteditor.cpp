@@ -30,9 +30,11 @@ TextEditor::TextEditor(QWidget *parent, QString name)
 
     // Setup the viewport widget
     viewport()->setBackgroundMode(NoBackground); // NoBackground because drawContents paints every pixel
-    viewport()->setFont(KGlobalSettings::fixedFont()); // TODO: Make configurable
     viewport()->setFocusPolicy(WheelFocus);
     viewport()->setCursor(ibeamCursor);
+
+    // TODO: Make configurable
+    viewport()->setFont(KGlobalSettings::fixedFont());
 
     viewport()->setFocus();
 
@@ -274,6 +276,42 @@ void TextEditor::moveCursorDown(bool extendSelection)
     ensureCursorVisible();
 }
 
+void TextEditor::moveCursorPageUp(bool extendSelection )
+{
+    int cursorColumn = m_cursorColumn,
+          cursorLine = m_cursorLine,
+     pageHeightLines = viewport()->height() / viewport()->fontMetrics().lineSpacing();
+
+    if (cursorLine >= pageHeightLines)
+    {
+        cursorLine -= pageHeightLines;
+    }
+    else
+    {
+        cursorLine = 0;
+    }
+
+    int lineLength = m_document->line(cursorLine).text.length();
+    if (cursorColumn > lineLength)
+        cursorColumn = lineLength;
+
+    if (extendSelection)
+        extendSelectionTo(cursorLine, cursorColumn);
+    else
+        deselect();
+
+    eraseCursor();
+
+    m_cursorColumn = cursorColumn;
+    m_cursorLine = cursorLine;
+
+    scrollBy(0, -(pageHeightLines * viewport()->fontMetrics().lineSpacing()));
+}
+
+void TextEditor::moveCursorPageDown(bool extendSelection )
+{
+}
+
 void TextEditor::moveCursorHome(bool extendSelection)
 {
 }
@@ -322,6 +360,27 @@ void TextEditor::recalculateDocumentSize()
 
     // Tell the scroll widget the new size of our document
     resizeContents(documentWidth, documentHeight);
+}
+
+void TextEditor::recalculateDocumentSize(QString oldLineText, QString newLineText)
+{
+    if (m_document == NULL)
+    {
+        resizeContents(0, 0);
+        return;
+    }
+
+    QFontMetrics fontMetrics = viewport()->fontMetrics();
+    int documentWidth = contentsWidth();
+    int oldLineWidth = calculateTextWidth(fontMetrics, oldLineText);
+    int newLineWidth = calculateTextWidth(fontMetrics, newLineText);
+
+    if (newLineWidth > oldLineWidth && newLineWidth > documentWidth)
+        resizeContents(newLineWidth, contentsHeight());
+    else if (newLineWidth < oldLineWidth)
+        recalculateDocumentSize();
+    else
+        return;
 }
 
 QRect TextEditor::calculateCursorRect(int cursorLine, int cursorColumn, int *cursorMiddleX)
@@ -438,7 +497,7 @@ void TextEditor::repaintLines(int start, int end)
     int lineHeight = viewport()->fontMetrics().lineSpacing();
     int top = lineHeight * start;
     int height = (end - start + 1) * lineHeight;
-    QRect rect(0, top, contentsWidth(), height);
+    QRect rect(0, top, QMAX(contentsWidth(), visibleWidth()), height);
     repaintContents(rect, FALSE);
 }
 
@@ -552,7 +611,7 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
         int lineHeight = fontMetrics.lineSpacing();
         int startLine = cy / lineHeight - 1;
         int endLine = (cy + ch) / lineHeight + 1;
-        int maxPaintWidth = contentsWidth();
+        int maxPaintWidth = QMAX(contentsWidth(), viewport()->width());
         SelectionRange selRange = selectionRange();
 
         if (startLine < 0)
@@ -718,8 +777,47 @@ void TextEditor::keyPressEvent(QKeyEvent *event)
             moveCursorDown(shiftPressed);
             break;
 
+        case Key_PageUp:
+            moveCursorPageUp(shiftPressed);
+            break;
+
+        case Key_PageDown:
+            moveCursorPageDown(shiftPressed);
+            break;
+
+        case Key_Enter:
+        case Key_Return:
+        {
+            kdDebug() << "Enter" << endl;
+            TextLine line = m_document->line(m_cursorLine);
+            TextLine newLine(line.text.mid(m_cursorColumn));
+            line.text.truncate(m_cursorColumn);
+            m_document->setLine(m_cursorLine, line);
+            m_document->insertLine(m_cursorLine, newLine, TRUE);
+            m_cursorColumn = 0;
+            m_cursorLine++;
+            recalculateDocumentSize();
+            repaintLines(m_cursorLine - 1, m_document->lineCount() - 1);
+            ensureCursorVisible();
+        }
+        break;
+
         default:
-            event->ignore();
+            if (event->text().length() > 0)
+            {
+                TextLine line = m_document->line(m_cursorLine);
+                QString oldText = line.text;
+                line.text.insert(m_cursorColumn, event->text());
+                m_document->setLine(m_cursorLine, line);
+                m_cursorColumn += event->text().length();
+                recalculateDocumentSize(oldText, line.text);
+                repaintLines(m_cursorLine, m_cursorLine);
+                ensureCursorVisible();
+            }
+            else
+            {
+                event->ignore();
+            }
     }
 }
 
@@ -751,4 +849,3 @@ void TextEditor::contentsMouseMoveEvent(QMouseEvent *event)
         moveCursorTo(line, col, TRUE);
     }
 }
-

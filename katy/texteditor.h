@@ -68,6 +68,8 @@ public:
     void moveCursorRight(bool extendSelection = FALSE);
     void moveCursorUp(bool extendSelection = FALSE);
     void moveCursorDown(bool extendSelection = FALSE);
+    void moveCursorPageUp(bool extendSelection = FALSE);
+    void moveCursorPageDown(bool extendSelection = FALSE);
     void moveCursorHome(bool extendSelection = FALSE);
     void moveCursorEnd(bool extendSelection = FALSE);
     void deselect();
@@ -84,6 +86,7 @@ protected:
     void contentsMouseMoveEvent(QMouseEvent *event);
 
     void recalculateDocumentSize();
+    void recalculateDocumentSize(QString oldLineText, QString newLineText);
     QRect calculateCursorRect(int cursorLine, int cursorColumn, int *cursorMiddleX = NULL);
     void eraseCursor();
     void drawCursor();
