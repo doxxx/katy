@@ -71,6 +71,7 @@ signals:
 public slots:
     void slotDocumentModified();
     void slotDocumentNotModified();
+    void slotDocumentExternallyChanged();
 
 private:
     TextDocument *m_document;

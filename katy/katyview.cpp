@@ -26,6 +26,8 @@
 
 #include <kurl.h>
 #include <kdebug.h>
+#include <klocale.h>
+#include <kmessagebox.h>
 
 KatyView::KatyView(QWidget *parent)
     : QWidget(parent)
@@ -57,11 +59,13 @@ void KatyView::openURL(const KURL& url)
     if (m_document != NULL)
         delete m_document;
 
-    m_document = new TextDocument(url);
+    m_document = new TextDocument();
+    m_document->openURL(url);
     m_editor->setDocument(m_document);
 
     connect(m_document, SIGNAL(documentModified()), SLOT(slotDocumentModified()));
     connect(m_document, SIGNAL(documentNotModified()), SLOT(slotDocumentNotModified()));
+    connect(m_document, SIGNAL(documentExternallyChanged()), SLOT(slotDocumentExternallyChanged()));
 
     emit signalChangeCaption(url.url(), FALSE);
 }
@@ -92,3 +96,18 @@ void KatyView::slotDocumentNotModified()
         emit signalChangeCaption(m_document->url().url(), FALSE);
 }
 
+void KatyView::slotDocumentExternallyChanged()
+{
+    QString msg;
+
+    if (m_document->modified())
+        msg = i18n("Document has been externally modified. Reload and lose your changes?");
+    else
+        msg = i18n("Document has been externally modified. Reload?");
+
+    if (KMessageBox::questionYesNo(this, msg) == KMessageBox::Yes)
+    {
+        m_document->openURL(m_document->url());
+        m_editor->resetView();
+    }
+}
