@@ -1,0 +1,1 @@
+?package(katy): needs="x11" kde_filename="katy" section="Applications/Editors" title="Katy" icon="katy.png" command="katy" kde_command="katy %i %m -caption \"%c\"" longtitle="An intuitive text editor" kde_mimetype="text/english;text/plain" kde_opt="\\nDocPath=katy/katy.html\\nTerminal=0"
