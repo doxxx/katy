@@ -59,6 +59,12 @@
 
 #include <kmessagebox.h>
 
+enum StatusBarItems
+{
+    StatusBar_Line = 1,
+    StatusBar_Column
+};
+
 Katy::Katy()
     : KMainWindow( 0, "Katy" ),
       m_view(new KatyView(this)),
@@ -74,6 +80,11 @@ Katy::Katy()
     setupActions();
 
     // and a status bar
+    statusBar()->insertFixedItem(i18n("Line %1").arg("999999"), StatusBar_Line, TRUE);
+    statusBar()->setItemAlignment(StatusBar_Line, QLabel::AlignLeft | QLabel::AlignVCenter);
+    statusBar()->insertFixedItem(i18n("Column %1").arg("9999"), StatusBar_Column, TRUE);
+    statusBar()->setItemAlignment(StatusBar_Column, QLabel::AlignLeft | QLabel::AlignVCenter);
+    updateLineColumn(m_view->editor()->documentPosition().line, m_view->editor()->documentPosition().column);
     statusBar()->show();
 
     changeEOLType(m_view->document()->eolType());
@@ -81,6 +92,7 @@ Katy::Katy()
     // allow the view to change the statusbar and caption
     connect(m_view, SIGNAL(signalChangeStatusbar(const QString&)), SLOT(changeStatusbar(const QString&)));
     connect(m_view, SIGNAL(signalChangeCaption(const QString&, bool)), SLOT(setCaption(const QString&, bool)));
+    connect(m_view->editor(), SIGNAL(cursorMoved(int, int)), SLOT(updateLineColumn(int, int)));
 
     setCaption("Untitled", FALSE);
 }
@@ -235,7 +247,16 @@ void Katy::fileOpen()
     KURL url = KFileDialog::getOpenURL(QString::null, QString::null, this);
     if (!url.isEmpty())
     {
-        load(url);
+        if (m_view->document()->url().isEmpty() && !m_view->document()->modified())
+        {
+            load(url);
+        }
+        else
+        {
+            Katy *newWindow = katyapp->newWindow();
+            newWindow->load(url);
+            newWindow->show();
+        }
     }
 }
 
@@ -516,5 +537,11 @@ void Katy::changeEOLType(const TextDocument::EOLType type)
         default:
             break;
     }
+}
+
+void Katy::updateLineColumn(int line, int column)
+{
+    statusBar()->changeItem(i18n("Line %1").arg(QString::number(line)), StatusBar_Line);
+    statusBar()->changeItem(i18n("Column %1").arg(QString::number(column)), StatusBar_Column);
 }
 

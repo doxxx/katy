@@ -27,7 +27,6 @@
 
 #include <kmainwindow.h>
 
-//#include "katyapp.h"
 #include "katyview.h"
 
 class QPrinter;
@@ -88,7 +87,6 @@ protected:
      */
     void readProperties(KConfig *);
 
-
 private slots:
     void fileNew();
     void fileOpen();
@@ -108,8 +106,10 @@ private slots:
     void configureToolbars();
     void preferences();
 
+public slots:
     void changeStatusbar(const QString& text);
     void changeEOLType(const TextDocument::EOLType type);
+    void updateLineColumn(int line, int column);
 
 private:
     void setupAccel();
