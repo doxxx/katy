@@ -67,16 +67,16 @@ public:
     TextDocument(const KURL& url);
     ~TextDocument();
 
-    // attributes
     KURL url();
     int lineCount();
     TextLine line(int line);
+    void setLine(int line, TextLine textLine);
+    void insertLine(int line, TextLine textLine, bool after = FALSE);
     TextLineList::ConstIterator lineIterator(int line);
     TextLineList::ConstIterator endLineIterator();
     EOLType eolType();
     void setEOLType(EOLType type);
 
-    // operations
     void openURL(const KURL& url);
 
 protected:

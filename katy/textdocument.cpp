@@ -11,6 +11,7 @@ TextDocument::TextDocument()
     m_url = KURL();
     m_eolType = EOL_LF;
     m_loaded = false;
+    m_lines.append(TextLine(QString("")));
 }
 
 TextDocument::TextDocument(const KURL& url)
@@ -35,6 +36,41 @@ int TextDocument::lineCount()
 TextLine TextDocument::line(int line)
 {
     return m_lines[line];
+}
+
+void TextDocument::setLine(int line, TextLine textLine)
+{
+    m_lines[line] = textLine;
+}
+
+void TextDocument::insertLine(int line, TextLine textLine, bool after )
+{
+    TextDocument::TextLineList::Iterator it = m_lines.at(line);
+
+    if (after)
+        it++;
+
+    m_lines.insert(it, textLine);
+}
+
+TextDocument::TextLineList::ConstIterator TextDocument::lineIterator(int line)
+{
+    return m_lines.at(line);
+}
+
+TextDocument::TextLineList::ConstIterator TextDocument::endLineIterator()
+{
+    return m_lines.end();
+}
+
+TextDocument::EOLType TextDocument::eolType()
+{
+    return m_eolType;
+}
+
+void TextDocument::setEOLType(TextDocument::EOLType type)
+{
+    m_eolType = type;
 }
 
 void TextDocument::openURL(const KURL& url)
@@ -145,22 +181,3 @@ bool TextDocument::loadTempFile(QString filename)
     return true;
 }
 
-TextDocument::TextLineList::ConstIterator TextDocument::lineIterator(int line)
-{
-    return m_lines.at(line);
-}
-
-TextDocument::TextLineList::ConstIterator TextDocument::endLineIterator()
-{
-    return m_lines.end();
-}
-
-TextDocument::EOLType TextDocument::eolType()
-{
-    return m_eolType;
-}
-
-void TextDocument::setEOLType(TextDocument::EOLType type)
-{
-    m_eolType = type;
-}
