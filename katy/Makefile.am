@@ -50,5 +50,5 @@ messages:
 KDE_ICON = katy
 
 # this is where the kdelnk file will go 
-kdelnkdir   = $(kde_appsdir)/Utilities
+kdelnkdir   = $(kde_appsdir)/Editors
 kdelnk_DATA = katy.desktop
