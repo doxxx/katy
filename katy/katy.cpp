@@ -45,7 +45,7 @@
 #include <kfiledialog.h>
 #include <kconfig.h>
 #include <kurl.h>
-#include <kurlrequesterdlg.h>
+#include <kfiledialog.h>
 
 #include <kedittoolbar.h>
 
@@ -232,7 +232,7 @@ void Katy::fileOpen()
     // this slot is called whenever the File->Open menu is selected,
     // the Open shortcut is pressed (usually CTRL+O) or the Open toolbar
     // button is clicked
-    KURL url = KURLRequesterDlg::getURL(QString::null, this, i18n("Open Location") );
+    KURL url = KFileDialog::getOpenURL(QString::null, QString::null, this);
     if (!url.isEmpty())
     {
         load(url);
