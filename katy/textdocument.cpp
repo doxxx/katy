@@ -28,6 +28,7 @@
 #include <qtextcodec.h>
 #include <ktempfile.h>
 #include <qtextstream.h>
+#include <qregexp.h>
 
 TextDocument::TextDocument()
 {
@@ -301,7 +302,7 @@ bool TextDocument::saveTempFile(QString filename)
 
     TextLineList::Iterator it = m_lines.begin();
 
-    for (int count = 0; it != m_lines.end(); ++it, ++count)
+    for (uint count = 0; it != m_lines.end(); ++it, ++count)
     {
         TextLine textLine = (TextLine)*it;
         textStream << textLine.text;
@@ -330,7 +331,7 @@ bool TextDocument::saveTempFile(QString filename)
     return true;
 }
 
-Position TextDocument::insertText(int line, int column, QString text)
+DocumentPosition TextDocument::insertText(int line, int column, QString text)
 {
     if (text.contains(QChar('\n')))
     {
@@ -342,7 +343,7 @@ Position TextDocument::insertText(int line, int column, QString text)
         TextLineList insertedLines;
         TextLineList::Iterator it = m_lines.at(line + 1);
 
-        for (int i = 1; i < lines.count() - 1; ++i)
+        for (uint i = 1; i < lines.count() - 1; ++i)
         {
             TextLine textLine(lines[i]);
             insertedLines << textLine;
@@ -354,7 +355,7 @@ Position TextDocument::insertText(int line, int column, QString text)
 
         insertText(line + lines.count() - 1, 0, lines[lines.count() - 1]);
 
-        return Position(line + lines.count() - 1, lines[lines.count() - 1].length());
+        return DocumentPosition(line + lines.count() - 1, lines[lines.count() - 1].length());
     }
     else
     {
@@ -362,7 +363,7 @@ Position TextDocument::insertText(int line, int column, QString text)
         m_lines[line].text.insert(column, text);
         setModified(true);
         emit lineChanged(line, oldLine, m_lines[line]);
-        return Position(line, column + text.length());
+        return DocumentPosition(line, column + text.length());
     }
 }
 
@@ -437,9 +438,9 @@ void TextDocument::joinLines(int line)
     removeLines(line + 1, 1);
 }
 
-Position TextDocument::insertTab(int line, int column, bool useSpaces, int indentSize)
+DocumentPosition TextDocument::insertTab(int line, int column, bool useSpaces, int indentSize)
 {
-    Position retPos(line, column);
+    DocumentPosition retPos(line, column);
     QString spaces;
     spaces.fill(' ', indentSize);
 
@@ -496,7 +497,7 @@ void TextDocument::tabsToSpaces(int numberOfSpaces, bool leadingTabsOnly)
     for (int lineIndex = 0; it != m_lines.end(); ++it, ++lineIndex)
     {
         TextLine newLine = *it;
-        for (int i = 0; i < newLine.text.length(); i++)
+        for (uint i = 0; i < newLine.text.length(); i++)
         {
             QChar c = newLine.text[i];
             if (c == QChar(9))
@@ -524,7 +525,7 @@ void TextDocument::spacesToTabs(int numberOfSpaces, bool leadingSpacesOnly)
     for (int lineIndex = 0; it != m_lines.end(); ++it, ++lineIndex)
     {
         TextLine newLine = *it;
-        for (int i = 0; i < newLine.text.length(); i++)
+        for (uint i = 0; i < newLine.text.length(); i++)
         {
             QChar c = newLine.text[i];
             if (c.isSpace() && newLine.text.mid(i, numberOfSpaces) == spaces)
@@ -538,4 +539,95 @@ void TextDocument::spacesToTabs(int numberOfSpaces, bool leadingSpacesOnly)
         }
         setLine(lineIndex, newLine);
     }
+}
+
+DocumentRange TextDocument::findText(QString text, DocumentPosition start, int flags)
+{
+    bool backward = (flags & Backward) == Backward;
+    bool caseSensitive = (flags & CaseSensitive) == CaseSensitive;
+    bool regularExpression = (flags & RegularExpression) == RegularExpression;
+    QRegExp regExp;
+
+    if (regularExpression)
+    {
+        regExp.setCaseSensitive(caseSensitive);
+        regExp.setPattern(text);
+    }
+
+    TextLineList::Iterator it = m_lines.at(start.line);
+
+    if (backward)
+    {
+        for (int lineIndex = start.line; it != m_lines.begin(); --it, --lineIndex)
+        {
+            QString lineText = (*it).text;
+
+            int charIndex;
+            int matchLen;
+
+            if (lineIndex == start.line)
+            {
+                if (regularExpression)
+                {
+                    charIndex = lineText.findRev(regExp, start.column);
+                    if (charIndex >= 0)
+                        regExp.match(lineText, charIndex, &matchLen);
+                }
+                else
+                {
+                    charIndex = lineText.findRev(text, start.column, caseSensitive);
+                }
+            }
+            else
+            {
+                if (regularExpression)
+                {
+                    charIndex = lineText.findRev(regExp, -1);
+                    if (charIndex >= 0)
+                        regExp.match(lineText, charIndex, &matchLen);
+                }
+                else
+                {
+                    charIndex = lineText.findRev(text, -1, caseSensitive);
+                }
+            }
+
+            if (charIndex >= 0)
+            {
+                return DocumentRange(lineIndex, charIndex, lineIndex, charIndex + text.length());
+            }
+        }
+    }
+    else
+    {
+        for (int lineIndex = start.line; it != m_lines.end(); ++it, ++lineIndex)
+        {
+            QString lineText = (*it).text;
+
+            int charIndex;
+            int matchLen = text.length();
+
+            if (lineIndex == start.line)
+            {
+                if (regularExpression)
+                    charIndex = regExp.match(lineText, start.column, &matchLen);
+                else
+                    charIndex = lineText.find(text, start.column, caseSensitive);
+            }
+            else
+            {
+                if (regularExpression)
+                    charIndex = regExp.match(lineText, 0, &matchLen);
+                else
+                    charIndex = lineText.find(text, 0, caseSensitive);
+            }
+
+            if (charIndex >= 0)
+            {
+                return DocumentRange(lineIndex, charIndex, lineIndex, charIndex + matchLen);
+            }
+        }
+    }
+
+    return DocumentRange();
 }
