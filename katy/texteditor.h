@@ -15,6 +15,9 @@ class QPainter;
 
 class TextDocument;
 
+/**
+ *
+ */
 class SelectionRange
 {
 public:
@@ -35,17 +38,28 @@ class TextEditor : public QScrollView
     Q_OBJECT
 public:
     /**
-     * Construtor
+     * Constructor
      */
     TextEditor(QWidget *parent=0, QString name=0);
+
     /**
      * Destructor
      */
     ~TextEditor();
 
-    // Attributes
+    /**
+     * Returns the TextDocument used.
+     */
     TextDocument *document();
+
+    /**
+     * Sets the TextDocument to be used.
+     */
     void setDocument(TextDocument *doc);
+
+    /**
+     * Returns the selection range.
+     */
     SelectionRange selectionRange();
 
     // Operations
