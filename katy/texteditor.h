@@ -13,8 +13,7 @@
 class QWidget;
 class QPainter;
 
-class TextDocument;
-class TextLine;
+#include "textdocument.h"
 
 /**
  *
@@ -90,8 +89,8 @@ public slots:
 
 private slots:
     void document_lineChanged(int line, TextLine oldLine, TextLine newLine);
-    void document_lineInserted(int line, TextLine newLine);
-    void document_lineRemoved(int line);
+    void document_linesInserted(int line, TextLineList newLine);
+    void document_linesRemoved(int line, int count);
 
 protected:
     void drawContents(QPainter *p, int cx, int cy, int cw, int ch);

@@ -70,8 +70,8 @@ void TextEditor::setDocument(TextDocument *doc)
     m_selectionAnchorColumn = -1;
 
     connect(m_document, SIGNAL(lineChanged(int, TextLine, TextLine)), this, SLOT(document_lineChanged(int, TextLine, TextLine)));
-    connect(m_document, SIGNAL(lineInserted(int, TextLine)), this, SLOT(document_lineInserted(int, TextLine)));
-    connect(m_document, SIGNAL(lineRemoved(int)), this, SLOT(document_lineRemoved(int)));
+    connect(m_document, SIGNAL(linesInserted(int, TextLineList)), this, SLOT(document_linesInserted(int, TextLineList)));
+    connect(m_document, SIGNAL(linesRemoved(int, int)), this, SLOT(document_linesRemoved(int, int)));
 
     recalculateDocumentSize();
     viewport()->update();
@@ -461,10 +461,14 @@ void TextEditor::paste()
     QString text = clipboard->text();
 
     eraseCursor();
-    TextLine line = m_document->line(m_cursorLine);
-    line.text.insert(m_cursorColumn, text);
-    m_document->setLine(m_cursorLine, line);
-    m_cursorColumn += text.length();
+    /*TextLine line = m_document->line(m_cursorLine);
+      line.text.insert(m_cursorColumn, text);
+      m_document->setLine(m_cursorLine, line);
+      m_cursorColumn += text.length();*/
+    Position pos = m_document->insertText(m_cursorLine, m_cursorColumn, text);
+    m_cursorLine = pos.line;
+    m_cursorColumn = pos.column;
+
     ensureCursorVisible();
 }
 
@@ -482,13 +486,16 @@ void TextEditor::document_lineChanged(int line, TextLine oldLine, TextLine newLi
     repaintLines(line, line);
 }
 
-void TextEditor::document_lineInserted(int line, TextLine newLine)
+void TextEditor::document_linesInserted(int line, TextLineList newLines)
 {
-    recalculateDocumentSize(newLine.text);
+    if (newLines.count() == 0)
+        recalculateDocumentSize(newLines[0].text);
+    else
+        recalculateDocumentSize();
     repaintLines(line, m_document->lineCount() - 1);
 }
 
-void TextEditor::document_lineRemoved(int line)
+void TextEditor::document_linesRemoved(int line, int count)
 {
     recalculateDocumentSize();
     repaintLines(line, m_document->lineCount() - 1);
@@ -507,7 +514,7 @@ void TextEditor::recalculateDocumentSize()
     int documentHeight = 0;
 
     // Calculate the document width
-    TextDocument::TextLineList::ConstIterator it;
+    TextLineList::ConstIterator it;
     for (it = m_document->lineIterator(0); it != m_document->endLineIterator(); ++it)
     {
         QString text = (*it).text;
@@ -1028,10 +1035,13 @@ void TextEditor::keyPressEvent(QKeyEvent *event)
             if (event->text().length() > 0)
             {
                 eraseCursor();
-                TextLine line = m_document->line(m_cursorLine);
+                /*TextLine line = m_document->line(m_cursorLine);
                 line.text.insert(m_cursorColumn, event->text());
                 m_document->setLine(m_cursorLine, line);
-                m_cursorColumn += event->text().length();
+                m_cursorColumn += event->text().length();*/
+                Position pos = m_document->insertText(m_cursorLine, m_cursorColumn, event->text());
+                m_cursorLine = pos.line;
+                m_cursorColumn = pos.column;
                 ensureCursorVisible();
             }
             else
