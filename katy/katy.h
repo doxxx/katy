@@ -27,15 +27,16 @@
 
 #include <kmainwindow.h>
 
-#include "katyview.h"
 #include "textdocument.h"
 
-class QPrinter;
 class KToggleAction;
 class KSelectAction;
 class KRecentFilesAction;
 class KURL;
 class KRadioAction;
+
+class KatyView;
+class TextEditor;
 
 /**
  * This class serves as the main window for Katy.  It handles the
@@ -64,8 +65,6 @@ public:
     void load(const QString& url);
     void load(const KURL& url);
     
-    TextDocument *document();
-    
     KAction *windowsMenuItemAction();
     void createWindowsMenuItemAction();
 
@@ -80,7 +79,7 @@ protected:
 protected:
     bool queryExit();
     bool queryClose();
-    
+
     void readOptions(KConfig *config);
     void saveOptions(KConfig *config);
 
@@ -105,8 +104,11 @@ private slots:
     void fileSaveAs();
     void fileSaveAll();
     void fileClose();
-    void filePrint();
     void fileChangeEOLType();
+    void editCut();
+    void editCopy();
+    void editPaste();
+    void editSelectAll();
     void editFind();
     void editFindNext();
     void editReplace();
@@ -119,22 +121,17 @@ private slots:
     void preferences();
 
 public slots:
-    void setCaption(const QString &caption);
-    void setCaption(const QString &caption, bool modified);
-    void changeStatusbar(const QString& text);
-    void changeEOLType(const TextDocument::EOLType type);
+    void updateDocumentStatus(const KURL &url, bool modified);
     void updateLineColumn(int line, int column);
     void updateWindowsMenu();
     void activateWindow();
 
 private:
-    void setupAccel();
     void setupActions();
+    void updateEOLType(const TextDocument::EOLType type);
 
 private:
     KatyView *m_view;
-
-    QPrinter *m_printer;
 
     KToggleAction *m_toolbarAction;
     KToggleAction *m_statusbarAction;

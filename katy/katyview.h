@@ -23,17 +23,15 @@
 
 #include <qwidget.h>
 
-#include "textdocument.h"
-
-class QPainter;
 class KURL;
 
 class TextEditor;
+class TextDocument;
 
 /**
- * This is the main view class for Katy.
+ * KatyView is the container view for a document.
  *
- * @short Main view
+ * @short Main view container
  * @author Gordon Tyler <gordon@doxxx.net>
  */
 class KatyView : public QWidget
@@ -44,33 +42,33 @@ public:
     virtual ~KatyView();
 
     /**
-     * Current document's URL
+     * Show a TextDocument in this view.
      */
-    KURL currentURL();
+    virtual void showDocument(TextDocument *document);
 
     /**
-     * Random 'set' function
+     * Return the document currently being shown.
      */
-    void openURL(const KURL& url);
-
-    TextDocument *document();
-    TextEditor *editor();
+    virtual TextDocument *document();
+    
+    virtual TextEditor *editor();
 
 signals:
     /**
-     * Change the content of the statusbar
+     * Indicates that the document filename has changed or that the document
+     * has been modified.
      */
-    void signalChangeStatusbar(const QString& text);
-
+    void documentStatusChanged(const KURL& url, bool modified);
+    
     /**
-     * Change the content of the caption
+     * Indicates that the status bar line/column should be updated
      */
-    void signalChangeCaption(const QString& filename, bool modified);
+    void updateLineColumn(int line, int column);
 
 public slots:
-    void slotDocumentModified();
-    void slotDocumentNotModified();
-    void slotDocumentExternallyChanged();
+    virtual void slotDocumentModified();
+    virtual void slotDocumentNotModified();
+    virtual void slotDocumentExternallyChanged();
 
 private:
     TextDocument *m_document;

@@ -38,11 +38,9 @@ KatyView::KatyView(QWidget *parent)
 
     // Create our TextEditor widget
     m_editor = new TextEditor(this);
-    m_document = new TextDocument();
-    m_editor->setDocument(m_document);
-
-    connect(m_document, SIGNAL(documentModified()), SLOT(slotDocumentModified()));
-    connect(m_document, SIGNAL(documentNotModified()), SLOT(slotDocumentNotModified()));
+    connect(m_editor, SIGNAL(cursorMoved(int, int)), SIGNAL(updateLineColumn(int, int)));
+    
+    m_document = NULL;
 }
 
 KatyView::~KatyView()
@@ -53,25 +51,20 @@ KatyView::~KatyView()
     }
 }
 
-KURL KatyView::currentURL()
-{
-    return m_document->url();
-}
-
-void KatyView::openURL(const KURL& url)
+void KatyView::showDocument(TextDocument *document)
 {
     if (m_document != NULL)
         delete m_document;
 
-    m_document = new TextDocument();
-    m_document->openURL(url);
+    m_document = document;
+
     m_editor->setDocument(m_document);
 
     connect(m_document, SIGNAL(documentModified()), SLOT(slotDocumentModified()));
     connect(m_document, SIGNAL(documentNotModified()), SLOT(slotDocumentNotModified()));
     connect(m_document, SIGNAL(documentExternallyChanged()), SLOT(slotDocumentExternallyChanged()));
 
-    emit signalChangeCaption(url.url(), FALSE);
+    slotDocumentNotModified();
 }
 
 TextDocument *KatyView::document()
@@ -86,18 +79,12 @@ TextEditor *KatyView::editor()
 
 void KatyView::slotDocumentModified()
 {
-    if (m_document->url().isEmpty())
-        emit signalChangeCaption("Untitled", TRUE);
-    else
-        emit signalChangeCaption(m_document->url().url(), TRUE);
+    emit documentStatusChanged(m_document->url(), TRUE);
 }
 
 void KatyView::slotDocumentNotModified()
 {
-    if (m_document->url().isEmpty())
-        emit signalChangeCaption("Untitled", FALSE);
-    else
-        emit signalChangeCaption(m_document->url().url(), FALSE);
+    emit documentStatusChanged(m_document->url(), FALSE);
 }
 
 void KatyView::slotDocumentExternallyChanged()

@@ -20,6 +20,7 @@
 
 #include "katy.h"
 #include "katyapp.h"
+#include "katyview.h"
 #include "textdocument.h"
 #include "texteditor.h"
 #include "katypref.h"
@@ -32,8 +33,6 @@
 
 #include <qdragobject.h>
 #include <qlineedit.h>
-#include <qprinter.h>
-#include <qprintdialog.h>
 #include <qpainter.h>
 #include <qpaintdevicemetrics.h>
 
@@ -69,14 +68,16 @@ Katy::Katy()
     // accept dnd
     setAcceptDrops(true);
 
-    // We don't support printing, yet
-    m_printer = NULL;
-    
     m_windowsMenuActions.setAutoDelete(false);
+    m_windowsMenuItemAction = NULL;
 
     // Initialise the main view
     m_view = new KatyView(this);
     setCentralWidget(m_view);
+
+    // allow the view to change the statusbar and caption
+    connect(m_view, SIGNAL(documentStatusChanged(const KURL&, bool)), SLOT(updateDocumentStatus(const KURL&, bool)));
+    connect(m_view, SIGNAL(updateLineColumn(int, int)), SLOT(updateLineColumn(int, int)));
 
     // Setup actions
     setupActions();
@@ -84,68 +85,20 @@ Katy::Katy()
     // Setup the status bar
     statusBar()->insertItem(i18n("Line %1").arg("999999"), StatusBar_Line, 0, TRUE);
     statusBar()->insertItem(i18n("Column %1").arg("9999"), StatusBar_Column, 0, TRUE);
-    updateLineColumn(m_view->editor()->documentPosition().line, m_view->editor()->documentPosition().column);
     statusBar()->show();
-
-    changeEOLType(m_view->document()->eolType());
-
-    // allow the view to change the statusbar and caption
-    connect(m_view, SIGNAL(signalChangeStatusbar(const QString&)), SLOT(changeStatusbar(const QString&)));
-    connect(m_view, SIGNAL(signalChangeCaption(const QString&, bool)), SLOT(setCaption(const QString&, bool)));
-    connect(m_view->editor(), SIGNAL(cursorMoved(int, int)), SLOT(updateLineColumn(int, int)));
-
-    setCaption("Untitled", false);
     
     // Read config options
     readOptions(katyapp->config());
+
+    // Init window with a new document
+    m_view->showDocument(new TextDocument());
+    updateEOLType(m_view->document()->eolType());
 }
 
 Katy::~Katy()
 {
     saveOptions(katyapp->config());
     katyapp->removeWindow(this);
-}
-
-void Katy::load(const QString& url)
-{
-    KURL kurl(url);
-    load(kurl);
-}
-
-void Katy::load(const KURL& url)
-{
-    KRecentDocument::add(url.url(), TRUE);
-    m_openRecentAction->addURL(url);
-    m_view->openURL(url);
-    changeEOLType(m_view->document()->eolType());
-}
-
-TextDocument *Katy::document()
-{
-    return m_view->document();
-}
-
-KAction *Katy::windowsMenuItemAction()
-{
-    return m_windowsMenuItemAction;
-}
-
-void Katy::createWindowsMenuItemAction()
-{
-    QString text;
-    if (m_view->document()->url().isEmpty())
-    {
-        text = "Untitled";
-    }
-    else
-    {
-        text = m_view->document()->url().url();
-    }
-    text += (m_view->document()->modified() ? "*" : "");
-    
-    m_windowsMenuItemAction = new KRadioAction(text);
-    connect(m_windowsMenuItemAction, SIGNAL(activated()), this, SLOT(activateWindow()));
-    m_windowsMenuItemAction->setExclusiveGroup("window_list_actions");
 }
 
 void Katy::setupActions()
@@ -158,7 +111,6 @@ void Katy::setupActions()
     KStdAction::saveAs(this, SLOT(fileSaveAs()), actionCollection());
     new KAction(i18n("Save All..."), 0, this, SLOT(fileSaveAll()), actionCollection(), "file_save_all");
     KStdAction::close(this, SLOT(fileClose()), actionCollection());
-    //KStdAction::print(this, SLOT(filePrint()), actionCollection());
 
     m_eolTypeAction = new KSelectAction(i18n("EOL Type"), 0, this, SLOT(fileChangeEOLType()), actionCollection(), "file_eol_type");
     QStringList eolTypesList;
@@ -168,10 +120,10 @@ void Katy::setupActions()
 
     KStdAction::quit(kapp, SLOT(closeAllWindows()), actionCollection());
 
-    KStdAction::cut(m_view->editor(), SLOT(cut()), actionCollection());
-    KStdAction::copy(m_view->editor(), SLOT(copy()), actionCollection());
-    KStdAction::paste(m_view->editor(), SLOT(paste()), actionCollection());
-    KStdAction::selectAll(m_view->editor(), SLOT(selectAll()), actionCollection());
+    KStdAction::cut(this, SLOT(editCut()), actionCollection());
+    KStdAction::copy(this, SLOT(editCopy()), actionCollection());
+    KStdAction::paste(this, SLOT(editPaste()), actionCollection());
+    KStdAction::selectAll(this, SLOT(editSelectAll()), actionCollection());
 
     KStdAction::find(this, SLOT(editFind()), actionCollection());
     KStdAction::findNext(this, SLOT(editFindNext()), actionCollection());
@@ -187,27 +139,69 @@ void Katy::setupActions()
     KStdAction::configureToolbars(this, SLOT(configureToolbars()), actionCollection());
     KStdAction::preferences(this, SLOT(preferences()), actionCollection());
     
-    createWindowsMenuItemAction();
-    
     createGUI("katyui.rc", false);
 }
 
-void Katy::setCaption(const QString &caption)
+void Katy::load(const QString& url)
 {
-    if (m_windowsMenuItemAction)
-    {
-        m_windowsMenuItemAction->setText(caption);
-    }
-    KMainWindow::setCaption(caption);
+    KURL kurl(url);
+    load(kurl);
 }
 
-void Katy::setCaption(const QString &caption, bool modified)
+void Katy::load(const KURL& url)
 {
+    TextDocument *document = new TextDocument();
+    document->openURL(url);
+
+    m_view->showDocument(document);
+    updateEOLType(m_view->document()->eolType());
+
+    KRecentDocument::add(url.url(), TRUE);
+    m_openRecentAction->addURL(url);
+}
+
+KAction *Katy::windowsMenuItemAction()
+{
+    return m_windowsMenuItemAction;
+}
+
+void Katy::createWindowsMenuItemAction()
+{
+    QString text;
+    if (m_view->document()->url().isEmpty())
+    {
+        text = i18n("Untitled");
+    }
+    else
+    {
+        text = m_view->document()->url().fileName();
+    }
+    text += (m_view->document()->modified() ? "*" : "");
+    
+    m_windowsMenuItemAction = new KRadioAction(text);
+    connect(m_windowsMenuItemAction, SIGNAL(activated()), this, SLOT(activateWindow()));
+    m_windowsMenuItemAction->setExclusiveGroup("window_list_actions");
+}
+
+void Katy::updateDocumentStatus(const KURL &url, bool modified)
+{
+    QString caption;
+    
+    if (url.isEmpty()) 
+    {
+        caption = i18n("Untitled");
+    } 
+    else 
+    {
+        caption = url.fileName();
+    }
+    
     if (m_windowsMenuItemAction)
     {
         m_windowsMenuItemAction->setText(caption + (modified ? "*" : ""));
     }
-    KMainWindow::setCaption(caption, modified);
+    
+    setCaption(caption, modified);
 }
 
 bool Katy::queryExit()
@@ -263,8 +257,8 @@ void Katy::saveProperties(KConfig *config)
     // config file.  anything you write here will be available
     // later when this app is restored
 
-    if (m_view->currentURL().url() != QString::null)
-        config->writeEntry("lastURL", m_view->currentURL().url());
+    if (!m_view->document()->url().isEmpty())
+        config->writeEntry("lastURL", m_view->document()->url().url());
 }
 
 void Katy::readProperties(KConfig *config)
@@ -274,10 +268,10 @@ void Katy::readProperties(KConfig *config)
     // the app is being restored.  read in here whatever you wrote
     // in 'saveProperties'
 
-    QString url = config->readEntry("lastURL");
+    KURL url = KURL(config->readEntry("lastURL"));
 
-    if (url != QString::null)
-        m_view->openURL(KURL(url));
+    if (!url.isEmpty())
+        load(url);
 }
 
 void Katy::dragEnterEvent(QDragEnterEvent *event)
@@ -398,31 +392,6 @@ void Katy::fileClose()
     close();
 }
 
-void Katy::filePrint()
-{
-    // this slot is called whenever the File->Print menu is selected,
-    // the Print shortcut is pressed (usually CTRL+P) or the Print toolbar
-    // button is clicked
-
-    if (!m_printer) m_printer = new QPrinter;
-
-    if (QPrintDialog::getPrinterSetup(m_printer))
-    {
-        // setup the printer.  with Qt, you always "print" to a
-        // QPainter.. whether the output medium is a pixmap, a screen,
-        // or paper
-        QPainter p;
-        p.begin(m_printer);
-
-        // we let our view do the actual printing
-        //QPaintDeviceMetrics metrics(m_printer);
-        //m_view->print(&p, metrics.height(), metrics.width());
-
-        // and send the result to the printer
-        p.end();
-    }
-}
-
 void Katy::fileChangeEOLType()
 {
     switch (m_eolTypeAction->currentItem())
@@ -439,6 +408,26 @@ void Katy::fileChangeEOLType()
             m_view->document()->setEOLType(TextDocument::EOL_CR);
             break;
     }
+}
+
+void Katy::editCut()
+{
+    m_view->editor()->cut();
+}
+
+void Katy::editCopy()
+{
+    m_view->editor()->copy();
+}
+
+void Katy::editPaste()
+{
+    m_view->editor()->paste();
+}
+
+void Katy::editSelectAll()
+{
+    m_view->editor()->selectAll();
 }
 
 void Katy::editFind()
@@ -614,13 +603,7 @@ void Katy::preferences()
     }
 }
 
-void Katy::changeStatusbar(const QString& text)
-{
-    // display the text on the statusbar
-    statusBar()->message(text);
-}
-
-void Katy::changeEOLType(const TextDocument::EOLType type)
+void Katy::updateEOLType(const TextDocument::EOLType type)
 {
     switch (type)
     {
