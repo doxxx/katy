@@ -2,7 +2,7 @@
 
 # this has all of the subdirectories that make will recurse into.  if
 # there are none, comment this out
-SUBDIRS = pics doc
+SUBDIRS = pics doc menu
 
 # this is the program that gets installed.  it's name is used for all
 # of the other Makefile.am variables
@@ -21,7 +21,10 @@ katy_LDADD = $(LIB_KFILE)
 katy_SOURCES = main.cpp katyapp.cpp katy.cpp katyview.cpp \
 	katypref.cpp textdocument.cpp texteditor.cpp \
 	katyprefappearance.cpp katyprefindenting.cpp \
-	katytabstospaces.cpp katytabstospacesimpl.cpp
+	katytabstospaces.cpp katytabstospacesimpl.cpp \
+	katyfind.cpp katyfindimpl.cpp katyreplace.cpp \
+	katyreplaceimpl.cpp katyreplacing.cpp \
+	katyreplacingimpl.cpp
 
 # data files for katy
 katy_datadir = ${kde_datadir}/katy
@@ -31,7 +34,9 @@ katy_data_DATA = katyui.rc
 noinst_HEADERS = katy.h katyapp.h katyview.h katypref.h \
 	textdocument.h texteditor.h katyprefappearance.h \
 	katyprefindenting.h katytabstospaces.h \
-	katytabstospacesimpl.h
+	katytabstospacesimpl.h katyfind.h katyfindimpl.h \
+	katyreplace.h katyreplaceimpl.h katyreplacing.h \
+	katyreplacingimpl.h
 
 # client stuff
 #katy_client_LDFLAGS = $(KDE_RPATH) $(all_libraries)
@@ -53,5 +58,7 @@ messages:
 KDE_ICON = katy
 
 # this is where the kdelnk file will go 
-kdelnkdir   = $(kde_appsdir)/Editors
-kdelnk_DATA = katy.desktop
+#kdelnkdir   = $(kde_appsdir)/Editors
+#kdelnk_DATA = katy.desktop
+
+EXTRA_DIST = $(katy_data_DATA) *-$(KDE_ICON).png uic *.ui
