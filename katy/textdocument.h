@@ -61,14 +61,16 @@ public:
 
 typedef QValueList<TextLine> TextLineList;
 
-class Position
+class DocumentPosition
 {
 public:
-    Position()
+    DocumentPosition()
     {
+        line = 0;
+        column = 0;
     }
 
-    Position(int newLine, int newColumn)
+    DocumentPosition(int newLine, int newColumn)
     {
         line = newLine;
         column = newColumn;
@@ -76,6 +78,28 @@ public:
 
 public:
     int line, column;
+};
+
+class DocumentRange
+{
+public:
+    DocumentRange()
+    {
+        valid = FALSE;
+    }
+
+    DocumentRange(int newStartLine, int newStartColumn, int newEndLine, int newEndColumn)
+    {
+        startLine = newStartLine;
+        startColumn = newStartColumn;
+        endLine = newEndLine;
+        endColumn = newEndColumn;
+        valid = TRUE;
+    }
+
+public:
+    bool valid;
+    int startLine, startColumn, endLine, endColumn;
 };
 
 /**
@@ -96,6 +120,13 @@ public:
         EOL_LF,
         EOL_CR,
         EOL_CRLF
+    };
+
+    enum FindTextFlags
+    {
+        Backward = 0x01,
+        CaseSensitive = 0x02,
+        RegularExpression = 0x04
     };
 
 
@@ -119,17 +150,18 @@ public:
     void save();
     void saveURL(const KURL& url);
 
-    Position insertText(int line, int column, QString text);
+    DocumentPosition insertText(int line, int column, QString text);
     void insertLines(int line, TextLineList newLines, bool after=FALSE);
     void removeText(int startLine, int startColumn, int endLine, int endColumn);
     void removeLines(int startLine, int count);
     void splitLine(int line, int column);
     void joinLines(int line);
-    Position insertTab(int line, int column, bool useSpaces, int indentSize);
+    DocumentPosition insertTab(int line, int column, bool useSpaces, int indentSize);
     void indentLines(int startLine, int count, bool useSpaces, int indentSize);
     void unindentLines(int startLine, int count, bool useSpaces, int indentSize);
     void tabsToSpaces(int numberOfSpaces, bool leadingTabsOnly);
     void spacesToTabs(int numberOfSpaces, bool leadingSpacesOnly);
+    DocumentRange findText(QString text, DocumentPosition start, int flags);
 
 signals:
     void lineChanged(int line, TextLine oldLine, TextLine newLine);
