@@ -1,7 +1,21 @@
 /*
- * katy.cpp
+ * Class for main Katy window
+ * Copyright (c) by Gordon Tyler <gordon@doxxx.net>
  *
- * Copyright (C) 2000 Gordon Tyler <gtyler@iafrica.com>
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
  */
 
 #include "katy.h"
@@ -37,6 +51,10 @@
 
 #include <krecentdocument.h>
 
+#include <kdebug.h>
+
+#include <kmessagebox.h>
+
 Katy::Katy()
     : KMainWindow( 0, "Katy" ),
       m_view(new KatyView(this)),
@@ -54,15 +72,13 @@ Katy::Katy()
     // and a status bar
     statusBar()->show();
 
-    changeEOLType(m_view->eolType());
+    changeEOLType(m_view->document()->eolType());
 
     // allow the view to change the statusbar and caption
-    connect(m_view, SIGNAL(signalChangeStatusbar(const QString&)),
-            this,   SLOT(changeStatusbar(const QString&)));
-    connect(m_view, SIGNAL(signalChangeCaption(const QString&)),
-            this,   SLOT(changeCaption(const QString&)));
+    connect(m_view, SIGNAL(signalChangeStatusbar(const QString&)), this, SLOT(changeStatusbar(const QString&)));
+    connect(m_view, SIGNAL(signalChangeCaption(const QString&, bool)), this, SLOT(setCaption(const QString&, bool)));
 
-    changeCaption("Untitled");
+    setCaption("Untitled", false);
 }
 
 Katy::~Katy()
@@ -81,7 +97,7 @@ void Katy::load(const KURL& url)
     KRecentDocument::add(url.url(), TRUE);
     m_openRecentAction->addURL(url);
     m_view->openURL(url);
-    changeEOLType(m_view->eolType());
+    changeEOLType(m_view->document()->eolType());
 }
 
 void Katy::setupActions()
@@ -120,6 +136,25 @@ void Katy::setupActions()
 bool Katy::queryExit()
 {
     m_openRecentAction->saveEntries(KGlobal::config());
+    return true;
+}
+
+bool Katy::queryClose()
+{
+    if (m_view->document()->modified())
+    {
+        switch (KMessageBox::warningYesNoCancel(this, i18n("Save changes to document?")))
+        {
+            case KMessageBox::Yes:
+                m_view->document()->save();
+                return TRUE;
+            case KMessageBox::No:
+                return TRUE;
+            default: // cancel
+                return FALSE;
+        }
+    }
+
     return true;
 }
 
@@ -207,7 +242,7 @@ void Katy::fileSave()
     // the Save shortcut is pressed (usually CTRL+S) or the Save toolbar
     // button is clicked
 
-    // save the current file
+    m_view->document()->save();
 }
 
 void Katy::fileSaveAs()
@@ -252,15 +287,15 @@ void Katy::fileChangeEOLType()
     switch (m_eolTypeAction->currentItem())
     {
         case 0:
-            m_view->setEOLType(TextDocument::EOL_CRLF);
+            m_view->document()->setEOLType(TextDocument::EOL_CRLF);
             break;
 
         case 1:
-            m_view->setEOLType(TextDocument::EOL_LF);
+            m_view->document()->setEOLType(TextDocument::EOL_LF);
             break;
 
         case 2:
-            m_view->setEOLType(TextDocument::EOL_CR);
+            m_view->document()->setEOLType(TextDocument::EOL_CR);
             break;
     }
 }
@@ -317,12 +352,6 @@ void Katy::changeStatusbar(const QString& text)
     statusBar()->message(text);
 }
 
-void Katy::changeCaption(const QString& text)
-{
-    // display the text on the caption
-    setCaption(text);
-}
-
 void Katy::changeEOLType(const TextDocument::EOLType type)
 {
     switch (type)
@@ -343,4 +372,3 @@ void Katy::changeEOLType(const TextDocument::EOLType type)
             break;
     }
 }
-
