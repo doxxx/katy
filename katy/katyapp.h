@@ -41,8 +41,7 @@ typedef QPtrListIterator<Katy> KatyListIterator;
  * This class serves as the main application class for Katy.
  *
  * @short Main application class
- * @author Gordon Tyler <gtyler@iafrica.com>
- * @version 0.3
+ * @author Gordon Tyler <gordon@doxxx.net>
  */
 class KatyApp : public KUniqueApplication
 {

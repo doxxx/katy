@@ -108,8 +108,7 @@ public:
  * TextEditor.
  *
  * @short Text document class
- * @author Gordon Tyler <gtyler@iafrica.com>
- * @version 0.3
+ * @author Gordon Tyler <gordon@doxxx.net>
  */
 class TextDocument : public QObject
 {

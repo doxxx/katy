@@ -42,8 +42,7 @@ class KRadioAction;
  * menus, toolbars, and status bars.
  *
  * @short Main window class
- * @author Gordon Tyler <gtyler@iafrica.com>
- * @version 0.3
+ * @author Gordon Tyler <gordon@doxxx.net>
  */
 class Katy : public KMainWindow
 {

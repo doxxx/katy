@@ -43,8 +43,7 @@ public:
  * a text document.
  *
  * @short Text Editor widget
- * @author Gordon Tyler <gtyler@iafrica.com>
- * @version 0.3
+ * @author Gordon Tyler <gordon@doxxx.net>
  */
 class TextEditor : public QScrollView
 {

@@ -25,7 +25,7 @@
 
 static const char *description = I18N_NOOP("A KDE Text Editor that provides similar features to UltraEdit(tm).");
 
-static const char *version = "v0.3";
+static const char *version = "v0.3.1";
 
 static KCmdLineOptions options[] =
 {
