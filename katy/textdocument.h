@@ -39,6 +39,25 @@ public:
     QString text;
 };
 
+typedef QValueList<TextLine> TextLineList;
+
+class Position
+{
+public:
+    Position()
+    {
+    }
+
+    Position(int newLine, int newColumn)
+    {
+        line = newLine;
+        column = newColumn;
+    }
+
+public:
+    int line, column;
+};
+
 /**
  * This class represents a text document that can be displayed by
  * TextEditor.
@@ -51,8 +70,6 @@ class TextDocument : public QObject
 {
     Q_OBJECT
 public:
-    typedef QValueList<TextLine> TextLineList;
-
     enum EOLType
     {
         EOL_Unknown = 0,
@@ -79,16 +96,16 @@ public:
 
     void openURL(const KURL& url);
 
-    void insertText(int line, int column, QString text);
-    void insertLine(int line, TextLine newLine, bool after=FALSE);
-    void removeLine(int line);
+    Position insertText(int line, int column, QString text);
+    void insertLines(int line, TextLineList newLines, bool after=FALSE);
+    void removeLines(int line, int count);
     void splitLine(int line, int column);
     void joinLines(int line);
 
 signals:
     void lineChanged(int line, TextLine oldLine, TextLine newLine);
-    void lineInserted(int line, TextLine newLine);
-    void lineRemoved(int line);
+    void linesInserted(int line, TextLineList newLines);
+    void linesRemoved(int line, int count);
 
 protected:
     bool loadTempFile(QString filename);
