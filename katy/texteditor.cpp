@@ -10,6 +10,8 @@
 #include <kdebug.h>
 #include <kglobalsettings.h>
 #include <qpainter.h>
+#include <qapplication.h>
+#include <qclipboard.h>
 
 #include "textdocument.h"
 
@@ -123,6 +125,16 @@ SelectionRange TextEditor::selectionRange()
     }
 
     return range;
+}
+
+QString TextEditor::selectedText()
+{
+    SelectionRange range = selectionRange();
+
+    if (!range.hasSelection)
+        return NULL;
+
+    return m_document->text(range.startLine, range.startColumn, range.endLine, range.endColumn);
 }
 
 void TextEditor::moveCursorTo(int line, int column, bool extendSelection )
@@ -428,6 +440,40 @@ void TextEditor::deselect()
     m_selectionEndColumn = -1;
 
     repaintLines(topLine, bottomLine);
+}
+
+void TextEditor::cut()
+{
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(selectedText());
+//    delete();
+}
+
+void TextEditor::copy()
+{
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(selectedText());
+}
+
+void TextEditor::paste()
+{
+    QClipboard *clipboard = QApplication::clipboard();
+    QString text = clipboard->text();
+
+    eraseCursor();
+    TextLine line = m_document->line(m_cursorLine);
+    line.text.insert(m_cursorColumn, text);
+    m_document->setLine(m_cursorLine, line);
+    m_cursorColumn += text.length();
+    ensureCursorVisible();
+}
+
+void TextEditor::selectAll()
+{
+    m_selectionAnchorColumn = m_selectionAnchorLine = 0;
+    m_selectionEndLine = m_document->lineCount() - 1;
+    m_selectionEndColumn = m_document->line(m_document->lineCount() - 1).text.length();
+    repaintLines(0, m_document->lineCount() - 1);
 }
 
 void TextEditor::document_lineChanged(int line, TextLine oldLine, TextLine newLine)
@@ -1023,3 +1069,4 @@ void TextEditor::contentsMouseMoveEvent(QMouseEvent *event)
         moveCursorTo(line, col, TRUE);
     }
 }
+

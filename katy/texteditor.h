@@ -63,6 +63,11 @@ public:
      */
     SelectionRange selectionRange();
 
+    /**
+     * Returns the selected text.
+     */
+    QString selectedText();
+
     // Operations
     void moveCursorTo(int line, int column, bool extendSelection=FALSE);
     void moveCursorLeft(bool extendSelection=FALSE);
@@ -77,7 +82,13 @@ public:
     void moveCursorDocumentEnd(bool extendSelection=FALSE);
     void deselect();
 
-protected slots:
+public slots:
+    void cut();
+    void copy();
+    void paste();
+    void selectAll();
+
+private slots:
     void document_lineChanged(int line, TextLine oldLine, TextLine newLine);
     void document_lineInserted(int line, TextLine newLine);
     void document_lineRemoved(int line);
