@@ -101,6 +101,7 @@ public slots:
     void copy();
     void paste();
     void selectAll();
+    void refresh();
 
 private slots:
     void document_lineChanged(int line, TextLine oldLine, TextLine newLine);

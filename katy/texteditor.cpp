@@ -18,15 +18,15 @@
  *
  */
 
+#include "katyapp.h"
 #include "texteditor.h"
+#include "textdocument.h"
 
 #include <kdebug.h>
 #include <kglobalsettings.h>
 #include <qpainter.h>
 #include <qapplication.h>
 #include <qclipboard.h>
-
-#include "textdocument.h"
 
 TextEditor::TextEditor(QWidget *parent, QString name)
     : QScrollView(parent, name, WNorthWestGravity | WRepaintNoErase | WResizeNoErase)
@@ -49,7 +49,7 @@ TextEditor::TextEditor(QWidget *parent, QString name)
     viewport()->setCursor(ibeamCursor);
 
     // TODO: Make configurable
-    viewport()->setFont(KGlobalSettings::fixedFont());
+    viewport()->setFont(katyapp->readConfig_Font());
 
     viewport()->setFocus();
 
@@ -61,6 +61,8 @@ TextEditor::TextEditor(QWidget *parent, QString name)
         kdWarning() << "Could not start timer for cursor flashing" << endl;
         m_cursorOn = TRUE;
     }
+
+    connect(katyapp, SIGNAL(configChanged()), this, SLOT(refresh()));
 }
 
 TextEditor::~TextEditor()
@@ -631,6 +633,14 @@ void TextEditor::selectAll()
     repaintLines(0, m_document->lineCount() - 1);
 }
 
+void TextEditor::refresh()
+{
+    viewport()->setFont(katyapp->readConfig_Font());
+    recalculateDocumentSize();
+    ensureCursorVisible();
+    viewport()->update();
+}
+
 void TextEditor::document_lineChanged(int line, TextLine oldLine, TextLine newLine)
 {
     recalculateDocumentSize(oldLine.text, newLine.text);
@@ -844,6 +854,8 @@ int TextEditor::calculateTextWidth(QFontMetrics fontMetrics, QString text, int l
     int cx = 0;
     QString temp;
     int drawTextLength = (length >= 0) ? length : text.length();
+    int tabSize = katyapp->readConfig_TabSize();
+    int column = 0;
 
     for (int i = 0; i < drawTextLength; i++)
     {
@@ -858,12 +870,14 @@ int TextEditor::calculateTextWidth(QFontMetrics fontMetrics, QString text, int l
             }
 
             // TODO: Make tab stop size configurable
-            int tabWidth = fontMetrics.width(' ') * (8 - (i % 8));
+            int tabWidth = fontMetrics.width(' ') * (tabSize - (column % tabSize));
             cx += tabWidth;
+            column += tabSize - (column % tabSize);
         }
         else
         {
             temp += c;
+            column++;
         }
     }
 
@@ -884,8 +898,26 @@ void TextEditor::paintText(QPainter *p, int x, int y, QString text, int start, i
     int cx = x;
     QString temp;
     int stop = (end >= 0) ? end : text.length();
+    int tabSize = katyapp->readConfig_TabSize();
+    int column = 0;
+    int i;
 
-    for (int i = start; i < stop; i++)
+    // first calculate the starting column for later tab size calculation
+    for (i = 0;  i < start; i++)
+    {
+        c = text[i];
+        if (c == QChar(9))
+        {
+            column += tabSize - (column % tabSize);
+        }
+        else
+        {
+            column++;
+        }
+    }
+
+    // draw characters
+    for (i = start; i < stop; i++)
     {
         c = text[i];
         if (c == QChar(9))
@@ -900,13 +932,15 @@ void TextEditor::paintText(QPainter *p, int x, int y, QString text, int start, i
             }
 
             // TODO: Make tab stop size configurable
-            int tabWidth = fontMetrics.width(' ') * (8 - (i % 8));
+            int tabWidth = fontMetrics.width(' ') * (tabSize - (column % tabSize));
             p->eraseRect(cx, y, tabWidth, lineHeight);
             cx += tabWidth;
+            column += tabSize - (column % tabSize);
         }
         else
         {
             temp += c;
+            column++;
         }
     }
 
@@ -985,12 +1019,17 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
         int endLine = (cy + ch) / lineHeight + 1;
         int maxPaintWidth = QMAX(contentsWidth(), viewport()->width());
         SelectionRange selRange = selectionRange();
+        int tabSize = katyapp->readConfig_TabSize();
+        QColor normalForeground = katyapp->readConfig_NormalForeground();
+        QColor normalBackground = katyapp->readConfig_NormalBackground();
+        QColor selectedForeground = katyapp->readConfig_SelectedForeground();
+        QColor selectedBackground = katyapp->readConfig_SelectedBackground();
 
         if (startLine < 0)
             startLine = 0;
 
         // TODO: Make tab stop size configurable
-        p->setTabStops(fontMetrics.width(' ') * 8);
+        p->setTabStops(fontMetrics.width(' ') * tabSize);
 
         int i;
 
@@ -1004,18 +1043,18 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
                 {
                     if (i == selRange.startLine && i == selRange.endLine)
                     {
-                        p->setPen(KGlobalSettings::textColor()); // TODO: Make configurable
-                        p->setBackgroundColor(KGlobalSettings::baseColor()); // TODO: Make configurable
+                        p->setPen(normalForeground); // TODO: Make configurable
+                        p->setBackgroundColor(normalBackground); // TODO: Make configurable
                         int firstWidth = calculateTextWidth(fontMetrics, text, selRange.startColumn);
                         paintText(p, 0, lineHeight * i, text, 0, selRange.startColumn);
 
-                        p->setPen(KGlobalSettings::highlightedTextColor()); // TODO: Make configurable
-                        p->setBackgroundColor(KGlobalSettings::highlightColor()); // TODO: Make configurable
+                        p->setPen(selectedForeground); // TODO: Make configurable
+                        p->setBackgroundColor(selectedBackground); // TODO: Make configurable
                         int secondWidth = calculateTextWidth(fontMetrics, text, selRange.endColumn) - firstWidth;
                         paintText(p, firstWidth, lineHeight * i, text, selRange.startColumn, selRange.endColumn);
 
-                        p->setPen(KGlobalSettings::textColor()); // TODO: Make configurable
-                        p->setBackgroundColor(KGlobalSettings::baseColor()); // TODO: Make configurable
+                        p->setPen(normalForeground); // TODO: Make configurable
+                        p->setBackgroundColor(normalBackground); // TODO: Make configurable
                         int thirdWidth = calculateTextWidth(fontMetrics, text) - secondWidth - firstWidth;
                         paintText(p, firstWidth + secondWidth, lineHeight * i, text, selRange.endColumn);
 
@@ -1023,13 +1062,13 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
                     }
                     else if (i == selRange.startLine)
                     {
-                        p->setPen(KGlobalSettings::textColor()); // TODO: Make configurable
-                        p->setBackgroundColor(KGlobalSettings::baseColor()); // TODO: Make configurable
+                        p->setPen(normalForeground); // TODO: Make configurable
+                        p->setBackgroundColor(normalBackground); // TODO: Make configurable
                         int firstWidth = calculateTextWidth(fontMetrics, text, selRange.startColumn);
                         paintText(p, 0, lineHeight * i, text, 0, selRange.startColumn);
 
-                        p->setPen(KGlobalSettings::highlightedTextColor()); // TODO: Make configurable
-                        p->setBackgroundColor(KGlobalSettings::highlightColor()); // TODO: Make configurable
+                        p->setPen(selectedForeground); // TODO: Make configurable
+                        p->setBackgroundColor(selectedBackground); // TODO: Make configurable
                         int secondWidth = calculateTextWidth(fontMetrics, text) - firstWidth;
                         paintText(p, firstWidth, lineHeight * i, text, selRange.startColumn);
 
@@ -1037,8 +1076,8 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
                     }
                     else if (i > selRange.startLine && i < selRange.endLine)
                     {
-                        p->setPen(KGlobalSettings::highlightedTextColor()); // TODO: Make configurable
-                        p->setBackgroundColor(KGlobalSettings::highlightColor()); // TODO: Make configurable
+                        p->setPen(selectedForeground); // TODO: Make configurable
+                        p->setBackgroundColor(selectedBackground); // TODO: Make configurable
                         int textWidth = calculateTextWidth(fontMetrics, text);
                         paintText(p, 0, lineHeight * i, text);
 
@@ -1046,13 +1085,13 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
                     }
                     else if (i == selRange.endLine)
                     {
-                        p->setPen(KGlobalSettings::highlightedTextColor()); // TODO: Make configurable
-                        p->setBackgroundColor(KGlobalSettings::highlightColor()); // TODO: Make configurable
+                        p->setPen(selectedForeground); // TODO: Make configurable
+                        p->setBackgroundColor(selectedBackground); // TODO: Make configurable
                         int firstWidth = calculateTextWidth(fontMetrics, text, selRange.endColumn);
                         paintText(p, 0, lineHeight * i, text, 0, selRange.endColumn);
 
-                        p->setPen(KGlobalSettings::textColor()); // TODO: Make configurable
-                        p->setBackgroundColor(KGlobalSettings::baseColor()); // TODO: Make configurable
+                        p->setPen(normalForeground); // TODO: Make configurable
+                        p->setBackgroundColor(normalBackground); // TODO: Make configurable
                         int secondWidth = calculateTextWidth(fontMetrics, text) - firstWidth;
                         paintText(p, firstWidth, lineHeight * i, text, selRange.endColumn);
 
@@ -1060,8 +1099,8 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
                     }
                     else
                     {
-                        p->setPen(KGlobalSettings::textColor()); // TODO: Make configurable
-                        p->setBackgroundColor(KGlobalSettings::baseColor()); // TODO: Make configurable
+                        p->setPen(normalForeground); // TODO: Make configurable
+                        p->setBackgroundColor(normalBackground); // TODO: Make configurable
                         int textWidth = calculateTextWidth(fontMetrics, text);
                         paintText(p, 0, lineHeight * i, text);
 
@@ -1071,9 +1110,9 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
                 else
                 {
                     if (i >= selRange.startLine && i < selRange.endLine)
-                        p->setBackgroundColor(KGlobalSettings::highlightColor()); // TODO: Make configurable
+                        p->setBackgroundColor(selectedBackground); // TODO: Make configurable
                     else
-                        p->setBackgroundColor(KGlobalSettings::baseColor()); // TODO: Make configurable
+                        p->setBackgroundColor(normalBackground); // TODO: Make configurable
 
                     p->eraseRect(0, lineHeight * i, maxPaintWidth, lineHeight);
                 }
@@ -1082,8 +1121,8 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
             {
                 if (text.length() > 0)
                 {
-                    p->setPen(KGlobalSettings::textColor()); // TODO: Make configurable
-                    p->setBackgroundColor(KGlobalSettings::baseColor()); // TODO: Make configurable
+                    p->setPen(normalForeground); // TODO: Make configurable
+                    p->setBackgroundColor(normalBackground); // TODO: Make configurable
                     int textWidth = calculateTextWidth(fontMetrics, text);
                     paintText(p, 0, lineHeight * i, text);
 
@@ -1091,7 +1130,7 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
                 }
                 else
                 {
-                    p->setBackgroundColor(KGlobalSettings::baseColor()); // TODO: Make configurable
+                    p->setBackgroundColor(normalBackground); // TODO: Make configurable
                     p->eraseRect(0, lineHeight * i, maxPaintWidth, lineHeight);
                 }
             }
@@ -1099,7 +1138,7 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 
         if (contentsHeight() < viewport()->height())
         {
-            p->setBackgroundColor(KGlobalSettings::baseColor()); // TODO: Make configurable
+            p->setBackgroundColor(normalBackground); // TODO: Make configurable
             p->eraseRect(0, contentsHeight(), maxPaintWidth, viewport()->height() - contentsHeight());
         }
 
@@ -1230,6 +1269,21 @@ void TextEditor::keyPressEvent(QKeyEvent *event)
                 }
             }
             break;
+
+        case Key_Tab:
+        {
+            SelectionRange selRange = selectionRange();
+            if (selRange.hasSelection)
+            {
+                m_document->indentLines(selRange.startLine, selRange.endLine - selRange.startLine + 1, katyapp->readConfig_UseSpaces(), katyapp->readConfig_IndentSize());
+            }
+            else
+            {
+                Position newPos = m_document->insertTab(m_cursorLine, m_cursorColumn, katyapp->readConfig_UseSpaces(), katyapp->readConfig_IndentSize());
+                moveCursorTo(newPos.line, newPos.column);
+            }
+            break;
+        }
 
         default:
             if (event->text().length() > 0)
