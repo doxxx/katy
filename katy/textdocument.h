@@ -1,3 +1,23 @@
+/*
+ * Class for Text Document
+ * Copyright (c) by Gordon Tyler <gordon@doxxx.net>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ */
+
 #ifndef TEXTDOCUMENT_H
 #define TEXTDOCUMENT_H
 
@@ -85,6 +105,7 @@ public:
     ~TextDocument();
 
     KURL url();
+    bool modified();
     int lineCount();
     TextLine line(int line);
     void setLine(int line, TextLine textLine);
@@ -95,6 +116,8 @@ public:
     QString text(int startLine, int startColumn, int endLine, int endColumn);
 
     void openURL(const KURL& url);
+    void save();
+    void saveURL(const KURL& url);
 
     Position insertText(int line, int column, QString text);
     void insertLines(int line, TextLineList newLines, bool after=FALSE);
@@ -107,15 +130,21 @@ signals:
     void lineChanged(int line, TextLine oldLine, TextLine newLine);
     void linesInserted(int line, TextLineList newLines);
     void linesRemoved(int line, int count);
+    void documentModified();
+    void documentNotModified();
 
 protected:
     bool loadTempFile(QString filename);
+    bool saveTempFile(QString filename);
+
+    void setModified(bool modified);
 
 protected:
     KURL m_url;
     TextLineList m_lines;
     EOLType m_eolType;
     bool m_loaded;
+    bool m_modified;
 };
 
 #endif
