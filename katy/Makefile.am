@@ -22,6 +22,10 @@ katy_SOURCES = main.cpp katyapp.cpp katy.cpp katyview.cpp \
 	katypref.cpp katyiface.skel \
 	textdocument.cpp texteditor.cpp 
 
+# data files for katy
+katy_datadir = ${kde_datadir}/katy
+katy_data_DATA = katyui.rc
+
 # these are the headers for your project
 noinst_HEADERS = katy.h katyapp.h katyview.h katypref.h \
 	textdocument.h texteditor.h
