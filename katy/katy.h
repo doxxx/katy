@@ -27,7 +27,10 @@
 
 #include <kmainwindow.h>
 
+#include <qptrlist.h>
+
 #include "katyview.h"
+#include "textdocument.h"
 
 class QPrinter;
 class KToggleAction;
@@ -62,6 +65,8 @@ public:
      */
     void load(const QString& url);
     void load(const KURL& url);
+    
+    TextDocument *document();
 
 protected:
     /**
@@ -93,6 +98,9 @@ private slots:
     void fileOpenRecent(const KURL& url);
     void fileSave();
     void fileSaveAs();
+    void fileSaveAll();
+    void fileClose();
+    void fileCloseAll();
     void filePrint();
     void fileChangeEOLType();
     void editFind();

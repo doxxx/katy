@@ -93,7 +93,7 @@ Katy::Katy()
 
 Katy::~Katy()
 {
-    ((KatyApp*)kapp)->removeWindow(this);
+    katyapp->removeWindow(this);
 }
 
 void Katy::load(const QString& url)
@@ -110,6 +110,11 @@ void Katy::load(const KURL& url)
     changeEOLType(m_view->document()->eolType());
 }
 
+TextDocument *Katy::document()
+{
+    return m_view->document();
+}
+
 void Katy::setupActions()
 {
     KStdAction::openNew(this, SLOT(fileNew()), actionCollection());
@@ -118,7 +123,10 @@ void Katy::setupActions()
     m_openRecentAction->loadEntries(KGlobal::config());
     KStdAction::save(this, SLOT(fileSave()), actionCollection());
     KStdAction::saveAs(this, SLOT(fileSaveAs()), actionCollection());
-    KStdAction::print(this, SLOT(filePrint()), actionCollection());
+    new KAction(i18n("Save All..."), 0, this, SLOT(fileSaveAll()), actionCollection(), "file_save_all");
+    KStdAction::close(this, SLOT(fileClose()), actionCollection());
+    new KAction(i18n("Close All..."), 0, this, SLOT(fileCloseAll()), actionCollection(), "file_close_all");
+    //KStdAction::print(this, SLOT(filePrint()), actionCollection());
 
     m_eolTypeAction = new KSelectAction(i18n("EOL Type"), 0, this, SLOT(fileChangeEOLType()), actionCollection(), "file_eol_type");
     QStringList eolTypesList;
@@ -146,7 +154,7 @@ void Katy::setupActions()
     KStdAction::keyBindings(this, SLOT(configureKeys()), actionCollection());
     KStdAction::configureToolbars(this, SLOT(configureToolbars()), actionCollection());
     KStdAction::preferences(this, SLOT(preferences()), actionCollection());
-
+    
     createGUI();
 }
 
@@ -230,7 +238,7 @@ void Katy::fileNew()
     // button is clicked
 
     // create a new window
-    (new Katy)->show();
+    katyapp->newWindow()->show();
 }
 
 void Katy::fileOpen()
@@ -287,6 +295,29 @@ void Katy::fileSaveAs()
         m_view->document()->saveURL(file_url);
         // add new url to recent documents list
         m_openRecentAction->addURL(file_url);
+    }
+}
+
+void Katy::fileSaveAll()
+{
+    Katy *window;
+    for (window = katyapp->windows().first(); window; window = katyapp->windows().next())
+    {
+        window->fileSave();
+    }
+}
+
+void Katy::fileClose()
+{
+    close();
+}
+
+void Katy::fileCloseAll()
+{
+    Katy *window;
+    for (window = katyapp->windows().first(); window; window = katyapp->windows().next())
+    {
+        window->close();
     }
 }
 
@@ -538,4 +569,3 @@ void Katy::updateLineColumn(int line, int column)
     statusBar()->changeItem(i18n("Line %1").arg(QString::number(line + 1)), StatusBar_Line);
     statusBar()->changeItem(i18n("Column %1").arg(QString::number(column + 1)), StatusBar_Column);
 }
-
