@@ -19,8 +19,9 @@ katy_LDADD = $(LIB_KFILE)
 
 # which sources should be compiled for katy
 katy_SOURCES = main.cpp katyapp.cpp katy.cpp katyview.cpp \
-	katypref.cpp katyiface.skel \
-	textdocument.cpp texteditor.cpp 
+	katypref.cpp textdocument.cpp texteditor.cpp \
+	katyprefappearance.cpp katyprefindenting.cpp \
+	katytabstospaces.cpp katytabstospacesimpl.cpp
 
 # data files for katy
 katy_datadir = ${kde_datadir}/katy
@@ -28,7 +29,9 @@ katy_data_DATA = katyui.rc
 
 # these are the headers for your project
 noinst_HEADERS = katy.h katyapp.h katyview.h katypref.h \
-	textdocument.h texteditor.h
+	textdocument.h texteditor.h katyprefappearance.h \
+	katyprefindenting.h katytabstospaces.h \
+	katytabstospacesimpl.h
 
 # client stuff
 #katy_client_LDFLAGS = $(KDE_RPATH) $(all_libraries)
