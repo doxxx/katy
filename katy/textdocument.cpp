@@ -255,13 +255,10 @@ void TextDocument::removeText(int startLine, int startColumn, int endLine, int e
     {
         oldLine = m_lines[startLine];
         m_lines[startLine].text.truncate(startColumn);
+        m_lines[startLine].text += m_lines[endLine].text.mid(endColumn, m_lines[endLine].text.length());
         emit lineChanged(startLine, oldLine, m_lines[startLine]);
 
-        removeLines(startLine + 1, endLine - startLine - 1);
-
-        oldLine = m_lines[startLine + 1];
-        m_lines[startLine + 1].text.remove(0, endColumn);
-        emit lineChanged(startLine + 1, oldLine, m_lines[startLine + 1]);
+        removeLines(startLine + 1, endLine - startLine);
     }
 }
 
