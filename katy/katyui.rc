@@ -10,7 +10,6 @@
     </Menu>
     <Menu name="windows">
       <text>&amp;Windows</text>
-      <TearOffHandle/>
       <ActionList name="window_list"/>
     </Menu>
   </MenuBar>
