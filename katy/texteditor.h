@@ -15,6 +15,13 @@ class QPainter;
 
 class TextDocument;
 
+class SelectionRange
+{
+public:
+    int startLine, startColumn, endLine, endColumn;
+    bool hasSelection;
+};
+
 /**
  * This is the TextEditor widget which displays and allows editing of
  * a text document.
@@ -39,12 +46,16 @@ public:
     // Attributes
     TextDocument *document();
     void setDocument(TextDocument *doc);
+    SelectionRange selectionRange();
 
     // Operations
     void moveCursorLeft(bool extendSelection = FALSE);
     void moveCursorRight(bool extendSelection = FALSE);
     void moveCursorUp(bool extendSelection = FALSE);
     void moveCursorDown(bool extendSelection = FALSE);
+    void moveCursorHome(bool extendSelection = FALSE);
+    void moveCurosrEnd(bool extendSelection = FALSE);
+    void deselect();
 
 public slots:
 
@@ -56,9 +67,12 @@ protected:
     void keyPressEvent(QKeyEvent *event);
 
     void recalculateDocumentSize();
-    QRect calculateCursorRect();
+    QRect calculateCursorRect(int cursorLine, int cursorColumn);
     void eraseCursor();
     void drawCursor();
+    void ensureCursorVisible();
+    void extendSelectionTo(int line, int column);
+    void updateLines(int start, int end);
 
 private:
     // runtime data
@@ -69,6 +83,8 @@ private:
     bool m_cursorOn;
     int m_selectionAnchorLine;
     int m_selectionAnchorColumn;
+    int m_selectionEndLine;
+    int m_selectionEndColumn;
 
     // configurable data
 
