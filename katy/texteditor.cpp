@@ -62,7 +62,7 @@ TextEditor::TextEditor(QWidget *parent, QString name)
         m_cursorOn = TRUE;
     }
 
-    connect(katyapp, SIGNAL(configChanged()), this, SLOT(refresh()));
+    connect(katyapp, SIGNAL(configChanged()), SLOT(refresh()));
 }
 
 TextEditor::~TextEditor()
@@ -79,9 +79,11 @@ void TextEditor::setDocument(TextDocument *doc)
     m_selectionAnchorLine = -1;
     m_selectionAnchorColumn = -1;
 
-    connect(m_document, SIGNAL(lineChanged(int, TextLine, TextLine)), this, SLOT(document_lineChanged(int, TextLine, TextLine)));
-    connect(m_document, SIGNAL(linesInserted(int, TextLineList)), this, SLOT(document_linesInserted(int, TextLineList)));
-    connect(m_document, SIGNAL(linesRemoved(int, int)), this, SLOT(document_linesRemoved(int, int)));
+    setContentsPos(0, 0);
+
+    connect(m_document, SIGNAL(lineChanged(int, TextLine, TextLine)), SLOT(document_lineChanged(int, TextLine, TextLine)));
+    connect(m_document, SIGNAL(linesInserted(int, TextLineList)), SLOT(document_linesInserted(int, TextLineList)));
+    connect(m_document, SIGNAL(linesRemoved(int, int)), SLOT(document_linesRemoved(int, int)));
 
     recalculateDocumentSize();
     viewport()->update();
