@@ -7,6 +7,7 @@
 #include "katy.h"
 #include "katyapp.h"
 #include "textdocument.h"
+#include "texteditor.h"
 #include "katypref.h"
 
 #include <qdragobject.h>
@@ -91,6 +92,11 @@ void Katy::setupActions()
     KStdAction::saveAs(this, SLOT(fileSaveAs()), actionCollection());
     KStdAction::print(this, SLOT(filePrint()), actionCollection());
     KStdAction::quit(kapp, SLOT(quit()), actionCollection());
+
+    KStdAction::cut(m_view->editor(), SLOT(cut()), actionCollection());
+    KStdAction::copy(m_view->editor(), SLOT(copy()), actionCollection());
+    KStdAction::paste(m_view->editor(), SLOT(paste()), actionCollection());
+    KStdAction::selectAll(m_view->editor(), SLOT(selectAll()), actionCollection());
 
     m_toolbarAction = KStdAction::showToolbar(this, SLOT(showToolbar()), actionCollection());
     m_statusbarAction = KStdAction::showStatusbar(this, SLOT(showStatusbar()), actionCollection());
@@ -337,3 +343,4 @@ void Katy::changeEOLType(const TextDocument::EOLType type)
             break;
     }
 }
+
