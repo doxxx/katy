@@ -24,6 +24,9 @@
 #include "texteditor.h"
 #include "katypref.h"
 #include "katytabstospacesimpl.h"
+#include "katyfindimpl.h"
+#include "katyreplaceimpl.h"
+#include "katyreplacingimpl.h"
 
 #include <qdragobject.h>
 #include <qlineedit.h>
@@ -105,22 +108,11 @@ void Katy::setupActions()
 {
     KStdAction::openNew(this, SLOT(fileNew()), actionCollection());
     KStdAction::open(this, SLOT(fileOpen()), actionCollection());
+    m_openRecentAction = KStdAction::openRecent(this, SLOT(fileOpenRecent(const KURL&)), actionCollection());
+    m_openRecentAction->loadEntries(KGlobal::config());
     KStdAction::save(this, SLOT(fileSave()), actionCollection());
     KStdAction::saveAs(this, SLOT(fileSaveAs()), actionCollection());
     KStdAction::print(this, SLOT(filePrint()), actionCollection());
-    KStdAction::quit(kapp, SLOT(quit()), actionCollection());
-
-    KStdAction::cut(m_view->editor(), SLOT(cut()), actionCollection());
-    KStdAction::copy(m_view->editor(), SLOT(copy()), actionCollection());
-    KStdAction::paste(m_view->editor(), SLOT(paste()), actionCollection());
-    KStdAction::selectAll(m_view->editor(), SLOT(selectAll()), actionCollection());
-
-    m_toolbarAction = KStdAction::showToolbar(this, SLOT(showToolbar()), actionCollection());
-    m_statusbarAction = KStdAction::showStatusbar(this, SLOT(showStatusbar()), actionCollection());
-
-    KStdAction::keyBindings(this, SLOT(configureKeys()), actionCollection());
-    KStdAction::configureToolbars(this, SLOT(configureToolbars()), actionCollection());
-    KStdAction::preferences(this, SLOT(preferences()), actionCollection());
 
     m_eolTypeAction = new KSelectAction(i18n("EOL Type"), 0, this, SLOT(fileChangeEOLType()), actionCollection(), "file_eol_type");
     QStringList eolTypesList;
@@ -128,11 +120,26 @@ void Katy::setupActions()
     m_eolTypeAction->setItems(eolTypesList);
     m_eolTypeAction->setCurrentItem(1);
 
-    m_openRecentAction = KStdAction::openRecent(this, SLOT(fileOpenRecent(const KURL&)), actionCollection());
-    m_openRecentAction->loadEntries(KGlobal::config());
+    KStdAction::quit(kapp, SLOT(quit()), actionCollection());
 
-    m_tabsToSpacesAction = new KAction(i18n("Tabs to Spaces"), 0, this, SLOT(editTabsToSpaces()), actionCollection(), "edit_tabs_to_spaces");
-    m_spacesToTabsAction = new KAction(i18n("Spaces to Tabs"), 0, this, SLOT(editSpacesToTabs()), actionCollection(), "edit_spaces_to_tabs");
+    KStdAction::cut(m_view->editor(), SLOT(cut()), actionCollection());
+    KStdAction::copy(m_view->editor(), SLOT(copy()), actionCollection());
+    KStdAction::paste(m_view->editor(), SLOT(paste()), actionCollection());
+    KStdAction::selectAll(m_view->editor(), SLOT(selectAll()), actionCollection());
+
+    KStdAction::find(this, SLOT(editFind()), actionCollection());
+    KStdAction::findNext(this, SLOT(editFindNext()), actionCollection());
+    KStdAction::replace(this, SLOT(editReplace()), actionCollection());
+
+    m_tabsToSpacesAction = new KAction(i18n("Tabs to Spaces..."), 0, this, SLOT(editTabsToSpaces()), actionCollection(), "edit_tabs_to_spaces");
+    m_spacesToTabsAction = new KAction(i18n("Spaces to Tabs..."), 0, this, SLOT(editSpacesToTabs()), actionCollection(), "edit_spaces_to_tabs");
+
+    m_toolbarAction = KStdAction::showToolbar(this, SLOT(showToolbar()), actionCollection());
+    m_statusbarAction = KStdAction::showStatusbar(this, SLOT(showStatusbar()), actionCollection());
+
+    KStdAction::keyBindings(this, SLOT(configureKeys()), actionCollection());
+    KStdAction::configureToolbars(this, SLOT(configureToolbars()), actionCollection());
+    KStdAction::preferences(this, SLOT(preferences()), actionCollection());
 
     createGUI();
 }
@@ -301,6 +308,113 @@ void Katy::fileChangeEOLType()
         case 2:
             m_view->document()->setEOLType(TextDocument::EOL_CR);
             break;
+    }
+}
+
+void Katy::editFind()
+{
+    int result = KatyFindImpl::show(this, m_findText, m_backward, m_caseSensitive, m_regularExpression);
+
+    if (result == QDialog::Accepted)
+    {
+        int flags = 0;
+
+        if (m_backward)
+            flags |= TextDocument::Backward;
+        if (m_caseSensitive)
+            flags |= TextDocument::CaseSensitive;
+        if (m_regularExpression)
+            flags |= TextDocument::RegularExpression;
+
+        DocumentRange range = m_view->document()->findText(m_findText, m_view->editor()->documentPosition(), flags);
+        if (range.valid)
+        {
+            m_view->editor()->moveCursorTo(range.startLine, range.startColumn);
+            m_view->editor()->moveCursorTo(range.endLine, range.endColumn, TRUE);
+        }
+    }
+}
+
+void Katy::editFindNext()
+{
+    int flags = 0;
+
+    if (m_backward)
+        flags |= TextDocument::Backward;
+    if (m_caseSensitive)
+        flags |= TextDocument::CaseSensitive;
+    if (m_regularExpression)
+        flags |= TextDocument::RegularExpression;
+
+    DocumentRange range = m_view->document()->findText(m_findText, m_view->editor()->documentPosition(), flags);
+    if (range.valid)
+    {
+        m_view->editor()->moveCursorTo(range.startLine, range.startColumn);
+        m_view->editor()->moveCursorTo(range.endLine, range.endColumn, TRUE);
+    }
+}
+
+void Katy::editReplace()
+{
+    int result = KatyReplaceImpl::show(this, m_findText, m_replaceText, m_backward, m_caseSensitive, m_regularExpression);
+
+    if (result == QDialog::Accepted)
+    {
+        int flags = 0;
+
+        if (m_backward)
+            flags |= TextDocument::Backward;
+        if (m_caseSensitive)
+            flags |= TextDocument::CaseSensitive;
+        if (m_regularExpression)
+            flags |= TextDocument::RegularExpression;
+
+        DocumentRange range = m_view->document()->findText(m_findText, m_view->editor()->documentPosition(), flags);
+        bool cancel = FALSE;
+        bool ask = TRUE;
+
+        while (range.valid && !cancel)
+        {
+            m_view->editor()->moveCursorTo(range.startLine, range.startColumn);
+            m_view->editor()->moveCursorTo(range.endLine, range.endColumn, TRUE);
+
+            bool replace = FALSE;
+
+            if (ask)
+            {
+                result = KatyReplacingImpl::ask(this);
+                switch (result)
+                {
+                    case KatyReplacingImpl::Replace:
+                        replace = TRUE;
+                        break;
+
+                    case KatyReplacingImpl::ReplaceAll:
+                        replace = TRUE;
+                        ask = FALSE;
+                        break;
+
+                    case KatyReplacingImpl::Skip:
+                        break;
+
+                    case QDialog::Rejected:
+                        cancel = TRUE;
+                        break;
+                }
+            }
+            else
+            {
+                replace = TRUE;
+            }
+
+            if (replace)
+                m_view->editor()->setSelectedText(m_replaceText);
+
+            katyapp->processEvents();
+
+            if (!cancel)
+                range = m_view->document()->findText(m_findText, m_view->editor()->documentPosition(), flags);
+        }
     }
 }
 

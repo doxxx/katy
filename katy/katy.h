@@ -97,6 +97,9 @@ private slots:
     void fileSaveAs();
     void filePrint();
     void fileChangeEOLType();
+    void editFind();
+    void editFindNext();
+    void editReplace();
     void editTabsToSpaces();
     void editSpacesToTabs();
     void showToolbar();
@@ -123,6 +126,13 @@ private:
     KRecentFilesAction *m_openRecentAction;
     KAction *m_tabsToSpacesAction;
     KAction *m_spacesToTabsAction;
+
+    QString m_findText;
+    QString m_replaceText;
+    bool m_backward;
+    bool m_caseSensitive;
+    bool m_regularExpression;
+
 };
 
 #endif // KATY_H
