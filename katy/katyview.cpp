@@ -48,3 +48,14 @@ void KatyView::setEOLType(TextDocument::EOLType type)
 {
     m_document->setEOLType(type);
 }
+
+TextDocument *KatyView::document()
+{
+    return m_document;
+}
+
+TextEditor *KatyView::editor()
+{
+    return m_editor;
+}
+

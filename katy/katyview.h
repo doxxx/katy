@@ -32,26 +32,29 @@ public:
     /**
      * Random 'set' function
      */
-    virtual void openURL(const KURL& url);
+    void openURL(const KURL& url);
 
     /**
      * Get the End Of Line type
      */
-    virtual TextDocument::EOLType eolType();
+    TextDocument::EOLType eolType();
 
     /**
      * Set the End Of Line type
      */
-    virtual void setEOLType(TextDocument::EOLType type);
+    void setEOLType(TextDocument::EOLType type);
+
+    TextDocument *document();
+    TextEditor *editor();
 
 signals:
     /**
-     * Use this signal to change the content of the statusbar
+     * Change the content of the statusbar
      */
     void signalChangeStatusbar(const QString& text);
 
     /**
-     * Use this signal to change the content of the caption
+     * Change the content of the caption
      */
     void signalChangeCaption(const QString& text);
 
