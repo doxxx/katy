@@ -47,6 +47,10 @@ KatyView::KatyView(QWidget *parent)
 
 KatyView::~KatyView()
 {
+    if (m_document != NULL)
+    {
+        delete m_document;
+    }
 }
 
 KURL KatyView::currentURL()
