@@ -848,7 +848,6 @@ int TextEditor::calculateTextWidth(QFontMetrics fontMetrics, QString text, int l
                 temp.truncate(0);
             }
 
-            // TODO: Make tab stop size configurable
             int tabWidth = fontMetrics.width(' ') * (tabSize - (column % tabSize));
             cx += tabWidth;
             column += tabSize - (column % tabSize);
@@ -910,7 +909,6 @@ void TextEditor::paintText(QPainter *p, int x, int y, QString text, int start, i
                 temp.truncate(0);
             }
 
-            // TODO: Make tab stop size configurable
             int tabWidth = fontMetrics.width(' ') * (tabSize - (column % tabSize));
             p->eraseRect(cx, y, tabWidth, lineHeight);
             cx += tabWidth;
@@ -1008,7 +1006,6 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
         if (startLine < 0)
             startLine = 0;
 
-        // TODO: Make tab stop size configurable
         p->setTabStops(fontMetrics.width(' ') * tabSize);
 
         int i;
@@ -1023,18 +1020,18 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
                 {
                     if (i == selRange.startLine && i == selRange.endLine)
                     {
-                        p->setPen(normalForeground); // TODO: Make configurable
-                        p->setBackgroundColor(normalBackground); // TODO: Make configurable
+                        p->setPen(normalForeground);
+                        p->setBackgroundColor(normalBackground);
                         int firstWidth = calculateTextWidth(fontMetrics, text, selRange.startColumn);
                         paintText(p, 0, lineHeight * i, text, 0, selRange.startColumn);
 
-                        p->setPen(selectedForeground); // TODO: Make configurable
-                        p->setBackgroundColor(selectedBackground); // TODO: Make configurable
+                        p->setPen(selectedForeground);
+                        p->setBackgroundColor(selectedBackground);
                         int secondWidth = calculateTextWidth(fontMetrics, text, selRange.endColumn) - firstWidth;
                         paintText(p, firstWidth, lineHeight * i, text, selRange.startColumn, selRange.endColumn);
 
-                        p->setPen(normalForeground); // TODO: Make configurable
-                        p->setBackgroundColor(normalBackground); // TODO: Make configurable
+                        p->setPen(normalForeground);
+                        p->setBackgroundColor(normalBackground);
                         int thirdWidth = calculateTextWidth(fontMetrics, text) - secondWidth - firstWidth;
                         paintText(p, firstWidth + secondWidth, lineHeight * i, text, selRange.endColumn);
 
@@ -1042,13 +1039,13 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
                     }
                     else if (i == selRange.startLine)
                     {
-                        p->setPen(normalForeground); // TODO: Make configurable
-                        p->setBackgroundColor(normalBackground); // TODO: Make configurable
+                        p->setPen(normalForeground);
+                        p->setBackgroundColor(normalBackground);
                         int firstWidth = calculateTextWidth(fontMetrics, text, selRange.startColumn);
                         paintText(p, 0, lineHeight * i, text, 0, selRange.startColumn);
 
-                        p->setPen(selectedForeground); // TODO: Make configurable
-                        p->setBackgroundColor(selectedBackground); // TODO: Make configurable
+                        p->setPen(selectedForeground);
+                        p->setBackgroundColor(selectedBackground);
                         int secondWidth = calculateTextWidth(fontMetrics, text) - firstWidth;
                         paintText(p, firstWidth, lineHeight * i, text, selRange.startColumn);
 
@@ -1056,8 +1053,8 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
                     }
                     else if (i > selRange.startLine && i < selRange.endLine)
                     {
-                        p->setPen(selectedForeground); // TODO: Make configurable
-                        p->setBackgroundColor(selectedBackground); // TODO: Make configurable
+                        p->setPen(selectedForeground);
+                        p->setBackgroundColor(selectedBackground);
                         int textWidth = calculateTextWidth(fontMetrics, text);
                         paintText(p, 0, lineHeight * i, text);
 
@@ -1065,13 +1062,13 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
                     }
                     else if (i == selRange.endLine)
                     {
-                        p->setPen(selectedForeground); // TODO: Make configurable
-                        p->setBackgroundColor(selectedBackground); // TODO: Make configurable
+                        p->setPen(selectedForeground);
+                        p->setBackgroundColor(selectedBackground);
                         int firstWidth = calculateTextWidth(fontMetrics, text, selRange.endColumn);
                         paintText(p, 0, lineHeight * i, text, 0, selRange.endColumn);
 
-                        p->setPen(normalForeground); // TODO: Make configurable
-                        p->setBackgroundColor(normalBackground); // TODO: Make configurable
+                        p->setPen(normalForeground);
+                        p->setBackgroundColor(normalBackground);
                         int secondWidth = calculateTextWidth(fontMetrics, text) - firstWidth;
                         paintText(p, firstWidth, lineHeight * i, text, selRange.endColumn);
 
@@ -1079,8 +1076,8 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
                     }
                     else
                     {
-                        p->setPen(normalForeground); // TODO: Make configurable
-                        p->setBackgroundColor(normalBackground); // TODO: Make configurable
+                        p->setPen(normalForeground);
+                        p->setBackgroundColor(normalBackground);
                         int textWidth = calculateTextWidth(fontMetrics, text);
                         paintText(p, 0, lineHeight * i, text);
 
@@ -1090,9 +1087,9 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
                 else
                 {
                     if (i >= selRange.startLine && i < selRange.endLine)
-                        p->setBackgroundColor(selectedBackground); // TODO: Make configurable
+                        p->setBackgroundColor(selectedBackground);
                     else
-                        p->setBackgroundColor(normalBackground); // TODO: Make configurable
+                        p->setBackgroundColor(normalBackground);
 
                     p->eraseRect(0, lineHeight * i, maxPaintWidth, lineHeight);
                 }
@@ -1101,8 +1098,8 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
             {
                 if (text.length() > 0)
                 {
-                    p->setPen(normalForeground); // TODO: Make configurable
-                    p->setBackgroundColor(normalBackground); // TODO: Make configurable
+                    p->setPen(normalForeground);
+                    p->setBackgroundColor(normalBackground);
                     int textWidth = calculateTextWidth(fontMetrics, text);
                     paintText(p, 0, lineHeight * i, text);
 
@@ -1110,7 +1107,7 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
                 }
                 else
                 {
-                    p->setBackgroundColor(normalBackground); // TODO: Make configurable
+                    p->setBackgroundColor(normalBackground);
                     p->eraseRect(0, lineHeight * i, maxPaintWidth, lineHeight);
                 }
             }
@@ -1118,7 +1115,7 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 
         if (contentsHeight() < viewport()->height())
         {
-            p->setBackgroundColor(normalBackground); // TODO: Make configurable
+            p->setBackgroundColor(normalBackground);
             p->eraseRect(0, contentsHeight(), maxPaintWidth, viewport()->height() - contentsHeight());
         }
 
