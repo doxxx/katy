@@ -688,3 +688,158 @@ void TextDocument::slotStatJobResult(KIO::Job *job)
     m_statTimerId = startTimer(STAT_TIMER_INTERVAL); // TODO: Make configurable
 }
 
+DocumentPosition TextDocument::findWordStart(DocumentPosition start, bool left)
+{
+    DocumentPosition pos = start;
+    QString text;
+    QChar c; // current character
+    QChar prevc; // previous character
+    bool stop = FALSE;
+
+    text = m_lines[pos.line].text;
+
+    if (left)
+    {
+        if (pos.column == 0)
+        {
+            stop = TRUE;
+        }
+        else
+        {
+            pos.column--;
+            c = text[pos.column];
+        }
+
+        while (!stop)
+        {
+            if (pos.column > 0)
+            {
+                prevc = c;
+                pos.column--;
+                c = text[pos.column];
+            }
+            else
+            {
+                stop = TRUE;
+            }
+
+            if ((prevc.isLetterOrNumber() && !c.isLetterOrNumber()) || (prevc.isPunct() && !c.isPunct()))
+            {
+                pos.column++;
+                stop = TRUE;
+                continue;
+            }
+        }
+    }
+    else
+    {
+        if (pos.column == text.length())
+        {
+            stop = TRUE;
+        }
+        else
+        {
+            c = text[pos.column];
+        }
+
+        while (!stop)
+        {
+            if (pos.column < text.length())
+            {
+                prevc = c;
+                pos.column++;
+                c = text[pos.column];
+            }
+            else
+            {
+                stop = TRUE;
+            }
+
+            if ((!prevc.isLetterOrNumber() && c.isLetterOrNumber()) || (!prevc.isPunct() && c.isPunct()))
+            {
+                stop = TRUE;
+                continue;
+            }
+        }
+    }
+
+    return pos;
+}
+
+DocumentPosition TextDocument::findWordEnd(DocumentPosition start, bool right)
+{
+    DocumentPosition pos = start; // current position
+    QString text; // current line
+    QChar c; // current char
+    QChar prevc; // previous char
+    bool stop = FALSE;
+
+    text = m_lines[pos.line].text;
+
+    if (right)
+    {
+        if (pos.column == text.length())
+        {
+            stop = TRUE;
+        }
+        else
+        {
+            c = text[pos.column];
+        }
+
+        while (!stop)
+        {
+            if (pos.column < text.length())
+            {
+                prevc = c;
+                pos.column++;
+                c = text[pos.column];
+            }
+            else
+            {
+                stop = TRUE;
+            }
+
+            if ((prevc.isLetterOrNumber() && !c.isLetterOrNumber()) || (prevc.isPunct() && !c.isPunct()))
+            {
+                stop = TRUE;
+                continue;
+            }
+        }
+    }
+    else
+    {
+        if (pos.column == 0)
+        {
+            stop = TRUE;
+        }
+        else
+        {
+            pos.column--;
+            c = text[pos.column];
+        }
+
+        while (!stop)
+        {
+            if (pos.column > 0)
+            {
+                prevc = c;
+                pos.column--;
+                c = text[pos.column];
+            }
+            else
+            {
+                stop = TRUE;
+            }
+
+            if ((!prevc.isLetterOrNumber() && c.isLetterOrNumber()) || (!prevc.isPunct() && c.isPunct()))
+            {
+                stop = TRUE;
+                continue;
+            }
+        }
+    }
+
+    return pos;
+}
+

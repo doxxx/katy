@@ -162,6 +162,8 @@ public:
     void tabsToSpaces(int numberOfSpaces, bool leadingTabsOnly);
     void spacesToTabs(int numberOfSpaces, bool leadingSpacesOnly);
     DocumentRange findText(QString text, DocumentPosition start, int flags);
+    DocumentPosition findWordStart(DocumentPosition start, bool left=TRUE);
+    DocumentPosition findWordEnd(DocumentPosition start, bool right=TRUE);
 
 signals:
     void lineChanged(int line, TextLine oldLine, TextLine newLine);
