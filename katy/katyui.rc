@@ -4,5 +4,9 @@
     <Menu name="file">
       <Action name="file_eol_type"/>
     </Menu>
+    <Menu name="edit">
+      <Action name="edit_tabs_to_spaces"/>
+      <Action name="edit_spaces_to_tabs"/>
+    </Menu>
   </MenuBar>
 </kpartgui>
