@@ -66,6 +66,11 @@ void TextEditor::setDocument(TextDocument *doc)
     m_cursorColumn = 0;
     m_selectionAnchorLine = -1;
     m_selectionAnchorColumn = -1;
+
+    connect(m_document, SIGNAL(lineChanged(int, TextLine, TextLine)), this, SLOT(document_lineChanged(int, TextLine, TextLine)));
+    connect(m_document, SIGNAL(lineInserted(int, TextLine)), this, SLOT(document_lineInserted(int, TextLine)));
+    connect(m_document, SIGNAL(lineRemoved(int)), this, SLOT(document_lineRemoved(int)));
+
     recalculateDocumentSize();
     viewport()->update();
 }
@@ -310,14 +315,70 @@ void TextEditor::moveCursorPageUp(bool extendSelection )
 
 void TextEditor::moveCursorPageDown(bool extendSelection )
 {
+    int cursorColumn = m_cursorColumn,
+          cursorLine = m_cursorLine,
+     pageHeightLines = viewport()->height() / viewport()->fontMetrics().lineSpacing();
+
+    if (cursorLine < m_document->lineCount() - pageHeightLines)
+    {
+        cursorLine += pageHeightLines;
+    }
+    else
+    {
+        cursorLine = m_document->lineCount() - 1;
+    }
+
+    int lineLength = m_document->line(cursorLine).text.length();
+    if (cursorColumn > lineLength)
+        cursorColumn = lineLength;
+
+    if (extendSelection)
+        extendSelectionTo(cursorLine, cursorColumn);
+    else
+        deselect();
+
+    eraseCursor();
+
+    m_cursorColumn = cursorColumn;
+    m_cursorLine = cursorLine;
+
+    scrollBy(0, pageHeightLines * viewport()->fontMetrics().lineSpacing());
 }
 
 void TextEditor::moveCursorHome(bool extendSelection)
 {
+    int cursorColumn = 0,
+          cursorLine = m_cursorLine;
+
+    if (extendSelection)
+        extendSelectionTo(cursorLine, cursorColumn);
+    else
+        deselect();
+
+    eraseCursor();
+
+    m_cursorColumn = cursorColumn;
+    m_cursorLine = cursorLine;
+
+    ensureCursorVisible();
 }
 
 void TextEditor::moveCursorEnd(bool extendSelection)
 {
+    int cursorColumn = m_document->line(m_cursorLine).text.length(),
+          cursorLine = m_cursorLine;
+
+    if (extendSelection)
+        extendSelectionTo(cursorLine, cursorColumn);
+    else
+        deselect();
+
+    eraseCursor();
+
+    m_cursorColumn = cursorColumn;
+    m_cursorLine = cursorLine;
+
+    ensureCursorVisible();
 }
 
 void TextEditor::deselect()
@@ -331,6 +392,24 @@ void TextEditor::deselect()
     m_selectionEndColumn = -1;
 
     repaintLines(topLine, bottomLine);
+}
+
+void TextEditor::document_lineChanged(int line, TextLine oldLine, TextLine newLine)
+{
+    recalculateDocumentSize(oldLine.text, newLine.text);
+    repaintLines(line, line);
+}
+
+void TextEditor::document_lineInserted(int line, TextLine newLine)
+{
+    recalculateDocumentSize(newLine.text);
+    repaintLines(line, m_document->lineCount() - 1);
+}
+
+void TextEditor::document_lineRemoved(int line)
+{
+    recalculateDocumentSize();
+    repaintLines(line, m_document->lineCount() - 1);
 }
 
 void TextEditor::recalculateDocumentSize()
@@ -362,6 +441,24 @@ void TextEditor::recalculateDocumentSize()
     resizeContents(documentWidth, documentHeight);
 }
 
+void TextEditor::recalculateDocumentSize(QString newLineText)
+{
+    if (m_document == NULL)
+    {
+        resizeContents(0, 0);
+        return;
+    }
+
+    QFontMetrics fontMetrics = viewport()->fontMetrics();
+    int documentHeight = contentsHeight() + fontMetrics.lineSpacing();
+    int documentWidth = contentsWidth();
+    int newLineWidth = calculateTextWidth(fontMetrics, newLineText);
+
+    if (newLineWidth > documentWidth)
+        resizeContents(newLineWidth, documentHeight);
+    else
+        resizeContents(documentWidth, documentHeight);
+}
 void TextEditor::recalculateDocumentSize(QString oldLineText, QString newLineText)
 {
     if (m_document == NULL)
@@ -503,7 +600,6 @@ void TextEditor::repaintLines(int start, int end)
 
 int TextEditor::calculateTextWidth(QFontMetrics fontMetrics, QString text, int length)
 {
-    int lineHeight = fontMetrics.lineSpacing();
     QChar c;
     int cx = 0;
     QString temp;
@@ -785,33 +881,68 @@ void TextEditor::keyPressEvent(QKeyEvent *event)
             moveCursorPageDown(shiftPressed);
             break;
 
+        case Key_Home:
+            moveCursorHome(shiftPressed);
+            break;
+
+        case Key_End:
+            moveCursorEnd(shiftPressed);
+            break;
+
         case Key_Enter:
         case Key_Return:
-        {
-            kdDebug() << "Enter" << endl;
-            TextLine line = m_document->line(m_cursorLine);
-            TextLine newLine(line.text.mid(m_cursorColumn));
-            line.text.truncate(m_cursorColumn);
-            m_document->setLine(m_cursorLine, line);
-            m_document->insertLine(m_cursorLine, newLine, TRUE);
+            eraseCursor();
+            m_document->splitLine(m_cursorLine, m_cursorColumn);
             m_cursorColumn = 0;
             m_cursorLine++;
-            recalculateDocumentSize();
-            repaintLines(m_cursorLine - 1, m_document->lineCount() - 1);
             ensureCursorVisible();
-        }
-        break;
+            break;
+
+        case Key_Backspace:
+            if (m_cursorColumn > 0)
+            {
+                eraseCursor();
+                TextLine line = m_document->line(m_cursorLine);
+                line.text.remove(--m_cursorColumn, 1);
+                m_document->setLine(m_cursorLine, line);
+                ensureCursorVisible();
+            }
+            else if (m_cursorLine > 0)
+            {
+                eraseCursor();
+                TextLine line = m_document->line(m_cursorLine - 1);
+                m_cursorLine--;
+                m_cursorColumn = line.text.length();
+                m_document->joinLines(m_cursorLine);
+                ensureCursorVisible();
+            }
+            break;
+
+        case Key_Delete:
+            if (m_cursorColumn == m_document->line(m_cursorLine).text.length())
+            {
+                eraseCursor();
+                m_document->joinLines(m_cursorLine);
+                ensureCursorVisible();
+            }
+            else
+            {
+                eraseCursor();
+                TextLine line = m_document->line(m_cursorLine);
+                line.text.remove(m_cursorColumn, 1);
+                m_document->setLine(m_cursorLine, line);
+                ensureCursorVisible();
+            }
+            break;
 
         default:
             if (event->text().length() > 0)
             {
+                eraseCursor();
                 TextLine line = m_document->line(m_cursorLine);
-                QString oldText = line.text;
                 line.text.insert(m_cursorColumn, event->text());
                 m_document->setLine(m_cursorLine, line);
                 m_cursorColumn += event->text().length();
-                recalculateDocumentSize(oldText, line.text);
-                repaintLines(m_cursorLine, m_cursorLine);
                 ensureCursorVisible();
             }
             else
@@ -849,3 +980,4 @@ void TextEditor::contentsMouseMoveEvent(QMouseEvent *event)
         moveCursorTo(line, col, TRUE);
     }
 }
+

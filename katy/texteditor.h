@@ -14,6 +14,7 @@ class QWidget;
 class QPainter;
 
 class TextDocument;
+class TextLine;
 
 /**
  *
@@ -63,20 +64,21 @@ public:
     SelectionRange selectionRange();
 
     // Operations
-    void moveCursorTo(int line, int column, bool extendSelection = FALSE);
-    void moveCursorLeft(bool extendSelection = FALSE);
-    void moveCursorRight(bool extendSelection = FALSE);
-    void moveCursorUp(bool extendSelection = FALSE);
-    void moveCursorDown(bool extendSelection = FALSE);
-    void moveCursorPageUp(bool extendSelection = FALSE);
-    void moveCursorPageDown(bool extendSelection = FALSE);
-    void moveCursorHome(bool extendSelection = FALSE);
-    void moveCursorEnd(bool extendSelection = FALSE);
+    void moveCursorTo(int line, int column, bool extendSelection=FALSE);
+    void moveCursorLeft(bool extendSelection=FALSE);
+    void moveCursorRight(bool extendSelection=FALSE);
+    void moveCursorUp(bool extendSelection=FALSE);
+    void moveCursorDown(bool extendSelection=FALSE);
+    void moveCursorPageUp(bool extendSelection=FALSE);
+    void moveCursorPageDown(bool extendSelection=FALSE);
+    void moveCursorHome(bool extendSelection=FALSE);
+    void moveCursorEnd(bool extendSelection=FALSE);
     void deselect();
 
-public slots:
-
-signals:
+protected slots:
+    void document_lineChanged(int line, TextLine oldLine, TextLine newLine);
+    void document_lineInserted(int line, TextLine newLine);
+    void document_lineRemoved(int line);
 
 protected:
     void drawContents(QPainter *p, int cx, int cy, int cw, int ch);
@@ -86,15 +88,16 @@ protected:
     void contentsMouseMoveEvent(QMouseEvent *event);
 
     void recalculateDocumentSize();
+    void recalculateDocumentSize(QString newLineText);
     void recalculateDocumentSize(QString oldLineText, QString newLineText);
-    QRect calculateCursorRect(int cursorLine, int cursorColumn, int *cursorMiddleX = NULL);
+    QRect calculateCursorRect(int cursorLine, int cursorColumn, int *cursorMiddleX=NULL);
     void eraseCursor();
     void drawCursor();
     void ensureCursorVisible();
     void extendSelectionTo(int line, int column);
     void repaintLines(int start, int end);
-    int calculateTextWidth(QFontMetrics fontMetrics, QString text, int length = -1);
-    void paintText(QPainter *p, int x, int y, QString text, int start = 0, int length = -1);
+    int calculateTextWidth(QFontMetrics fontMetrics, QString text, int length=-1);
+    void paintText(QPainter *p, int x, int y, QString text, int start=0, int length=-1);
     void pointToLineCol(QPoint p, int &line, int &col);
 
 private:
