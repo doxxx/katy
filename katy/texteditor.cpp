@@ -191,6 +191,8 @@ void TextEditor::moveCursorTo(int line, int column, bool extendSelection )
     m_cursorLine = cursorLine;
 
     ensureCursorVisible();
+
+    emit cursorMoved(m_cursorLine, m_cursorColumn);
 }
 
 void TextEditor::moveCursorLeft(bool extendSelection)
@@ -222,6 +224,8 @@ void TextEditor::moveCursorLeft(bool extendSelection)
     m_cursorLine = cursorLine;
 
     ensureCursorVisible();
+
+    emit cursorMoved(m_cursorLine, m_cursorColumn);
 }
 
 void TextEditor::moveCursorRight(bool extendSelection)
@@ -254,6 +258,8 @@ void TextEditor::moveCursorRight(bool extendSelection)
     m_cursorLine = cursorLine;
 
     ensureCursorVisible();
+
+    emit cursorMoved(m_cursorLine, m_cursorColumn);
 }
 
 void TextEditor::moveCursorWordLeft(bool extendSelection )
@@ -336,6 +342,8 @@ void TextEditor::moveCursorWordLeft(bool extendSelection )
     m_cursorLine = cursorLine;
 
     ensureCursorVisible();
+
+    emit cursorMoved(m_cursorLine, m_cursorColumn);
 }
 
 void TextEditor::moveCursorWordRight(bool extendSelection )
@@ -395,6 +403,8 @@ void TextEditor::moveCursorWordRight(bool extendSelection )
     m_cursorLine = cursorLine;
 
     ensureCursorVisible();
+
+    emit cursorMoved(m_cursorLine, m_cursorColumn);
 }
 
 void TextEditor::moveCursorUp(bool extendSelection)
@@ -421,6 +431,8 @@ void TextEditor::moveCursorUp(bool extendSelection)
     m_cursorLine = cursorLine;
 
     ensureCursorVisible();
+
+    emit cursorMoved(m_cursorLine, m_cursorColumn);
 }
 
 void TextEditor::moveCursorDown(bool extendSelection)
@@ -447,6 +459,8 @@ void TextEditor::moveCursorDown(bool extendSelection)
     m_cursorLine = cursorLine;
 
     ensureCursorVisible();
+
+    emit cursorMoved(m_cursorLine, m_cursorColumn);
 }
 
 void TextEditor::moveCursorPageUp(bool extendSelection )
@@ -479,6 +493,8 @@ void TextEditor::moveCursorPageUp(bool extendSelection )
     m_cursorLine = cursorLine;
 
     scrollBy(0, -(pageHeightLines * viewport()->fontMetrics().lineSpacing()));
+
+    emit cursorMoved(m_cursorLine, m_cursorColumn);
 }
 
 void TextEditor::moveCursorPageDown(bool extendSelection )
@@ -511,6 +527,8 @@ void TextEditor::moveCursorPageDown(bool extendSelection )
     m_cursorLine = cursorLine;
 
     scrollBy(0, pageHeightLines * viewport()->fontMetrics().lineSpacing());
+
+    emit cursorMoved(m_cursorLine, m_cursorColumn);
 }
 
 void TextEditor::moveCursorHome(bool extendSelection)
@@ -529,6 +547,8 @@ void TextEditor::moveCursorHome(bool extendSelection)
     m_cursorLine = cursorLine;
 
     ensureCursorVisible();
+
+    emit cursorMoved(m_cursorLine, m_cursorColumn);
 }
 
 void TextEditor::moveCursorEnd(bool extendSelection)
@@ -547,6 +567,8 @@ void TextEditor::moveCursorEnd(bool extendSelection)
     m_cursorLine = cursorLine;
 
     ensureCursorVisible();
+
+    emit cursorMoved(m_cursorLine, m_cursorColumn);
 }
 
 void TextEditor::moveCursorDocumentStart(bool extendSelection )
@@ -565,6 +587,8 @@ void TextEditor::moveCursorDocumentStart(bool extendSelection )
     m_cursorLine = cursorLine;
 
     ensureCursorVisible();
+
+    emit cursorMoved(m_cursorLine, m_cursorColumn);
 }
 
 void TextEditor::moveCursorDocumentEnd(bool extendSelection )
@@ -583,6 +607,8 @@ void TextEditor::moveCursorDocumentEnd(bool extendSelection )
     m_cursorLine = cursorLine;
 
     ensureCursorVisible();
+
+    emit cursorMoved(m_cursorLine, m_cursorColumn);
 }
 
 void TextEditor::deselect()
@@ -610,6 +636,8 @@ void TextEditor::resetView()
     setContentsPos(0, 0);
 
     viewport()->update();
+
+    emit cursorMoved(m_cursorLine, m_cursorColumn);
 }
 
 void TextEditor::cut()
@@ -637,6 +665,7 @@ void TextEditor::paste()
     m_cursorLine = pos.line;
     m_cursorColumn = pos.column;
     ensureCursorVisible();
+    emit cursorMoved(m_cursorLine, m_cursorColumn);
 }
 
 void TextEditor::selectAll()
@@ -1009,6 +1038,7 @@ bool TextEditor::deleteSelection()
     m_cursorLine = range.startLine;
     m_cursorColumn = range.startColumn;
     ensureCursorVisible();
+    emit cursorMoved(m_cursorLine, m_cursorColumn);
 
     return TRUE;
 }
@@ -1239,6 +1269,7 @@ void TextEditor::keyPressEvent(QKeyEvent *event)
             m_cursorColumn = 0;
             m_cursorLine++;
             ensureCursorVisible();
+            emit cursorMoved(m_cursorLine, m_cursorColumn);
             break;
 
         case Key_Backspace:
@@ -1258,6 +1289,7 @@ void TextEditor::keyPressEvent(QKeyEvent *event)
                         line.text.remove(--m_cursorColumn, 1);
                         m_document->setLine(m_cursorLine, line);
                         ensureCursorVisible();
+                        emit cursorMoved(m_cursorLine, m_cursorColumn);
                     }
                     else if (m_cursorLine > 0)
                     {
@@ -1267,6 +1299,7 @@ void TextEditor::keyPressEvent(QKeyEvent *event)
                         m_cursorColumn = line.text.length();
                         m_document->joinLines(m_cursorLine);
                         ensureCursorVisible();
+                        emit cursorMoved(m_cursorLine, m_cursorColumn);
                     }
                 }
             }
@@ -1318,6 +1351,7 @@ void TextEditor::keyPressEvent(QKeyEvent *event)
                     m_cursorLine = pos.line;
                     m_cursorColumn = pos.column;
                     ensureCursorVisible();
+                    emit cursorMoved(m_cursorLine, m_cursorColumn);
                 }
             }
             else

@@ -108,6 +108,9 @@ public:
 
     void resetView();
 
+signals:
+    void cursorMoved(int line, int column);
+
 public slots:
     void cut();
     void copy();
