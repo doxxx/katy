@@ -381,6 +381,42 @@ void TextEditor::moveCursorEnd(bool extendSelection)
     ensureCursorVisible();
 }
 
+void TextEditor::moveCursorDocumentStart(bool extendSelection )
+{
+    int cursorColumn = 0,
+          cursorLine = 0;
+
+    if (extendSelection)
+        extendSelectionTo(cursorLine, cursorColumn);
+    else
+        deselect();
+
+    eraseCursor();
+
+    m_cursorColumn = cursorColumn;
+    m_cursorLine = cursorLine;
+
+    ensureCursorVisible();
+}
+
+void TextEditor::moveCursorDocumentEnd(bool extendSelection )
+{
+    int cursorColumn = m_document->line(m_document->lineCount() - 1).text.length(),
+          cursorLine = m_document->lineCount() - 1;
+
+    if (extendSelection)
+        extendSelectionTo(cursorLine, cursorColumn);
+    else
+        deselect();
+
+    eraseCursor();
+
+    m_cursorColumn = cursorColumn;
+    m_cursorLine = cursorLine;
+
+    ensureCursorVisible();
+}
+
 void TextEditor::deselect()
 {
     int topLine = m_selectionAnchorLine < m_selectionEndLine ? m_selectionAnchorLine : m_selectionEndLine;
@@ -636,14 +672,14 @@ int TextEditor::calculateTextWidth(QFontMetrics fontMetrics, QString text, int l
     return cx;
 }
 
-void TextEditor::paintText(QPainter *p, int x, int y, QString text, int start, int length)
+void TextEditor::paintText(QPainter *p, int x, int y, QString text, int start, int end)
 {
     QFontMetrics fontMetrics = p->fontMetrics();
     int lineHeight = fontMetrics.lineSpacing();
     QChar c;
     int cx = x;
     QString temp;
-    int stop = (length >= 0) ? (start + length) : text.length();
+    int stop = (end >= 0) ? end : text.length();
 
     for (int i = start; i < stop; i++)
     {
@@ -854,6 +890,7 @@ void TextEditor::timerEvent(QTimerEvent *event)
 void TextEditor::keyPressEvent(QKeyEvent *event)
 {
     bool shiftPressed = ((event->state() & ShiftButton) == ShiftButton);
+    bool controlPressed = ((event->state() & ControlButton) == ControlButton);
 
     switch (event->key())
     {
@@ -882,11 +919,17 @@ void TextEditor::keyPressEvent(QKeyEvent *event)
             break;
 
         case Key_Home:
-            moveCursorHome(shiftPressed);
+            if (controlPressed)
+                moveCursorDocumentStart(shiftPressed);
+            else
+                moveCursorHome(shiftPressed);
             break;
 
         case Key_End:
-            moveCursorEnd(shiftPressed);
+            if (controlPressed)
+                moveCursorDocumentEnd(shiftPressed);
+            else
+                moveCursorEnd(shiftPressed);
             break;
 
         case Key_Enter:
@@ -980,4 +1023,3 @@ void TextEditor::contentsMouseMoveEvent(QMouseEvent *event)
         moveCursorTo(line, col, TRUE);
     }
 }
-

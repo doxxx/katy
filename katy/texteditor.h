@@ -73,6 +73,8 @@ public:
     void moveCursorPageDown(bool extendSelection=FALSE);
     void moveCursorHome(bool extendSelection=FALSE);
     void moveCursorEnd(bool extendSelection=FALSE);
+    void moveCursorDocumentStart(bool extendSelection=FALSE);
+    void moveCursorDocumentEnd(bool extendSelection=FALSE);
     void deselect();
 
 protected slots:
@@ -97,7 +99,7 @@ protected:
     void extendSelectionTo(int line, int column);
     void repaintLines(int start, int end);
     int calculateTextWidth(QFontMetrics fontMetrics, QString text, int length=-1);
-    void paintText(QPainter *p, int x, int y, QString text, int start=0, int length=-1);
+    void paintText(QPainter *p, int x, int y, QString text, int start=0, int end=-1);
     void pointToLineCol(QPoint p, int &line, int &col);
 
 private:
