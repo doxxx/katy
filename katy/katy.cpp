@@ -79,8 +79,8 @@ Katy::Katy()
     changeEOLType(m_view->document()->eolType());
 
     // allow the view to change the statusbar and caption
-    connect(m_view, SIGNAL(signalChangeStatusbar(const QString&)), this, SLOT(changeStatusbar(const QString&)));
-    connect(m_view, SIGNAL(signalChangeCaption(const QString&, bool)), this, SLOT(setCaption(const QString&, bool)));
+    connect(m_view, SIGNAL(signalChangeStatusbar(const QString&)), SLOT(changeStatusbar(const QString&)));
+    connect(m_view, SIGNAL(signalChangeCaption(const QString&, bool)), SLOT(setCaption(const QString&, bool)));
 
     setCaption("Untitled", FALSE);
 }

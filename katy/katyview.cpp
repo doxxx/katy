@@ -39,8 +39,8 @@ KatyView::KatyView(QWidget *parent)
     m_document = new TextDocument();
     m_editor->setDocument(m_document);
 
-    connect(m_document, SIGNAL(documentModified()), this, SLOT(slotDocumentModified()));
-    connect(m_document, SIGNAL(documentNotModified()), this, SLOT(slotDocumentNotModified()));
+    connect(m_document, SIGNAL(documentModified()), SLOT(slotDocumentModified()));
+    connect(m_document, SIGNAL(documentNotModified()), SLOT(slotDocumentNotModified()));
 }
 
 KatyView::~KatyView()
@@ -60,8 +60,8 @@ void KatyView::openURL(const KURL& url)
     m_document = new TextDocument(url);
     m_editor->setDocument(m_document);
 
-    connect(m_document, SIGNAL(documentModified()), this, SLOT(slotDocumentModified()));
-    connect(m_document, SIGNAL(documentNotModified()), this, SLOT(slotDocumentNotModified()));
+    connect(m_document, SIGNAL(documentModified()), SLOT(slotDocumentModified()));
+    connect(m_document, SIGNAL(documentNotModified()), SLOT(slotDocumentNotModified()));
 
     emit signalChangeCaption(url.url(), FALSE);
 }

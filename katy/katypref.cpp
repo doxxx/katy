@@ -74,7 +74,7 @@ void KatyPreferences::initAppearancePage()
     m_appearancePage->fontDescriptionLabel->clear();
     m_appearancePage->fontDescriptionLabel->setFont(font);
     m_appearancePage->fontDescriptionLabel->setText(describeFont(font));
-    connect(m_appearancePage->fontDialogButton, SIGNAL(clicked()), this, SLOT(slotChooseFont()));
+    connect(m_appearancePage->fontDialogButton, SIGNAL(clicked()), SLOT(slotChooseFont()));
     m_appearancePage->normalFgButton->setColor(katyapp->readConfig_NormalForeground());
     m_appearancePage->normalBgButton->setColor(katyapp->readConfig_NormalBackground());
     m_appearancePage->selectedFgButton->setColor(katyapp->readConfig_SelectedForeground());
@@ -83,10 +83,10 @@ void KatyPreferences::initAppearancePage()
     layout->addWidget(m_appearancePage);
     layout->addStretch();
 
-    connect(m_appearancePage->normalFgButton, SIGNAL(changed(const QColor&)), this, SLOT(slotChanged()));
-    connect(m_appearancePage->normalBgButton, SIGNAL(changed(const QColor&)), this, SLOT(slotChanged()));
-    connect(m_appearancePage->selectedFgButton, SIGNAL(changed(const QColor&)), this, SLOT(slotChanged()));
-    connect(m_appearancePage->selectedBgButton, SIGNAL(changed(const QColor&)), this, SLOT(slotChanged()));
+    connect(m_appearancePage->normalFgButton, SIGNAL(changed(const QColor&)), SLOT(slotChanged()));
+    connect(m_appearancePage->normalBgButton, SIGNAL(changed(const QColor&)), SLOT(slotChanged()));
+    connect(m_appearancePage->selectedFgButton, SIGNAL(changed(const QColor&)), SLOT(slotChanged()));
+    connect(m_appearancePage->selectedBgButton, SIGNAL(changed(const QColor&)), SLOT(slotChanged()));
 }
 
 void KatyPreferences::initIndentingPage()
@@ -106,9 +106,9 @@ void KatyPreferences::initIndentingPage()
     layout->addWidget(m_indentingPage);
     layout->addStretch();
 
-    connect(m_indentingPage->tabSize, SIGNAL(valueChanged(int)), this, SLOT(slotChanged()));
-    connect(m_indentingPage->useSpaces, SIGNAL(toggled(bool)), this, SLOT(slotChanged()));
-    connect(m_indentingPage->indentSize, SIGNAL(valueChanged(int)), this, SLOT(slotChanged()));
+    connect(m_indentingPage->tabSize, SIGNAL(valueChanged(int)), SLOT(slotChanged()));
+    connect(m_indentingPage->useSpaces, SIGNAL(toggled(bool)), SLOT(slotChanged()));
+    connect(m_indentingPage->indentSize, SIGNAL(valueChanged(int)), SLOT(slotChanged()));
 }
 
 void KatyPreferences::saveAppearancePage()
