@@ -71,13 +71,22 @@ public:
     int lineCount();
     TextLine line(int line);
     void setLine(int line, TextLine textLine);
-    void insertLine(int line, TextLine textLine, bool after = FALSE);
     TextLineList::ConstIterator lineIterator(int line);
     TextLineList::ConstIterator endLineIterator();
     EOLType eolType();
     void setEOLType(EOLType type);
 
     void openURL(const KURL& url);
+
+    void insertLine(int line, TextLine newLine, bool after=FALSE);
+    void removeLine(int line);
+    void splitLine(int line, int column);
+    void joinLines(int line);
+
+signals:
+    void lineChanged(int line, TextLine oldLine, TextLine newLine);
+    void lineInserted(int line, TextLine newLine);
+    void lineRemoved(int line);
 
 protected:
     bool loadTempFile(QString filename);

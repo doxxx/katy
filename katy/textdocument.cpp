@@ -38,19 +38,11 @@ TextLine TextDocument::line(int line)
     return m_lines[line];
 }
 
-void TextDocument::setLine(int line, TextLine textLine)
+void TextDocument::setLine(int line, TextLine newLine)
 {
-    m_lines[line] = textLine;
-}
-
-void TextDocument::insertLine(int line, TextLine textLine, bool after )
-{
-    TextDocument::TextLineList::Iterator it = m_lines.at(line);
-
-    if (after)
-        it++;
-
-    m_lines.insert(it, textLine);
+    TextLine oldLine = m_lines[line];
+    m_lines[line] = newLine;
+    emit lineChanged(line, oldLine, newLine);
 }
 
 TextDocument::TextLineList::ConstIterator TextDocument::lineIterator(int line)
@@ -181,3 +173,39 @@ bool TextDocument::loadTempFile(QString filename)
     return true;
 }
 
+void TextDocument::insertLine(int line, TextLine newLine, bool after)
+{
+    TextDocument::TextLineList::Iterator it = m_lines.at(line);
+
+    if (after)
+        it++;
+
+    m_lines.insert(it, newLine);
+
+    emit lineInserted(line, newLine);
+}
+
+void TextDocument::removeLine(int line)
+{
+    TextDocument::TextLineList::Iterator it = m_lines.at(line);
+
+    m_lines.remove(it);
+
+    emit lineRemoved(line);
+}
+
+void TextDocument::splitLine(int line, int column)
+{
+    TextLine oldLine = m_lines[line];
+    TextLine newLine(oldLine.text.mid(column));
+    oldLine.text.truncate(column);
+    setLine(line, oldLine);
+    insertLine(line, newLine, TRUE);
+}
+
+void TextDocument::joinLines(int line)
+{
+    TextLine newLine(m_lines[line].text + m_lines[line + 1].text);
+    setLine(line, newLine);
+    removeLine(line + 1);
+}
