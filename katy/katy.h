@@ -35,6 +35,7 @@ class KToggleAction;
 class KSelectAction;
 class KRecentFilesAction;
 class KURL;
+class KRadioAction;
 
 /**
  * This class serves as the main window for Katy.  It handles the
@@ -65,13 +66,17 @@ public:
     void load(const KURL& url);
     
     TextDocument *document();
+    
+    KAction *windowsMenuItemAction();
+    void createWindowsMenuItemAction();
 
 protected:
     /**
      * Overridden virtuals for Qt drag 'n drop (XDND)
      */
-    virtual void dragEnterEvent(QDragEnterEvent *event);
-    virtual void dropEvent(QDropEvent *event);
+    void dragEnterEvent(QDragEnterEvent *event);
+    void dropEvent(QDropEvent *event);
+    void windowActivationChange(bool oldActive);
 
 protected:
     bool queryExit();
@@ -101,7 +106,6 @@ private slots:
     void fileSaveAs();
     void fileSaveAll();
     void fileClose();
-    void fileCloseAll();
     void filePrint();
     void fileChangeEOLType();
     void editFind();
@@ -116,9 +120,13 @@ private slots:
     void preferences();
 
 public slots:
+    void setCaption(const QString &caption);
+    void setCaption(const QString &caption, bool modified);
     void changeStatusbar(const QString& text);
     void changeEOLType(const TextDocument::EOLType type);
     void updateLineColumn(int line, int column);
+    void updateWindowsMenu();
+    void activateWindow();
 
 private:
     void setupAccel();
@@ -135,13 +143,14 @@ private:
     KRecentFilesAction *m_openRecentAction;
     KAction *m_tabsToSpacesAction;
     KAction *m_spacesToTabsAction;
+    KRadioAction *m_windowsMenuItemAction;
+    QPtrList<KAction> m_windowsMenuActions;
 
     QString m_findText;
     QString m_replaceText;
     bool m_backward;
     bool m_caseSensitive;
     bool m_regularExpression;
-
 };
 
 #endif // KATY_H

@@ -40,17 +40,18 @@ TextEditor::TextEditor(QWidget *parent, QString name)
     m_selectionEndLine = -1;
     m_selectionEndColumn = -1;
 
-    setMinimumWidth(500);
-    setMinimumHeight(300);
-
+    setMinimumWidth(100);
+    setMinimumHeight(100);
+    
     // Setup the viewport widget
     viewport()->setBackgroundMode(NoBackground); // NoBackground because drawContents paints every pixel
     viewport()->setFocusPolicy(WheelFocus);
     viewport()->setCursor(ibeamCursor);
-
-    // TODO: Make configurable
+    
+    // Set the font
     viewport()->setFont(katyapp->readConfig_Font());
-
+    verticalScrollBar()->setLineStep(viewport()->fontMetrics().lineSpacing());
+    
     viewport()->setFocus();
 
     // Start the timer which makes the cursor flash

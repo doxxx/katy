@@ -84,7 +84,6 @@ signals:
 private:
     bool alreadyRestored;
     KatyList windowList;
-    QPtrList<KAction> windowsMenuActions;
 };
 
 #endif

@@ -30,7 +30,6 @@
 KatyApp::KatyApp()
     : alreadyRestored(FALSE)
 {
-    windowsMenuActions.setAutoDelete(true);
 }
 
 KatyApp::~KatyApp()
@@ -197,25 +196,20 @@ void KatyApp::writeConfig_IndentSize(int indentSize)
 
 void KatyApp::updateWindowsMenu()
 {
-    kdDebug() << "updating windows menu" << endl;
+    QPtrList<KAction> oldActions;
+    oldActions.setAutoDelete(true);
     
     Katy *window;
-
-    for (window = windowList.first(); window; window = windowList.next()) {
-        window->unplugActionList("windowlist");
-    }
-
-    windowsMenuActions.clear();
-    
-    for (window = windowList.first(); window; window = windowList.next()) {
-        KAction *action = new KAction(window->caption(), 0, window, SLOT(show()), this);
-        windowsMenuActions.append(action);
+    for (window = windowList.first(); window; window = windowList.next())
+    {
+        oldActions.append(window->windowsMenuItemAction());
+        window->createWindowsMenuItemAction();
     }
     
-    KAction *action = new KAction("blah");
-    windowsMenuActions.append(action);
-    
-    for (window = windowList.first(); window; window = windowList.next()) {
-        window->plugActionList("windowlist", windowsMenuActions);
+    for (window = windowList.first(); window; window = windowList.next())
+    {
+        window->updateWindowsMenu();
     }
+    
+    oldActions.clear();
 }

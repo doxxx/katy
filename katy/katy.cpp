@@ -28,6 +28,8 @@
 #include "katyreplaceimpl.h"
 #include "katyreplacingimpl.h"
 
+#include <unistd.h>
+
 #include <qdragobject.h>
 #include <qlineedit.h>
 #include <qprinter.h>
@@ -69,6 +71,8 @@ Katy::Katy()
 
     // We don't support printing, yet
     m_printer = NULL;
+    
+    m_windowsMenuActions.setAutoDelete(false);
 
     // Initialise the main view
     m_view = new KatyView(this);
@@ -76,9 +80,6 @@ Katy::Katy()
 
     // Setup actions
     setupActions();
-    
-    // Read config options
-    readOptions(katyapp->config());
 
     // Setup the status bar
     statusBar()->insertItem(i18n("Line %1").arg("999999"), StatusBar_Line, 0, TRUE);
@@ -93,7 +94,10 @@ Katy::Katy()
     connect(m_view, SIGNAL(signalChangeCaption(const QString&, bool)), SLOT(setCaption(const QString&, bool)));
     connect(m_view->editor(), SIGNAL(cursorMoved(int, int)), SLOT(updateLineColumn(int, int)));
 
-    setCaption("Untitled", FALSE);
+    setCaption("Untitled", false);
+    
+    // Read config options
+    readOptions(katyapp->config());
 }
 
 Katy::~Katy()
@@ -121,6 +125,29 @@ TextDocument *Katy::document()
     return m_view->document();
 }
 
+KAction *Katy::windowsMenuItemAction()
+{
+    return m_windowsMenuItemAction;
+}
+
+void Katy::createWindowsMenuItemAction()
+{
+    QString text;
+    if (m_view->document()->url().isEmpty())
+    {
+        text = "Untitled";
+    }
+    else
+    {
+        text = m_view->document()->url().url();
+    }
+    text += (m_view->document()->modified() ? "*" : "");
+    
+    m_windowsMenuItemAction = new KRadioAction(text);
+    connect(m_windowsMenuItemAction, SIGNAL(activated()), this, SLOT(activateWindow()));
+    m_windowsMenuItemAction->setExclusiveGroup("window_list_actions");
+}
+
 void Katy::setupActions()
 {
     KStdAction::openNew(this, SLOT(fileNew()), actionCollection());
@@ -131,7 +158,6 @@ void Katy::setupActions()
     KStdAction::saveAs(this, SLOT(fileSaveAs()), actionCollection());
     new KAction(i18n("Save All..."), 0, this, SLOT(fileSaveAll()), actionCollection(), "file_save_all");
     KStdAction::close(this, SLOT(fileClose()), actionCollection());
-    new KAction(i18n("Close All..."), 0, this, SLOT(fileCloseAll()), actionCollection(), "file_close_all");
     //KStdAction::print(this, SLOT(filePrint()), actionCollection());
 
     m_eolTypeAction = new KSelectAction(i18n("EOL Type"), 0, this, SLOT(fileChangeEOLType()), actionCollection(), "file_eol_type");
@@ -140,7 +166,7 @@ void Katy::setupActions()
     m_eolTypeAction->setItems(eolTypesList);
     m_eolTypeAction->setCurrentItem(1);
 
-    KStdAction::quit(kapp, SLOT(quit()), actionCollection());
+    KStdAction::quit(kapp, SLOT(closeAllWindows()), actionCollection());
 
     KStdAction::cut(m_view->editor(), SLOT(cut()), actionCollection());
     KStdAction::copy(m_view->editor(), SLOT(copy()), actionCollection());
@@ -161,7 +187,27 @@ void Katy::setupActions()
     KStdAction::configureToolbars(this, SLOT(configureToolbars()), actionCollection());
     KStdAction::preferences(this, SLOT(preferences()), actionCollection());
     
-    createGUI();
+    createWindowsMenuItemAction();
+    
+    createGUI("katyui.rc", false);
+}
+
+void Katy::setCaption(const QString &caption)
+{
+    if (m_windowsMenuItemAction)
+    {
+        m_windowsMenuItemAction->setText(caption);
+    }
+    KMainWindow::setCaption(caption);
+}
+
+void Katy::setCaption(const QString &caption, bool modified)
+{
+    if (m_windowsMenuItemAction)
+    {
+        m_windowsMenuItemAction->setText(caption + (modified ? "*" : ""));
+    }
+    KMainWindow::setCaption(caption, modified);
 }
 
 bool Katy::queryExit()
@@ -253,6 +299,12 @@ void Katy::dropEvent(QDropEvent *event)
     }
 }
 
+void Katy::windowActivationChange(bool oldActive)
+{
+    KMainWindow::windowActivationChange(oldActive);
+    m_windowsMenuItemAction->setChecked(oldActive);
+}
+
 void Katy::fileNew()
 {
     // this slot is called whenever the File->New menu is selected,
@@ -288,7 +340,16 @@ void Katy::fileOpenRecent(const KURL& url)
 {
     if (!url.isEmpty() && !url.isMalformed())
     {
-        load(url);
+        if (m_view->document()->url().isEmpty() && !m_view->document()->modified())
+        {
+            load(url);
+        }
+        else
+        {
+            Katy *newWindow = katyapp->newWindow();
+            newWindow->load(url);
+            newWindow->show();
+        }
     }
 }
 
@@ -329,15 +390,6 @@ void Katy::fileSaveAll()
 void Katy::fileClose()
 {
     close();
-}
-
-void Katy::fileCloseAll()
-{
-    KatyListIterator it = katyapp->windowsIterator();
-    for (Katy *window = it.toFirst(); window; ++it, window = it.current())
-    {
-        window->fileClose();
-    }
 }
 
 void Katy::filePrint()
@@ -587,4 +639,34 @@ void Katy::updateLineColumn(int line, int column)
 {
     statusBar()->changeItem(i18n("Line %1").arg(QString::number(line + 1)), StatusBar_Line);
     statusBar()->changeItem(i18n("Column %1").arg(QString::number(column + 1)), StatusBar_Column);
+}
+
+void Katy::updateWindowsMenu()
+{
+    unplugActionList("window_list");
+    
+    m_windowsMenuActions.clear();
+    
+    KatyListIterator it = katyapp->windowsIterator();
+    for (Katy *window = it.toFirst(); window; ++it, window = it.current())
+    {
+        m_windowsMenuActions.append(window->windowsMenuItemAction());
+    }
+    
+    plugActionList("window_list", m_windowsMenuActions);
+}
+
+void Katy::activateWindow()
+{
+    show();
+    
+    // Nasty hack to to wait for a minimized window to be restored
+    // before it can be raised and activated
+    while (isMinimized())
+    {
+        katyapp->processEvents(100);
+    }
+    
+    raise();
+    setActiveWindow();
 }
