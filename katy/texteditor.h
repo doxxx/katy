@@ -63,12 +63,13 @@ public:
     SelectionRange selectionRange();
 
     // Operations
+    void moveCursorTo(int line, int column, bool extendSelection = FALSE);
     void moveCursorLeft(bool extendSelection = FALSE);
     void moveCursorRight(bool extendSelection = FALSE);
     void moveCursorUp(bool extendSelection = FALSE);
     void moveCursorDown(bool extendSelection = FALSE);
     void moveCursorHome(bool extendSelection = FALSE);
-    void moveCurosrEnd(bool extendSelection = FALSE);
+    void moveCursorEnd(bool extendSelection = FALSE);
     void deselect();
 
 public slots:
@@ -79,16 +80,19 @@ protected:
     void drawContents(QPainter *p, int cx, int cy, int cw, int ch);
     void timerEvent(QTimerEvent *event);
     void keyPressEvent(QKeyEvent *event);
+    void contentsMousePressEvent(QMouseEvent *event);
+    void contentsMouseMoveEvent(QMouseEvent *event);
 
     void recalculateDocumentSize();
-    QRect calculateCursorRect(int cursorLine, int cursorColumn);
+    QRect calculateCursorRect(int cursorLine, int cursorColumn, int *cursorMiddleX = NULL);
     void eraseCursor();
     void drawCursor();
     void ensureCursorVisible();
     void extendSelectionTo(int line, int column);
     void repaintLines(int start, int end);
     int calculateTextWidth(QFontMetrics fontMetrics, QString text, int length = -1);
-    void paintText(QPainter *p, int x, int y, int w, int h, QString text, int length = -1);
+    void paintText(QPainter *p, int x, int y, QString text, int start = 0, int length = -1);
+    void pointToLineCol(QPoint p, int &line, int &col);
 
 private:
     // runtime data
@@ -103,7 +107,6 @@ private:
     int m_selectionEndColumn;
 
     // configurable data
-
 };
 
 #endif

@@ -37,11 +37,19 @@ TextEditor::TextEditor(QWidget *parent, QString name)
     viewport()->setFocus();
 
     // Start the timer which makes the cursor flash
-    m_cursorTimerId = startTimer(250); // TODO: Make configurable
+    // TODO: Make configurable (flash enabled && flash speed)
+    m_cursorTimerId = startTimer(250);
+    if (m_cursorTimerId == 0)
+    {
+        kdWarning() << "Could not start timer for cursor flashing" << endl;
+        m_cursorOn = TRUE;
+    }
 }
 
 TextEditor::~TextEditor()
 {
+    if (m_cursorTimerId != 0)
+        killTimer(m_cursorTimerId);
 }
 
 TextDocument *TextEditor::document()
@@ -108,6 +116,47 @@ SelectionRange TextEditor::selectionRange()
     }
 
     return range;
+}
+
+void TextEditor::moveCursorTo(int line, int column, bool extendSelection )
+{
+    int cursorColumn = column,
+          cursorLine = line;
+
+    if (cursorLine < 0)
+    {
+        cursorLine = 0;
+    }
+    else if (cursorLine >= m_document->lineCount())
+    {
+        cursorLine = m_document->lineCount() - 1;
+    }
+
+    int lineLength = m_document->line(cursorLine).text.length();
+
+    if (cursorColumn < 0)
+    {
+        cursorColumn = 0;
+    }
+    else if (cursorColumn > lineLength)
+    {
+        cursorColumn = lineLength;
+    }
+
+    if (cursorColumn == m_cursorColumn && cursorLine == m_cursorLine)
+        return;
+
+    if (extendSelection)
+        extendSelectionTo(cursorLine, cursorColumn);
+    else
+        deselect();
+
+    eraseCursor();
+
+    m_cursorColumn = cursorColumn;
+    m_cursorLine = cursorLine;
+
+    ensureCursorVisible();
 }
 
 void TextEditor::moveCursorLeft(bool extendSelection)
@@ -225,15 +274,18 @@ void TextEditor::moveCursorDown(bool extendSelection)
     ensureCursorVisible();
 }
 
+void TextEditor::moveCursorHome(bool extendSelection)
+{
+}
+
+void TextEditor::moveCursorEnd(bool extendSelection)
+{
+}
+
 void TextEditor::deselect()
 {
     int topLine = m_selectionAnchorLine < m_selectionEndLine ? m_selectionAnchorLine : m_selectionEndLine;
     int bottomLine = m_selectionAnchorLine > m_selectionEndLine ? m_selectionAnchorLine : m_selectionEndLine;
-
-    topLine = topLine < m_selectionAnchorLine ? topLine : m_selectionAnchorLine;
-    topLine = topLine < m_selectionEndLine ? topLine : m_selectionEndLine;
-    bottomLine = bottomLine > m_selectionAnchorLine ? bottomLine : m_selectionAnchorLine;
-    bottomLine = bottomLine > m_selectionEndLine ? bottomLine : m_selectionEndLine;
 
     m_selectionAnchorLine = -1;
     m_selectionAnchorColumn = -1;
@@ -272,7 +324,7 @@ void TextEditor::recalculateDocumentSize()
     resizeContents(documentWidth, documentHeight);
 }
 
-QRect TextEditor::calculateCursorRect(int cursorLine, int cursorColumn)
+QRect TextEditor::calculateCursorRect(int cursorLine, int cursorColumn, int *cursorMiddleX)
 {
     QFontMetrics fontMetrics = viewport()->fontMetrics();
     QString text = m_document->line(cursorLine).text;
@@ -284,7 +336,10 @@ QRect TextEditor::calculateCursorRect(int cursorLine, int cursorColumn)
     if (cursorX1 < 0)
         cursorX1 = 0;
     cursorY1 = cursorLine * fontMetrics.lineSpacing();
-    cursorY2 = cursorLine * fontMetrics.lineSpacing() + fontMetrics.height();
+    cursorY2 = cursorLine * fontMetrics.lineSpacing() + fontMetrics.height() - 1;
+
+    if (cursorMiddleX != NULL)
+        *cursorMiddleX = cursorX;
 
     return QRect(cursorX1, cursorY1, cursorX2 - cursorX1 + 1, cursorY2 - cursorY1 + 1);
 }
@@ -340,26 +395,42 @@ void TextEditor::ensureCursorVisible()
 
 void TextEditor::extendSelectionTo(int line, int column)
 {
-    if (m_selectionAnchorLine < 0 || m_selectionAnchorColumn < 0)
+    int topLine, bottomLine;
+    int leftCol, rightCol;
+
+    if (m_selectionAnchorLine < 0)
     {
-        m_selectionAnchorLine = m_cursorLine;
-        m_selectionAnchorColumn = m_cursorColumn;
-        m_selectionEndLine = m_cursorLine;
-        m_selectionEndColumn = m_cursorColumn;
+        m_selectionAnchorLine = m_selectionEndLine = m_cursorLine;
+        m_selectionAnchorColumn = m_selectionEndColumn = m_cursorColumn;
     }
 
-    int topLine = m_selectionAnchorLine < m_selectionEndLine ? m_selectionAnchorLine : m_selectionEndLine;
-    int bottomLine = m_selectionAnchorLine > m_selectionEndLine ? m_selectionAnchorLine : m_selectionEndLine;
+    topLine = bottomLine = m_selectionEndLine;
+    leftCol = rightCol = m_selectionEndColumn;
 
     m_selectionEndLine = line;
     m_selectionEndColumn = column;
 
-    topLine = topLine < m_selectionAnchorLine ? topLine : m_selectionAnchorLine;
     topLine = topLine < m_selectionEndLine ? topLine : m_selectionEndLine;
-    bottomLine = bottomLine > m_selectionAnchorLine ? bottomLine : m_selectionAnchorLine;
     bottomLine = bottomLine > m_selectionEndLine ? bottomLine : m_selectionEndLine;
+    leftCol = leftCol < m_selectionEndColumn ? leftCol : m_selectionEndColumn;
+    rightCol = rightCol > m_selectionEndColumn ? rightCol : m_selectionEndColumn;
 
-    repaintLines(topLine, bottomLine);
+    if (topLine != bottomLine)
+    {
+        repaintLines(topLine, bottomLine);
+    }
+    else
+    {
+        QFontMetrics fontMetrics = viewport()->fontMetrics();
+        QString text = m_document->line(topLine).text;
+        int lineHeight = fontMetrics.lineSpacing();
+        int top = lineHeight * topLine;
+        int left = calculateTextWidth(fontMetrics, text, leftCol);
+        int right = calculateTextWidth(fontMetrics, text, rightCol);
+        int width = right - left + 1;
+        QRect rect(left, top, width, lineHeight);
+        repaintContents(rect, FALSE);
+    }
 }
 
 void TextEditor::repaintLines(int start, int end)
@@ -367,22 +438,15 @@ void TextEditor::repaintLines(int start, int end)
     int lineHeight = viewport()->fontMetrics().lineSpacing();
     int top = lineHeight * start;
     int height = (end - start + 1) * lineHeight;
-    QRect rect(0, top, viewport()->width(), height);
+    QRect rect(0, top, contentsWidth(), height);
     repaintContents(rect, FALSE);
 }
 
 int TextEditor::calculateTextWidth(QFontMetrics fontMetrics, QString text, int length)
 {
-    // TODO: Make tab stop ("fontMetrics.width(' ') * 8") configurable
-    return fontMetrics.size(SingleLine | ExpandTabs, text, length, fontMetrics.width(' ') * 8).width();
-}
-
-void TextEditor::paintText(QPainter *p, int x, int y, int w, int h, QString text, int length)
-{
-    QFontMetrics fontMetrics = p->fontMetrics();
     int lineHeight = fontMetrics.lineSpacing();
     QChar c;
-    int cx = x;
+    int cx = 0;
     QString temp;
     int drawTextLength = (length >= 0) ? length : text.length();
 
@@ -394,11 +458,53 @@ void TextEditor::paintText(QPainter *p, int x, int y, int w, int h, QString text
             if (temp.length() > 0)
             {
                 int tempWidth = fontMetrics.width(temp);
+                cx += tempWidth;
+                temp.truncate(0);
+            }
+
+            // TODO: Make tab stop size configurable
+            int tabWidth = fontMetrics.width(' ') * (8 - (i % 8));
+            cx += tabWidth;
+        }
+        else
+        {
+            temp += c;
+        }
+    }
+
+    if (temp.length() > 0)
+    {
+        int tempWidth = fontMetrics.width(temp);
+        cx += tempWidth;
+    }
+
+    return cx;
+}
+
+void TextEditor::paintText(QPainter *p, int x, int y, QString text, int start, int length)
+{
+    QFontMetrics fontMetrics = p->fontMetrics();
+    int lineHeight = fontMetrics.lineSpacing();
+    QChar c;
+    int cx = x;
+    QString temp;
+    int stop = (length >= 0) ? (start + length) : text.length();
+
+    for (int i = start; i < stop; i++)
+    {
+        c = text[i];
+        if (c == QChar(9))
+        {
+            if (temp.length() > 0)
+            {
+                int tempWidth = fontMetrics.width(temp);
+                p->eraseRect(cx, y, tempWidth, lineHeight);
                 p->drawText(cx, y, tempWidth, lineHeight, AlignLeft | AlignTop, temp);
                 cx += tempWidth;
                 temp.truncate(0);
             }
 
+            // TODO: Make tab stop size configurable
             int tabWidth = fontMetrics.width(' ') * (8 - (i % 8));
             p->eraseRect(cx, y, tabWidth, lineHeight);
             cx += tabWidth;
@@ -412,7 +518,27 @@ void TextEditor::paintText(QPainter *p, int x, int y, int w, int h, QString text
     if (temp.length() > 0)
     {
         int tempWidth = fontMetrics.width(temp);
+        p->eraseRect(cx, y, tempWidth, lineHeight);
         p->drawText(cx, y, tempWidth, lineHeight, AlignLeft | AlignTop, temp);
+    }
+}
+
+void TextEditor::pointToLineCol(QPoint p, int &line, int &col)
+{
+    QFontMetrics fontMetrics = viewport()->fontMetrics();
+
+    line = p.y() / fontMetrics.lineSpacing();
+
+    if (line < 0 || line >= m_document->lineCount())
+        return;
+
+    QString text = m_document->line(line).text;
+
+    for (col = 0; col < text.length(); col++)
+    {
+        int x = calculateTextWidth(fontMetrics, text, col);
+        if (p.x() <= x + fontMetrics.width(text[col]) / 2)
+            break;
     }
 }
 
@@ -426,13 +552,14 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
         int lineHeight = fontMetrics.lineSpacing();
         int startLine = cy / lineHeight - 1;
         int endLine = (cy + ch) / lineHeight + 1;
-        int viewWidth = viewport()->width();
+        int maxPaintWidth = contentsWidth();
         SelectionRange selRange = selectionRange();
 
         if (startLine < 0)
             startLine = 0;
 
-        p->setTabStops(fontMetrics.width(' ') * 8); // TODO: Make configurable
+        // TODO: Make tab stop size configurable
+        p->setTabStops(fontMetrics.width(' ') * 8);
 
         int i;
 
@@ -449,65 +576,65 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
                         p->setPen(KGlobalSettings::textColor()); // TODO: Make configurable
                         p->setBackgroundColor(KGlobalSettings::baseColor()); // TODO: Make configurable
                         int firstWidth = calculateTextWidth(fontMetrics, text, selRange.startColumn);
-                        paintText(p, 0, lineHeight * i, firstWidth, lineHeight, text, selRange.startColumn);
+                        paintText(p, 0, lineHeight * i, text, 0, selRange.startColumn);
 
                         p->setPen(KGlobalSettings::highlightedTextColor()); // TODO: Make configurable
                         p->setBackgroundColor(KGlobalSettings::highlightColor()); // TODO: Make configurable
                         int secondWidth = calculateTextWidth(fontMetrics, text, selRange.endColumn) - firstWidth;
-                        paintText(p, firstWidth, lineHeight * i, secondWidth, lineHeight, text.mid(selRange.startColumn, selRange.endColumn - selRange.startColumn));
+                        paintText(p, firstWidth, lineHeight * i, text, selRange.startColumn, selRange.endColumn);
 
                         p->setPen(KGlobalSettings::textColor()); // TODO: Make configurable
                         p->setBackgroundColor(KGlobalSettings::baseColor()); // TODO: Make configurable
                         int thirdWidth = calculateTextWidth(fontMetrics, text) - secondWidth - firstWidth;
-                        paintText(p, firstWidth + secondWidth, lineHeight * i, thirdWidth, lineHeight, text.mid(selRange.endColumn));
+                        paintText(p, firstWidth + secondWidth, lineHeight * i, text, selRange.endColumn);
 
-                        p->eraseRect(firstWidth + secondWidth + thirdWidth, lineHeight * i, viewWidth - firstWidth + secondWidth + thirdWidth, lineHeight);
+                        p->eraseRect(firstWidth + secondWidth + thirdWidth, lineHeight * i, maxPaintWidth - firstWidth + secondWidth + thirdWidth, lineHeight);
                     }
                     else if (i == selRange.startLine)
                     {
                         p->setPen(KGlobalSettings::textColor()); // TODO: Make configurable
                         p->setBackgroundColor(KGlobalSettings::baseColor()); // TODO: Make configurable
                         int firstWidth = calculateTextWidth(fontMetrics, text, selRange.startColumn);
-                        paintText(p, 0, lineHeight * i, firstWidth, lineHeight, text, selRange.startColumn);
+                        paintText(p, 0, lineHeight * i, text, 0, selRange.startColumn);
 
                         p->setPen(KGlobalSettings::highlightedTextColor()); // TODO: Make configurable
                         p->setBackgroundColor(KGlobalSettings::highlightColor()); // TODO: Make configurable
                         int secondWidth = calculateTextWidth(fontMetrics, text) - firstWidth;
-                        paintText(p, firstWidth, lineHeight * i, secondWidth, lineHeight, text.mid(selRange.startColumn));
+                        paintText(p, firstWidth, lineHeight * i, text, selRange.startColumn);
 
-                        p->eraseRect(firstWidth + secondWidth, lineHeight * i, viewWidth - firstWidth + secondWidth, lineHeight);
+                        p->eraseRect(firstWidth + secondWidth, lineHeight * i, maxPaintWidth - firstWidth + secondWidth, lineHeight);
                     }
                     else if (i > selRange.startLine && i < selRange.endLine)
                     {
                         p->setPen(KGlobalSettings::highlightedTextColor()); // TODO: Make configurable
                         p->setBackgroundColor(KGlobalSettings::highlightColor()); // TODO: Make configurable
                         int textWidth = calculateTextWidth(fontMetrics, text);
-                        paintText(p, 0, lineHeight * i, textWidth, lineHeight, text);
+                        paintText(p, 0, lineHeight * i, text);
 
-                        p->eraseRect(textWidth, lineHeight * i, viewWidth - textWidth, lineHeight);
+                        p->eraseRect(textWidth, lineHeight * i, maxPaintWidth - textWidth, lineHeight);
                     }
                     else if (i == selRange.endLine)
                     {
                         p->setPen(KGlobalSettings::highlightedTextColor()); // TODO: Make configurable
                         p->setBackgroundColor(KGlobalSettings::highlightColor()); // TODO: Make configurable
                         int firstWidth = calculateTextWidth(fontMetrics, text, selRange.endColumn);
-                        paintText(p, 0, lineHeight * i, firstWidth, lineHeight, text, selRange.endColumn);
+                        paintText(p, 0, lineHeight * i, text, 0, selRange.endColumn);
 
                         p->setPen(KGlobalSettings::textColor()); // TODO: Make configurable
                         p->setBackgroundColor(KGlobalSettings::baseColor()); // TODO: Make configurable
                         int secondWidth = calculateTextWidth(fontMetrics, text) - firstWidth;
-                        paintText(p, firstWidth, lineHeight * i, secondWidth, lineHeight, text.mid(selRange.endColumn));
+                        paintText(p, firstWidth, lineHeight * i, text, selRange.endColumn);
 
-                        p->eraseRect(firstWidth + secondWidth, lineHeight * i, viewWidth - firstWidth + secondWidth, lineHeight);
+                        p->eraseRect(firstWidth + secondWidth, lineHeight * i, maxPaintWidth - firstWidth + secondWidth, lineHeight);
                     }
                     else
                     {
                         p->setPen(KGlobalSettings::textColor()); // TODO: Make configurable
                         p->setBackgroundColor(KGlobalSettings::baseColor()); // TODO: Make configurable
                         int textWidth = calculateTextWidth(fontMetrics, text);
-                        paintText(p, 0, lineHeight * i, textWidth, lineHeight, text);
+                        paintText(p, 0, lineHeight * i, text);
 
-                        p->eraseRect(textWidth, lineHeight * i, viewWidth - textWidth, lineHeight);
+                        p->eraseRect(textWidth, lineHeight * i, maxPaintWidth - textWidth, lineHeight);
                     }
                 }
                 else
@@ -517,7 +644,7 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
                     else
                         p->setBackgroundColor(KGlobalSettings::baseColor()); // TODO: Make configurable
 
-                    p->eraseRect(0, lineHeight * i, viewWidth, lineHeight);
+                    p->eraseRect(0, lineHeight * i, maxPaintWidth, lineHeight);
                 }
             }
             else
@@ -527,14 +654,14 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
                     p->setPen(KGlobalSettings::textColor()); // TODO: Make configurable
                     p->setBackgroundColor(KGlobalSettings::baseColor()); // TODO: Make configurable
                     int textWidth = calculateTextWidth(fontMetrics, text);
-                    paintText(p, 0, lineHeight * i, textWidth, lineHeight, text);
+                    paintText(p, 0, lineHeight * i, text);
 
-                    p->eraseRect(textWidth, lineHeight * i, viewWidth - textWidth, lineHeight);
+                    p->eraseRect(textWidth, lineHeight * i, maxPaintWidth - textWidth, lineHeight);
                 }
                 else
                 {
                     p->setBackgroundColor(KGlobalSettings::baseColor()); // TODO: Make configurable
-                    p->eraseRect(0, lineHeight * i, viewWidth, lineHeight);
+                    p->eraseRect(0, lineHeight * i, maxPaintWidth, lineHeight);
                 }
             }
         }
@@ -542,28 +669,19 @@ void TextEditor::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
         if (contentsHeight() < viewport()->height())
         {
             p->setBackgroundColor(KGlobalSettings::baseColor()); // TODO: Make configurable
-            p->eraseRect(0, contentsHeight(), viewWidth, viewport()->height() - contentsHeight());
+            p->eraseRect(0, contentsHeight(), maxPaintWidth, viewport()->height() - contentsHeight());
         }
 
         if (m_cursorOn)
         {
-            QString text = m_document->line(m_cursorLine).text;
-            int cursorX, cursorX1, cursorX2, cursorY1, cursorY2;
-
-            cursorX = calculateTextWidth(fontMetrics, text, m_cursorColumn);
-            cursorX1 = cursorX - 2;
-            cursorX2 = cursorX + 2;
-            cursorY1 = m_cursorLine * lineHeight;
-            cursorY2 = m_cursorLine * lineHeight + fontMetrics.height();
-
-            if (cursorX1 < 0)
-                cursorX1 = 0;
+            int cursorMiddleX;
+            QRect cursorRect = calculateCursorRect(m_cursorLine, m_cursorColumn, &cursorMiddleX);
 
             p->setPen(QColor(0, 0, 0));
             p->setRasterOp(NotXorROP);
-            p->drawLine(cursorX1, cursorY1, cursorX2, cursorY1);
-            p->drawLine(cursorX, cursorY1, cursorX, cursorY2);
-            p->drawLine(cursorX1, cursorY2, cursorX2, cursorY2);
+            p->drawLine(cursorRect.left(), cursorRect.top(), cursorRect.right(), cursorRect.top());
+            p->drawLine(cursorMiddleX, cursorRect.top(), cursorMiddleX, cursorRect.bottom());
+            p->drawLine(cursorRect.left(), cursorRect.bottom(), cursorRect.right(), cursorRect.bottom());
             p->setRasterOp(CopyROP);
         }
     }
@@ -604,3 +722,33 @@ void TextEditor::keyPressEvent(QKeyEvent *event)
             event->ignore();
     }
 }
+
+void TextEditor::contentsMousePressEvent(QMouseEvent *event)
+{
+    int line, col;
+
+    pointToLineCol(event->pos(), line, col);
+
+    bool leftButton = (event->button() & LeftButton == LeftButton);
+    bool shiftPressed = (event->state() & ShiftButton == ShiftButton);
+
+    if (leftButton)
+    {
+        moveCursorTo(line, col, shiftPressed);
+    }
+}
+
+void TextEditor::contentsMouseMoveEvent(QMouseEvent *event)
+{
+    int line, col;
+
+    pointToLineCol(event->pos(), line, col);
+
+    bool leftButton = (event->state() & LeftButton == LeftButton);
+
+    if (leftButton)
+    {
+        moveCursorTo(line, col, TRUE);
+    }
+}
+
