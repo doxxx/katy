@@ -177,9 +177,6 @@ void TextEditor::moveCursorTo(int line, int column, bool extendSelection )
         cursorColumn = lineLength;
     }
 
-    if (cursorColumn == m_cursorColumn && cursorLine == m_cursorLine)
-        return;
-
     if (extendSelection)
         extendSelectionTo(cursorLine, cursorColumn);
     else
