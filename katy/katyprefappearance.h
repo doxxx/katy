@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Form interface generated from reading ui file 'katyprefappearance.ui'
 **
-** Created: Thu Feb 8 00:36:01 2001
+** Created: Wed May 8 22:20:48 2002
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -41,16 +41,17 @@ public:
     QLabel* selectedBgLabel;
     KColorButton* selectedBgButton;
 
+
 protected:
-    QHBoxLayout* hbox;
-    QHBoxLayout* hbox_2;
-    QHBoxLayout* hbox_3;
-    QHBoxLayout* hbox_4;
-    QHBoxLayout* hbox_5;
-    QHBoxLayout* hbox_6;
-    QVBoxLayout* vbox;
-    QVBoxLayout* vbox_2;
-    QVBoxLayout* vbox_3;
+    QVBoxLayout* KatyPrefAppearancePageLayout;
+    QHBoxLayout* Layout17;
+    QHBoxLayout* Layout14;
+    QVBoxLayout* normalTextBoxLayout;
+    QHBoxLayout* Layout14_2;
+    QHBoxLayout* Layout11;
+    QVBoxLayout* selectedTextBoxLayout;
+    QHBoxLayout* Layout12;
+    QHBoxLayout* Layout13;
 };
 
 #endif // KATYPREFAPPEARANCEPAGE_H

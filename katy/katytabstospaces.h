@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Form interface generated from reading ui file 'katytabstospaces.ui'
 **
-** Created: Thu Feb 8 00:51:52 2001
+** Created: Wed May 8 22:20:48 2002
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -30,9 +30,10 @@ public:
     QLabel* numberOfSpacesLabel;
     QSpinBox* numberOfSpaces;
 
+
 protected:
-    QHBoxLayout* hbox;
-    QVBoxLayout* vbox;
+    QVBoxLayout* KatyTabsToSpacesLayout;
+    QHBoxLayout* Layout1;
 };
 
 #endif // KATYTABSTOSPACES_H

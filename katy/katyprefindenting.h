@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Form interface generated from reading ui file 'katyprefindenting.ui'
 **
-** Created: Thu Feb 8 00:36:01 2001
+** Created: Wed May 8 22:20:48 2002
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -32,10 +32,11 @@ public:
     QLabel* indentSizeLabel;
     QSpinBox* indentSize;
 
+
 protected:
-    QHBoxLayout* hbox;
-    QHBoxLayout* hbox_2;
-    QVBoxLayout* vbox;
+    QVBoxLayout* KatyPrefIndentingPageLayout;
+    QHBoxLayout* Layout5;
+    QHBoxLayout* Layout6;
 };
 
 #endif // KATYPREFINDENTINGPAGE_H

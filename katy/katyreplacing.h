@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Form interface generated from reading ui file 'katyreplacing.ui'
 **
-** Created: Fri Feb 23 18:42:40 2001
+** Created: Wed May 8 22:20:48 2002
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -29,6 +29,7 @@ public:
     QPushButton* skip;
     QPushButton* cancel;
 
+
 protected slots:
     virtual void slotCancel();
     virtual void slotReplace();
@@ -36,8 +37,8 @@ protected slots:
     virtual void slotSkip();
 
 protected:
-    QHBoxLayout* hbox;
-    QVBoxLayout* vbox;
+    QVBoxLayout* KatyReplacingLayout;
+    QHBoxLayout* Layout4;
 };
 
 #endif // KATYREPLACING_H

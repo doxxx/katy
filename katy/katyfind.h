@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Form interface generated from reading ui file 'katyfind.ui'
 **
-** Created: Fri Feb 23 14:20:00 2001
+** Created: Wed May 8 22:20:47 2002
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -38,12 +38,13 @@ public:
     QRadioButton* forward;
     QRadioButton* backward;
 
+
 protected:
-    QHBoxLayout* hbox;
-    QHBoxLayout* hbox_2;
-    QVBoxLayout* vbox;
-    QVBoxLayout* vbox_2;
-    QVBoxLayout* vbox_3;
+    QVBoxLayout* KatyFindLayout;
+    QHBoxLayout* Layout2;
+    QHBoxLayout* Layout1;
+    QVBoxLayout* optionsGroupLayout;
+    QVBoxLayout* directionGroupLayout;
 };
 
 #endif // KATYFIND_H

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Form interface generated from reading ui file 'katyreplace.ui'
 **
-** Created: Fri Feb 23 14:20:01 2001
+** Created: Wed May 8 22:20:48 2002
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -40,13 +40,14 @@ public:
     QRadioButton* forward;
     QRadioButton* backward;
 
+
 protected:
-    QHBoxLayout* hbox;
-    QHBoxLayout* hbox_2;
-    QHBoxLayout* hbox_3;
-    QVBoxLayout* vbox;
-    QVBoxLayout* vbox_2;
-    QVBoxLayout* vbox_3;
+    QVBoxLayout* KatyReplaceLayout;
+    QHBoxLayout* Layout2;
+    QHBoxLayout* Layout3;
+    QHBoxLayout* Layout1;
+    QVBoxLayout* optionsGroupLayout;
+    QVBoxLayout* directionGroupLayout;
 };
 
 #endif // KATYREPLACE_H
