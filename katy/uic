@@ -1,15 +1,16 @@
 #!/bin/sh
-if [ "$1" == "" ]; then
-    for UIFILE in *.ui; do
-	UIFILE=${UIFILE:0:${#UIFILE}-3}
-	echo Compiling $UIFILE...
-	uic -o $UIFILE.h $UIFILE.ui;
-	uic -o $UIFILE.cpp -tr i18n -impl $UIFILE.h $UIFILE.ui;
-    done;
-else
+function do_uic() {
     UIFILE=$1
     UIFILE=${UIFILE:0:${#UIFILE}-3}
     echo Compiling $UIFILE...
     uic -o $UIFILE.h $UIFILE.ui;
     uic -o $UIFILE.cpp -tr i18n -impl $UIFILE.h $UIFILE.ui;
+}
+
+if [ "$1" == "" ]; then
+    for f in *.ui; do
+        do_uic $f
+    done;
+else
+    do_uic $1
 fi
