@@ -26,12 +26,16 @@
 #endif
 
 #include <kuniqueapp.h>
+#include <kaction.h>
 
-#include <qlist.h>
+#include <qptrlist.h>
 
 #define katyapp ((KatyApp*)kapp)
 
 class Katy;
+
+typedef QPtrList<Katy> KatyList;
+typedef QPtrListIterator<Katy> KatyListIterator;
 
 /**
  * This class serves as the main application class for Katy.
@@ -51,6 +55,7 @@ public:
 
     Katy *newWindow();
     void removeWindow(Katy *window);
+    KatyListIterator windowsIterator();
 
     QFont readConfig_Font();
     QColor readConfig_NormalForeground();
@@ -69,13 +74,17 @@ public:
     void writeConfig_TabSize(int tabSize);
     void writeConfig_UseSpaces(bool useSpaces);
     void writeConfig_IndentSize(int indentSize);
+    
+protected:
+    void updateWindowsMenu();
 
 signals:
     void configChanged();
 
 private:
     bool alreadyRestored;
-    QList<Katy> windowList;
+    KatyList windowList;
+    QPtrList<KAction> windowsMenuActions;
 };
 
 #endif

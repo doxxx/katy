@@ -25,10 +25,12 @@
 #include <kconfig.h>
 #include <kglobalsettings.h>
 #include <kglobal.h>
+#include <kdebug.h>
 
 KatyApp::KatyApp()
     : alreadyRestored(FALSE)
 {
+    windowsMenuActions.setAutoDelete(true);
 }
 
 KatyApp::~KatyApp()
@@ -69,12 +71,19 @@ Katy *KatyApp::newWindow()
 {
     Katy *window = new Katy();
     windowList.append(window);
+    updateWindowsMenu();
     return window;
 }
 
 void KatyApp::removeWindow(Katy *window)
 {
-    windowList.removeRef(window);
+    windowList.remove(window);
+    updateWindowsMenu();
+}
+
+KatyListIterator KatyApp::windowsIterator()
+{
+    return KatyListIterator(windowList);
 }
 
 QFont KatyApp::readConfig_Font()
@@ -186,3 +195,27 @@ void KatyApp::writeConfig_IndentSize(int indentSize)
     emit configChanged();
 }
 
+void KatyApp::updateWindowsMenu()
+{
+    kdDebug() << "updating windows menu" << endl;
+    
+    Katy *window;
+
+    for (window = windowList.first(); window; window = windowList.next()) {
+        window->unplugActionList("windowlist");
+    }
+
+    windowsMenuActions.clear();
+    
+    for (window = windowList.first(); window; window = windowList.next()) {
+        KAction *action = new KAction(window->caption(), 0, window, SLOT(show()), this);
+        windowsMenuActions.append(action);
+    }
+    
+    KAction *action = new KAction("blah");
+    windowsMenuActions.append(action);
+    
+    for (window = windowList.first(); window; window = windowList.next()) {
+        window->plugActionList("windowlist", windowsMenuActions);
+    }
+}
