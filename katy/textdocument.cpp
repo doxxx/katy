@@ -30,7 +30,7 @@
 #include <qtextstream.h>
 #include <qregexp.h>
 
-#define STAT_TIMER_INTERVAL 3000
+#define STAT_TIMER_INTERVAL 3000 // TODO: Make configurable
 
 TextDocument::TextDocument()
 {
@@ -45,6 +45,10 @@ TextDocument::TextDocument()
 
 TextDocument::~TextDocument()
 {
+    if (m_statTimerId >= 0)
+    {
+        killTimer(m_statTimerId);
+    }
 }
 
 KURL TextDocument::url()
@@ -647,6 +651,7 @@ void TextDocument::timerEvent(QTimerEvent *event)
     if (event->timerId() == m_statTimerId)
     {
         killTimer(m_statTimerId);
+        m_statTimerId = -1;
         KIO::StatJob *job = KIO::stat(m_url, FALSE);
         connect(job, SIGNAL(result(KIO::Job*)), SLOT(slotStatJobResult(KIO::Job*)));
     }
@@ -680,6 +685,6 @@ void TextDocument::slotStatJobResult(KIO::Job *job)
         }
     }
 
-    m_statTimerId = startTimer(STAT_TIMER_INTERVAL);
+    m_statTimerId = startTimer(STAT_TIMER_INTERVAL); // TODO: Make configurable
 }
 
