@@ -1,0 +1,132 @@
+<!DOCTYPE UI><UI>
+<class>KatyReplacing</class>
+<include location="global">klocale.h</include>
+<widget>
+    <class>QDialog</class>
+    <property stdset="1">
+        <name>name</name>
+        <cstring>KatyReplacing</cstring>
+    </property>
+    <property stdset="1">
+        <name>geometry</name>
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>379</width>
+            <height>52</height>
+        </rect>
+    </property>
+    <property stdset="1">
+        <name>sizePolicy</name>
+        <sizepolicy>
+            <hsizetype>0</hsizetype>
+            <vsizetype>0</vsizetype>
+        </sizepolicy>
+    </property>
+    <property stdset="1">
+        <name>caption</name>
+        <string>Replacing</string>
+    </property>
+    <vbox>
+        <property stdset="1">
+            <name>margin</name>
+            <number>11</number>
+        </property>
+        <property stdset="1">
+            <name>spacing</name>
+            <number>6</number>
+        </property>
+        <widget>
+            <class>QLayoutWidget</class>
+            <property stdset="1">
+                <name>name</name>
+                <cstring>Layout4</cstring>
+            </property>
+            <hbox>
+                <property stdset="1">
+                    <name>margin</name>
+                    <number>0</number>
+                </property>
+                <property stdset="1">
+                    <name>spacing</name>
+                    <number>6</number>
+                </property>
+                <widget>
+                    <class>QPushButton</class>
+                    <property stdset="1">
+                        <name>name</name>
+                        <cstring>replace</cstring>
+                    </property>
+                    <property stdset="1">
+                        <name>text</name>
+                        <string>&amp;Replace</string>
+                    </property>
+                </widget>
+                <widget>
+                    <class>QPushButton</class>
+                    <property stdset="1">
+                        <name>name</name>
+                        <cstring>replaceAll</cstring>
+                    </property>
+                    <property stdset="1">
+                        <name>text</name>
+                        <string>Replace &amp;All</string>
+                    </property>
+                </widget>
+                <widget>
+                    <class>QPushButton</class>
+                    <property stdset="1">
+                        <name>name</name>
+                        <cstring>skip</cstring>
+                    </property>
+                    <property stdset="1">
+                        <name>text</name>
+                        <string>&amp;Skip</string>
+                    </property>
+                </widget>
+                <widget>
+                    <class>QPushButton</class>
+                    <property stdset="1">
+                        <name>name</name>
+                        <cstring>cancel</cstring>
+                    </property>
+                    <property stdset="1">
+                        <name>text</name>
+                        <string>&amp;Cancel</string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+    </vbox>
+</widget>
+<connections>
+    <connection>
+        <sender>replace</sender>
+        <signal>clicked()</signal>
+        <receiver>KatyReplacing</receiver>
+        <slot>slotReplace()</slot>
+    </connection>
+    <connection>
+        <sender>replaceAll</sender>
+        <signal>clicked()</signal>
+        <receiver>KatyReplacing</receiver>
+        <slot>slotReplaceAll()</slot>
+    </connection>
+    <connection>
+        <sender>skip</sender>
+        <signal>clicked()</signal>
+        <receiver>KatyReplacing</receiver>
+        <slot>slotSkip()</slot>
+    </connection>
+    <connection>
+        <sender>cancel</sender>
+        <signal>clicked()</signal>
+        <receiver>KatyReplacing</receiver>
+        <slot>slotCancel()</slot>
+    </connection>
+    <slot access="protected">slotCancel()</slot>
+    <slot access="protected">slotReplace()</slot>
+    <slot access="protected">slotReplaceAll()</slot>
+    <slot access="protected">slotSkip()</slot>
+</connections>
+</UI>
