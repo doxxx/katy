@@ -98,6 +98,7 @@ public:
 
     Position insertText(int line, int column, QString text);
     void insertLines(int line, TextLineList newLines, bool after=FALSE);
+    void removeText(int startLine, int startColumn, int endLine, int endColumn);
     void removeLines(int line, int count);
     void splitLine(int line, int column);
     void joinLines(int line);

@@ -219,9 +219,9 @@ Position TextDocument::insertText(int line, int column, QString text)
     }
     else
     {
-        TextLine newLine = m_lines[line];
-        newLine.text.insert(column, text);
-        setLine(line, newLine);
+        TextLine oldLine = m_lines[line];
+        m_lines[line].text.insert(column, text);
+        emit lineChanged(line, oldLine, m_lines[line]);
         return Position(line, column + text.length());
     }
 }
@@ -235,10 +235,34 @@ void TextDocument::insertLines(int line, TextLineList newLines, bool after)
 
     TextLineList::Iterator newIt;
 
-    for (newIt = newLines.begin(); newIt != newLines.end(); ++newIt, it++)
+    for (newIt = newLines.begin(); newIt != newLines.end(); ++newIt)
         m_lines.insert(it, (*newIt));
 
     emit linesInserted(line, newLines);
+}
+
+void TextDocument::removeText(int startLine, int startColumn, int endLine, int endColumn)
+{
+    TextLine oldLine;
+
+    if (startLine == endLine)
+    {
+        oldLine = m_lines[startLine];
+        m_lines[startLine].text.remove(startColumn, endColumn - startColumn);
+        emit lineChanged(startLine, oldLine, m_lines[startLine]);
+    }
+    else
+    {
+        oldLine = m_lines[startLine];
+        m_lines[startLine].text.truncate(startColumn);
+        emit lineChanged(startLine, oldLine, m_lines[startLine]);
+
+        removeLines(startLine + 1, endLine - startLine - 1);
+
+        oldLine = m_lines[startLine + 1];
+        m_lines[startLine + 1].text.remove(0, endColumn);
+        emit lineChanged(startLine + 1, oldLine, m_lines[startLine + 1]);
+    }
 }
 
 void TextDocument::removeLines(int line, int count)
@@ -268,3 +292,4 @@ void TextDocument::joinLines(int line)
     setLine(line, newLine);
     removeLines(line + 1, 1);
 }
+
