@@ -262,38 +262,14 @@ void TextEditor::moveCursorRight(bool extendSelection)
     emit cursorMoved(m_cursorLine, m_cursorColumn);
 }
 
-void TextEditor::moveCursorWordLeft(bool extendSelection )
+void TextEditor::moveCursorWordLeft(bool extendSelection)
 {
     int cursorColumn = m_cursorColumn,
           cursorLine = m_cursorLine;
 
-    QString text; // current line
-    QChar c; // current char
-    QChar prevc; // previous char
-    bool stop = FALSE;
+    QString text = m_document->line(cursorLine).text;
 
-    text = m_document->line(cursorLine).text;
-
-    if (cursorColumn == text.length())
-    {
-        if (cursorColumn > 0)
-        {
-            cursorColumn--;
-            c = text[cursorColumn];
-        }
-        else
-        {
-            if (cursorLine > 0)
-            {
-                cursorLine--;
-                text = m_document->line(cursorLine).text;
-                cursorColumn = text.length();
-            }
-
-            stop = TRUE;
-        }
-    }
-    else if (cursorColumn == 0)
+    if (cursorColumn == 0 || text.length() == 0)
     {
         if (cursorLine > 0)
         {
@@ -301,34 +277,16 @@ void TextEditor::moveCursorWordLeft(bool extendSelection )
             text = m_document->line(cursorLine).text;
             cursorColumn = text.length();
         }
-
-        stop = TRUE;
+        else
+        {
+            return;
+        }
     }
     else
     {
-        cursorColumn--;
-        c = text[cursorColumn];
-    }
-
-    while (!stop)
-    {
-        if (cursorColumn > 0)
-        {
-            prevc = c;
-            cursorColumn--;
-            c = text[cursorColumn];
-        }
-        else
-        {
-            stop = TRUE;
-        }
-
-        if ((prevc.isLetterOrNumber() && !c.isLetterOrNumber()) || (prevc.isPunct() && !c.isPunct()))
-        {
-            cursorColumn++;
-            stop = TRUE;
-            continue;
-        }
+        DocumentPosition wordStart = m_document->findWordStart(DocumentPosition(cursorLine, cursorColumn));
+        cursorColumn = wordStart.column;
+        cursorLine = wordStart.line;
     }
 
     if (extendSelection)
@@ -346,17 +304,12 @@ void TextEditor::moveCursorWordLeft(bool extendSelection )
     emit cursorMoved(m_cursorLine, m_cursorColumn);
 }
 
-void TextEditor::moveCursorWordRight(bool extendSelection )
+void TextEditor::moveCursorWordRight(bool extendSelection)
 {
     int cursorColumn = m_cursorColumn,
           cursorLine = m_cursorLine;
 
-    QString text; // current line
-    QChar c; // current char
-    QChar prevc; // previous char
-    bool stop = FALSE;
-
-    text = m_document->line(cursorLine).text;
+    QString text = m_document->line(cursorLine).text;
 
     if (cursorColumn == text.length())
     {
@@ -364,32 +317,17 @@ void TextEditor::moveCursorWordRight(bool extendSelection )
         {
             cursorLine++;
             cursorColumn = 0;
-            stop = TRUE;
+        }
+        else
+        {
+            return;
         }
     }
     else
     {
-        c = text[cursorColumn];
-    }
-
-    while (!stop)
-    {
-        if (cursorColumn < text.length())
-        {
-            prevc = c;
-            cursorColumn++;
-            c = text[cursorColumn];
-        }
-        else
-        {
-            stop = TRUE;
-        }
-
-        if ((!prevc.isLetterOrNumber() && c.isLetterOrNumber()) || (!prevc.isPunct() && c.isPunct()))
-        {
-            stop = TRUE;
-            continue;
-        }
+        DocumentPosition wordStart = m_document->findWordStart(DocumentPosition(cursorLine, cursorColumn), FALSE);
+        cursorColumn = wordStart.column;
+        cursorLine = wordStart.line;
     }
 
     if (extendSelection)
@@ -1400,8 +1338,10 @@ void TextEditor::contentsMouseDoubleClickEvent(QMouseEvent *event)
 
     if (leftButton)
     {
-        moveCursorWordLeft();
-        moveCursorWordRight(TRUE);
+        DocumentPosition wordStart = m_document->findWordStart(DocumentPosition(line, col));
+        DocumentPosition wordEnd = m_document->findWordEnd(wordStart);
+        moveCursorTo(wordStart.line, wordStart.column);
+        moveCursorTo(wordEnd.line, wordEnd.column, TRUE);
     }
 }
 
