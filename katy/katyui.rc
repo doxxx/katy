@@ -1,0 +1,8 @@
+<!DOCTYPE kpartgui>
+<kpartgui name="test" version="0.1">
+  <MenuBar>
+    <Menu name="file">
+      <Action name="file_eol_type"/>
+    </Menu>
+  </MenuBar>
+</kpartgui>

@@ -1,0 +1,18 @@
+Katy v0.3
+Gordon Tyler <gordon@doxxx.net>
+----------------------------------------------------------------------
+This is Katy, a KDE text editor with all the features that you would know and
+love if you have used UltraEdit in Windows.
+
+Please read INSTALL for instructions on how to install Katy.
+
+Katy has a SourceForge project: http://sourceforge.net/projects/katy
+
+Please consult the SourceForge project for list of features to be implemented
+in the future. Please feel free to suggest extra features, however I cannot
+give any guarantee that they will be impemented. But I can try ;)
+
+If you feel the urge to implement some of these features, please contact me
+so that I can co-ordinate our efforts (in case somebody else is already
+working on that particular feature). It would be preferrable if you were a
+registered SourceForge developer.
