@@ -1,2 +1,13 @@
-Sat Oct 21 17:44:32 SAST 2000 - Gordon Tyler <gordon@doxxx.net>
-    o Initial Creation
+2001-03-08  Gordon Tyler  <gordon@doxxx.net>
+
+	* Added Line and Column statusbar indicators.
+	* Fixed File->Open to open the file in a new window.
+
+2001-03-07  Gordon Tyler  <gordon@doxxx.net>
+
+	* Added external change detection.
+
+2000-10-21  Gordon Tyler  <gordon@doxxx.net>
+
+	* Initial creation.
+
