@@ -80,10 +80,8 @@ Katy::Katy()
     setupActions();
 
     // and a status bar
-    statusBar()->insertFixedItem(i18n("Line %1").arg("999999"), StatusBar_Line, TRUE);
-    statusBar()->setItemAlignment(StatusBar_Line, QLabel::AlignLeft | QLabel::AlignVCenter);
-    statusBar()->insertFixedItem(i18n("Column %1").arg("9999"), StatusBar_Column, TRUE);
-    statusBar()->setItemAlignment(StatusBar_Column, QLabel::AlignLeft | QLabel::AlignVCenter);
+    statusBar()->insertItem(i18n("Line %1").arg("999999"), StatusBar_Line, 0, TRUE);
+    statusBar()->insertItem(i18n("Column %1").arg("9999"), StatusBar_Column, 0, TRUE);
     updateLineColumn(m_view->editor()->documentPosition().line, m_view->editor()->documentPosition().column);
     statusBar()->show();
 
@@ -541,7 +539,7 @@ void Katy::changeEOLType(const TextDocument::EOLType type)
 
 void Katy::updateLineColumn(int line, int column)
 {
-    statusBar()->changeItem(i18n("Line %1").arg(QString::number(line)), StatusBar_Line);
-    statusBar()->changeItem(i18n("Column %1").arg(QString::number(column)), StatusBar_Column);
+    statusBar()->changeItem(i18n("Line %1").arg(QString::number(line + 1)), StatusBar_Line);
+    statusBar()->changeItem(i18n("Column %1").arg(QString::number(column + 1)), StatusBar_Column);
 }
 
