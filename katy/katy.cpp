@@ -332,5 +332,8 @@ void Katy::changeEOLType(const TextDocument::EOLType type)
         case TextDocument::EOL_CR:
             m_eolTypeAction->setCurrentItem(2);
             break;
+
+        default:
+            break;
     }
 }
