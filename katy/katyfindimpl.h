@@ -8,55 +8,47 @@
 #include <qlineedit.h>
 #include <qradiobutton.h>
 
-class KatyFindImpl : public KDialogBase
-{
+class KatyFindImpl : public KDialogBase {
     Q_OBJECT
 
 public:
     KatyFindImpl(QWidget *parent = 0);
     ~KatyFindImpl();
 
-    void setFindText(QString findText)
-    {
+    void setFindText(QString findText) {
         widget->findText->setText(findText);
         widget->findText->setSelection(0, findText.length());
     }
 
-    QString findText()
-    {
+    QString findText() {
         return widget->findText->text();
     }
 
-    void setBackward(bool backward)
-    {
-        if (backward)
+    void setBackward(bool backward) {
+        if (backward) {
             widget->backward->setChecked(TRUE);
-        else
+        } else {
             widget->forward->setChecked(TRUE);
+        }
     }
 
-    bool backward()
-    {
+    bool backward() {
         return widget->backward->isChecked();
     }
 
-    void setCaseSensitive(bool caseSensitive)
-    {
+    void setCaseSensitive(bool caseSensitive) {
         widget->caseSensitive->setChecked(caseSensitive);
     }
 
-    bool caseSensitive()
-    {
+    bool caseSensitive() {
         return widget->caseSensitive->isChecked();
     }
 
-    bool regularExpression()
-    {
+    bool regularExpression() {
         return widget->regularExpression->isChecked();
     }
 
-    void setRegularExpression(bool regularExpression)
-    {
+    void setRegularExpression(bool regularExpression) {
         widget->regularExpression->setChecked(regularExpression);
     }
 

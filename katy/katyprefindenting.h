@@ -11,15 +11,14 @@
 
 #include <qvariant.h>
 #include <qframe.h>
-class QVBoxLayout; 
-class QHBoxLayout; 
-class QGridLayout; 
+class QVBoxLayout;
+class QHBoxLayout;
+class QGridLayout;
 class QCheckBox;
 class QLabel;
 class QSpinBox;
 
-class KatyPrefIndentingPage : public QFrame
-{ 
+class KatyPrefIndentingPage : public QFrame {
     Q_OBJECT
 
 public:

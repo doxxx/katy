@@ -45,8 +45,7 @@ class TextEditor;
  * @short Main window class
  * @author Gordon Tyler <gordon@doxxx.net>
  */
-class Katy : public KMainWindow
-{
+class Katy : public KMainWindow {
     Q_OBJECT
 public:
     /**
@@ -64,7 +63,7 @@ public:
      */
     void load(const QString& url);
     void load(const KURL& url);
-    
+
     KAction *windowsMenuItemAction();
     void createWindowsMenuItemAction();
 

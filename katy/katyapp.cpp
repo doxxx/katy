@@ -28,36 +28,25 @@
 #include <kdebug.h>
 
 KatyApp::KatyApp()
-    : alreadyRestored(FALSE)
-{
-}
+        : alreadyRestored(FALSE) {}
 
-KatyApp::~KatyApp()
-{
-}
+KatyApp::~KatyApp() {}
 
-int KatyApp::newInstance()
-{
+int KatyApp::newInstance() {
     KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
 
-    if (isRestored() && !alreadyRestored)
-    {
+    if (isRestored() && !alreadyRestored) {
         alreadyRestored = true;
         RESTORE(Katy)
-    }
-    else
-    {
-        if (args->count() > 0)
-        {
+    } else {
+        if (args->count() > 0) {
             for (int i = 0; i < args->count(); i++) // Counting start at 0!
             {
                 Katy *window = newWindow();
                 window->load(args->url(i));
                 window->show();
             }
-        }
-        else
-        {
+        } else {
             Katy *window = newWindow();
             window->show();
         }
@@ -66,150 +55,128 @@ int KatyApp::newInstance()
     return 0;
 }
 
-Katy *KatyApp::newWindow()
-{
+Katy *KatyApp::newWindow() {
     Katy *window = new Katy();
     windowList.append(window);
     updateWindowsMenu();
     return window;
 }
 
-void KatyApp::removeWindow(Katy *window)
-{
+void KatyApp::removeWindow(Katy *window) {
     windowList.remove(window);
     updateWindowsMenu();
 }
 
-KatyListIterator KatyApp::windowsIterator()
-{
+KatyListIterator KatyApp::windowsIterator() {
     return KatyListIterator(windowList);
 }
 
-QFont KatyApp::readConfig_Font()
-{
+QFont KatyApp::readConfig_Font() {
     KConfigGroupSaver configGroupSaver(KGlobal::config(), "Appearance");
     QFont *defaultFont = new QFont(KGlobalSettings::fixedFont());
     return KGlobal::config()->readFontEntry("Font", defaultFont);
 }
 
-QColor KatyApp::readConfig_NormalForeground()
-{
+QColor KatyApp::readConfig_NormalForeground() {
     KConfigGroupSaver configGroupSaver(KGlobal::config(), "Appearance");
     QColor *defaultColour = new QColor(KGlobalSettings::textColor());
     return KGlobal::config()->readColorEntry("NormalForeground", defaultColour);
 }
 
-QColor KatyApp::readConfig_NormalBackground()
-{
+QColor KatyApp::readConfig_NormalBackground() {
     KConfigGroupSaver configGroupSaver(KGlobal::config(), "Appearance");
     QColor *defaultColour = new QColor(KGlobalSettings::baseColor());
     return KGlobal::config()->readColorEntry("NormalBackground", defaultColour);
 }
 
-QColor KatyApp::readConfig_SelectedForeground()
-{
+QColor KatyApp::readConfig_SelectedForeground() {
     KConfigGroupSaver configGroupSaver(KGlobal::config(), "Appearance");
     QColor *defaultColour = new QColor(KGlobalSettings::highlightedTextColor());
     return KGlobal::config()->readColorEntry("SelectedForeground", defaultColour);
 }
 
-QColor KatyApp::readConfig_SelectedBackground()
-{
+QColor KatyApp::readConfig_SelectedBackground() {
     KConfigGroupSaver configGroupSaver(KGlobal::config(), "Appearance");
     QColor *defaultColour = new QColor(KGlobalSettings::highlightColor());
     return KGlobal::config()->readColorEntry("SelectedBackground", defaultColour);
 }
 
-int KatyApp::readConfig_TabSize()
-{
+int KatyApp::readConfig_TabSize() {
     KConfigGroupSaver configGroupSaver(KGlobal::config(), "Indenting");
     return KGlobal::config()->readNumEntry("TabSize", 8);
 }
 
-bool KatyApp::readConfig_UseSpaces()
-{
+bool KatyApp::readConfig_UseSpaces() {
     KConfigGroupSaver configGroupSaver(KGlobal::config(), "Indenting");
     return KGlobal::config()->readBoolEntry("UseSpaces", FALSE);
 }
 
-int KatyApp::readConfig_IndentSize()
-{
+int KatyApp::readConfig_IndentSize() {
     KConfigGroupSaver configGroupSaver(KGlobal::config(), "Indenting");
     return KGlobal::config()->readNumEntry("IndentSize", 8);
 }
 
-void KatyApp::writeConfig_Font(QFont font)
-{
+void KatyApp::writeConfig_Font(QFont font) {
     KConfigGroupSaver configGroupSaver(KGlobal::config(), "Appearance");
     KGlobal::config()->writeEntry("Font", font);
     emit configChanged();
 }
 
-void KatyApp::writeConfig_NormalForeground(QColor color)
-{
+void KatyApp::writeConfig_NormalForeground(QColor color) {
     KConfigGroupSaver configGroupSaver(KGlobal::config(), "Appearance");
     KGlobal::config()->writeEntry("NormalForeground", color);
     emit configChanged();
 }
 
-void KatyApp::writeConfig_NormalBackground(QColor color)
-{
+void KatyApp::writeConfig_NormalBackground(QColor color) {
     KConfigGroupSaver configGroupSaver(KGlobal::config(), "Appearance");
     KGlobal::config()->writeEntry("NormalBackground", color);
     emit configChanged();
 }
 
-void KatyApp::writeConfig_SelectedForeground(QColor color)
-{
+void KatyApp::writeConfig_SelectedForeground(QColor color) {
     KConfigGroupSaver configGroupSaver(KGlobal::config(), "Appearance");
     KGlobal::config()->writeEntry("SelectedForeground", color);
     emit configChanged();
 }
 
-void KatyApp::writeConfig_SelectedBackground(QColor color)
-{
+void KatyApp::writeConfig_SelectedBackground(QColor color) {
     KConfigGroupSaver configGroupSaver(KGlobal::config(), "Appearance");
     KGlobal::config()->writeEntry("SelectedBackground", color);
     emit configChanged();
 }
 
-void KatyApp::writeConfig_TabSize(int tabSize)
-{
+void KatyApp::writeConfig_TabSize(int tabSize) {
     KConfigGroupSaver configGroupSaver(KGlobal::config(), "Indenting");
     KGlobal::config()->writeEntry("TabSize", tabSize);
     emit configChanged();
 }
 
-void KatyApp::writeConfig_UseSpaces(bool useSpaces)
-{
+void KatyApp::writeConfig_UseSpaces(bool useSpaces) {
     KConfigGroupSaver configGroupSaver(KGlobal::config(), "Indenting");
     KGlobal::config()->writeEntry("UseSpaces", useSpaces);
     emit configChanged();
 }
 
-void KatyApp::writeConfig_IndentSize(int indentSize)
-{
+void KatyApp::writeConfig_IndentSize(int indentSize) {
     KConfigGroupSaver configGroupSaver(KGlobal::config(), "Indenting");
     KGlobal::config()->writeEntry("IndentSize", indentSize);
     emit configChanged();
 }
 
-void KatyApp::updateWindowsMenu()
-{
+void KatyApp::updateWindowsMenu() {
     QPtrList<KAction> oldActions;
     oldActions.setAutoDelete(true);
-    
+
     Katy *window;
-    for (window = windowList.first(); window; window = windowList.next())
-    {
+    for (window = windowList.first(); window; window = windowList.next()) {
         oldActions.append(window->windowsMenuItemAction());
         window->createWindowsMenuItemAction();
     }
-    
-    for (window = windowList.first(); window; window = windowList.next())
-    {
+
+    for (window = windowList.first(); window; window = windowList.next()) {
         window->updateWindowsMenu();
     }
-    
+
     oldActions.clear();
 }

@@ -18,22 +18,21 @@
 #include <qtooltip.h>
 #include <qwhatsthis.h>
 
-/* 
+/*
  *  Constructs a KatyPrefIndentingPage which is a child of 'parent', with the 
  *  name 'name'.' 
  */
 KatyPrefIndentingPage::KatyPrefIndentingPage( QWidget* parent,  const char* name )
-    : QFrame( parent, name )
-{
+        : QFrame( parent, name ) {
     if ( !name )
-	setName( "KatyPrefIndentingPage" );
-    resize( 332, 104 ); 
+        setName( "KatyPrefIndentingPage" );
+    resize( 332, 104 );
     setFrameShadow( QFrame::Plain );
     setFrameShape( QFrame::NoFrame );
     setCaption( i18n( "Tabs and Indenting" ) );
-    KatyPrefIndentingPageLayout = new QVBoxLayout( this, 11, 6, "KatyPrefIndentingPageLayout"); 
+    KatyPrefIndentingPageLayout = new QVBoxLayout( this, 11, 6, "KatyPrefIndentingPageLayout");
 
-    Layout5 = new QHBoxLayout( 0, 0, 6, "Layout5"); 
+    Layout5 = new QHBoxLayout( 0, 0, 6, "Layout5");
 
     tabSizeLabel = new QLabel( this, "tabSizeLabel" );
     tabSizeLabel->setText( i18n( "Tab Character Size:" ) );
@@ -47,7 +46,7 @@ KatyPrefIndentingPage::KatyPrefIndentingPage( QWidget* parent,  const char* name
     useSpaces->setText( i18n( "Tab key inserts spaces instead of tab characters" ) );
     KatyPrefIndentingPageLayout->addWidget( useSpaces );
 
-    Layout6 = new QHBoxLayout( 0, 0, 6, "Layout6"); 
+    Layout6 = new QHBoxLayout( 0, 0, 6, "Layout6");
 
     indentSizeLabel = new QLabel( this, "indentSizeLabel" );
     indentSizeLabel->setText( i18n( "Number Of Spaces:" ) );
@@ -64,11 +63,10 @@ KatyPrefIndentingPage::KatyPrefIndentingPage( QWidget* parent,  const char* name
     connect( useSpaces, SIGNAL( toggled(bool) ), indentSizeLabel, SLOT( setEnabled(bool) ) );
 }
 
-/*  
+/*
  *  Destroys the object and frees any allocated resources
  */
-KatyPrefIndentingPage::~KatyPrefIndentingPage()
-{
+KatyPrefIndentingPage::~KatyPrefIndentingPage() {
     // no need to delete child widgets, Qt does it all for us
 }
 

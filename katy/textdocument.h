@@ -26,11 +26,9 @@
 #include <qvaluelist.h>
 #include <kio/job.h>
 
-class FormatRange
-{
+class FormatRange {
 public:
-    enum FormatType
-    {
+    enum FormatType {
         FT_Normal,
         FT_Keyword,
         FT_String,
@@ -43,15 +41,11 @@ public:
     int length;
 };
 
-class TextLine
-{
+class TextLine {
 public:
-    TextLine()
-    {
-    }
+    TextLine() {}
 
-    TextLine(QString newText)
-    {
+    TextLine(QString newText) {
         text = newText;
     }
 
@@ -62,17 +56,14 @@ public:
 
 typedef QValueList<TextLine> TextLineList;
 
-class DocumentPosition
-{
+class DocumentPosition {
 public:
-    DocumentPosition()
-    {
+    DocumentPosition() {
         line = 0;
         column = 0;
     }
 
-    DocumentPosition(int newLine, int newColumn)
-    {
+    DocumentPosition(int newLine, int newColumn) {
         line = newLine;
         column = newColumn;
     }
@@ -81,16 +72,13 @@ public:
     int line, column;
 };
 
-class DocumentRange
-{
+class DocumentRange {
 public:
-    DocumentRange()
-    {
+    DocumentRange() {
         valid = FALSE;
     }
 
-    DocumentRange(int newStartLine, int newStartColumn, int newEndLine, int newEndColumn)
-    {
+    DocumentRange(int newStartLine, int newStartColumn, int newEndLine, int newEndColumn) {
         startLine = newStartLine;
         startColumn = newStartColumn;
         endLine = newEndLine;
@@ -110,20 +98,17 @@ public:
  * @short Text document class
  * @author Gordon Tyler <gordon@doxxx.net>
  */
-class TextDocument : public QObject
-{
+class TextDocument : public QObject {
     Q_OBJECT
 public:
-    enum EOLType
-    {
+    enum EOLType {
         EOL_Unknown = 0,
         EOL_LF,
         EOL_CR,
         EOL_CRLF
     };
 
-    enum FindTextFlags
-    {
+    enum FindTextFlags {
         Backward = 0x01,
         CaseSensitive = 0x02,
         RegularExpression = 0x04

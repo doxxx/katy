@@ -63,8 +63,7 @@ enum StatusBarItems
 };
 
 Katy::Katy()
-    : KMainWindow()
-{
+        : KMainWindow() {
     // accept dnd
     setAcceptDrops(true);
 
@@ -86,7 +85,7 @@ Katy::Katy()
     statusBar()->insertItem(i18n("Line %1").arg("999999"), StatusBar_Line, 0, TRUE);
     statusBar()->insertItem(i18n("Column %1").arg("9999"), StatusBar_Column, 0, TRUE);
     statusBar()->show();
-    
+
     // Read config options
     readOptions(katyapp->config());
 
@@ -95,14 +94,12 @@ Katy::Katy()
     updateEOLType(m_view->document()->eolType());
 }
 
-Katy::~Katy()
-{
+Katy::~Katy() {
     saveOptions(katyapp->config());
     katyapp->removeWindow(this);
 }
 
-void Katy::setupActions()
-{
+void Katy::setupActions() {
     KStdAction::openNew(this, SLOT(fileNew()), actionCollection());
     KStdAction::open(this, SLOT(fileOpen()), actionCollection());
     m_openRecentAction = KStdAction::openRecent(this, SLOT(fileOpenRecent(const KURL&)), actionCollection());
@@ -138,18 +135,16 @@ void Katy::setupActions()
     KStdAction::keyBindings(this, SLOT(configureKeys()), actionCollection());
     KStdAction::configureToolbars(this, SLOT(configureToolbars()), actionCollection());
     KStdAction::preferences(this, SLOT(preferences()), actionCollection());
-    
+
     createGUI("katyui.rc", false);
 }
 
-void Katy::load(const QString& url)
-{
+void Katy::load(const QString& url) {
     KURL kurl(url);
     load(kurl);
 }
 
-void Katy::load(const KURL& url)
-{
+void Katy::load(const KURL& url) {
     TextDocument *document = new TextDocument();
     document->openURL(url);
 
@@ -160,109 +155,91 @@ void Katy::load(const KURL& url)
     m_openRecentAction->addURL(url);
 }
 
-KAction *Katy::windowsMenuItemAction()
-{
+KAction *Katy::windowsMenuItemAction() {
     return m_windowsMenuItemAction;
 }
 
-void Katy::createWindowsMenuItemAction()
-{
+void Katy::createWindowsMenuItemAction() {
     QString text;
-    if (m_view->document()->url().isEmpty())
-    {
+    if (m_view->document()->url().isEmpty()) {
         text = i18n("Untitled");
-    }
-    else
-    {
+    } else {
         text = m_view->document()->url().fileName();
     }
     text += (m_view->document()->modified() ? "*" : "");
-    
+
     m_windowsMenuItemAction = new KRadioAction(text);
     connect(m_windowsMenuItemAction, SIGNAL(activated()), this, SLOT(activateWindow()));
     m_windowsMenuItemAction->setExclusiveGroup("window_list_actions");
 }
 
-void Katy::updateDocumentStatus(const KURL &url, bool modified)
-{
+void Katy::updateDocumentStatus(const KURL &url, bool modified) {
     QString caption;
-    
-    if (url.isEmpty()) 
-    {
+
+    if (url.isEmpty()) {
         caption = i18n("Untitled");
-    } 
-    else 
-    {
+    } else {
         caption = url.fileName();
     }
-    
-    if (m_windowsMenuItemAction)
-    {
+
+    if (m_windowsMenuItemAction) {
         m_windowsMenuItemAction->setText(caption + (modified ? "*" : ""));
     }
-    
+
     setCaption(caption, modified);
 }
 
-bool Katy::queryExit()
-{
+bool Katy::queryExit() {
     m_openRecentAction->saveEntries(KGlobal::config());
     return true;
 }
 
-bool Katy::queryClose()
-{
-    if (m_view->document()->modified())
-    {
-        switch (KMessageBox::warningYesNoCancel(this, i18n("Save changes to document?")))
-        {
-            case KMessageBox::Yes:
-                fileSave();
-                return true;
-            case KMessageBox::No:
-                return true;
-            default: // cancel
-                return false;
+bool Katy::queryClose() {
+    if (m_view->document()->modified()) {
+        switch (KMessageBox::warningYesNoCancel(this, i18n("Save changes to document?"))) {
+        case KMessageBox::Yes:
+            fileSave();
+            return true;
+        case KMessageBox::No:
+            return true;
+        default: // cancel
+            return false;
         }
     }
 
     return true;
 }
 
-void Katy::readOptions(KConfig *config)
-{
+void Katy::readOptions(KConfig *config) {
     KConfigGroupSaver configGroupSaver(config, "Window");
     m_toolbarAction->setChecked(config->readBoolEntry("ShowToolbar", true));
     showToolbar();
     m_statusbarAction->setChecked(config->readBoolEntry("ShowStatusbar", true));
     showStatusbar();
     QSize size = config->readSizeEntry("DefaultSize");
-    if (!size.isEmpty())
-    {
+    if (!size.isEmpty()) {
         resize(size);
     }
 }
 
-void Katy::saveOptions(KConfig *config)
-{
+void Katy::saveOptions(KConfig *config) {
     KConfigGroupSaver configGroupSaver(config, "Window");
     config->writeEntry("ShowToolbar", m_toolbarAction->isChecked());
     config->writeEntry("ShowStatusbar", m_statusbarAction->isChecked());
     config->writeEntry("DefaultSize", size());
 }
 
-void Katy::saveProperties(KConfig *config)
-{
+void Katy::saveProperties(KConfig *config) {
     // the 'config' object points to the session managed
     // config file.  anything you write here will be available
     // later when this app is restored
 
-    if (!m_view->document()->url().isEmpty())
+    if (!m_view->document()->url().isEmpty()) {
         config->writeEntry("lastURL", m_view->document()->url().url());
+    }
 }
 
-void Katy::readProperties(KConfig *config)
-{
+void Katy::readProperties(KConfig *config) {
     // the 'config' object points to the session managed
     // config file.  this function is automatically called whenever
     // the app is being restored.  read in here whatever you wrote
@@ -270,26 +247,24 @@ void Katy::readProperties(KConfig *config)
 
     KURL url = KURL(config->readEntry("lastURL"));
 
-    if (!url.isEmpty())
+    if (!url.isEmpty()) {
         load(url);
+    }
 }
 
-void Katy::dragEnterEvent(QDragEnterEvent *event)
-{
+void Katy::dragEnterEvent(QDragEnterEvent *event) {
     // accept uri drops only
     event->accept(QUriDrag::canDecode(event));
 }
 
-void Katy::dropEvent(QDropEvent *event)
-{
+void Katy::dropEvent(QDropEvent *event) {
     // this is a very simplistic implementation of a drop event.  we
     // will only accept a dropped URL.  the Qt dnd code can do *much*
     // much more, so please read the docs there
     QStrList uri;
 
     // see if we can decode a URI.. if not, just ignore it
-    if (QUriDrag::decode(event, uri))
-    {
+    if (QUriDrag::decode(event, uri)) {
         // okay, we have a URI.. process it
         QString url, target;
         url = uri.first();
@@ -299,14 +274,12 @@ void Katy::dropEvent(QDropEvent *event)
     }
 }
 
-void Katy::windowActivationChange(bool oldActive)
-{
+void Katy::windowActivationChange(bool oldActive) {
     KMainWindow::windowActivationChange(oldActive);
     m_windowsMenuItemAction->setChecked(oldActive);
 }
 
-void Katy::fileNew()
-{
+void Katy::fileNew() {
     // this slot is called whenever the File->New menu is selected,
     // the New shortcut is pressed (usually CTRL+N) or the New toolbar
     // button is clicked
@@ -315,20 +288,15 @@ void Katy::fileNew()
     katyapp->newWindow()->show();
 }
 
-void Katy::fileOpen()
-{
+void Katy::fileOpen() {
     // this slot is called whenever the File->Open menu is selected,
     // the Open shortcut is pressed (usually CTRL+O) or the Open toolbar
     // button is clicked
     KURL url = KFileDialog::getOpenURL(QString::null, QString::null, this);
-    if (!url.isEmpty())
-    {
-        if (m_view->document()->url().isEmpty() && !m_view->document()->modified())
-        {
+    if (!url.isEmpty()) {
+        if (m_view->document()->url().isEmpty() && !m_view->document()->modified()) {
             load(url);
-        }
-        else
-        {
+        } else {
             Katy *newWindow = katyapp->newWindow();
             newWindow->load(url);
             newWindow->show();
@@ -336,16 +304,11 @@ void Katy::fileOpen()
     }
 }
 
-void Katy::fileOpenRecent(const KURL& url)
-{
-    if (!url.isEmpty() && !url.isMalformed())
-    {
-        if (m_view->document()->url().isEmpty() && !m_view->document()->modified())
-        {
+void Katy::fileOpenRecent(const KURL& url) {
+    if (!url.isEmpty() && !url.isMalformed()) {
+        if (m_view->document()->url().isEmpty() && !m_view->document()->modified()) {
             load(url);
-        }
-        else
-        {
+        } else {
             Katy *newWindow = katyapp->newWindow();
             newWindow->load(url);
             newWindow->show();
@@ -353,309 +316,277 @@ void Katy::fileOpenRecent(const KURL& url)
     }
 }
 
-void Katy::fileSave()
-{
+void Katy::fileSave() {
     // this slot is called whenever the File->Save menu is selected,
     // the Save shortcut is pressed (usually CTRL+S) or the Save toolbar
     // button is clicked
 
-    if (m_view->document()->url().isEmpty())
-    {
+    if (m_view->document()->url().isEmpty()) {
         fileSaveAs();
-    }
-    else
-    {
+    } else {
         m_view->document()->save();
     }
 }
 
-void Katy::fileSaveAs()
-{
+void Katy::fileSaveAs() {
     KURL file_url = KFileDialog::getSaveURL();
-    if (!file_url.isEmpty() && !file_url.isMalformed())
-    {
+    if (!file_url.isEmpty() && !file_url.isMalformed()) {
         m_view->document()->saveURL(file_url);
     }
 }
 
-void Katy::fileSaveAll()
-{
+void Katy::fileSaveAll() {
     KatyListIterator it = katyapp->windowsIterator();
-    for (Katy *window = it.toFirst(); window; ++it, window = it.current())
-    {
+    for (Katy *window = it.toFirst(); window; ++it, window = it.current()) {
         window->fileSave();
     }
 }
 
-void Katy::fileClose()
-{
+void Katy::fileClose() {
     close();
 }
 
-void Katy::fileChangeEOLType()
-{
-    switch (m_eolTypeAction->currentItem())
-    {
-        case 0:
-            m_view->document()->setEOLType(TextDocument::EOL_CRLF);
-            break;
+void Katy::fileChangeEOLType() {
+    switch (m_eolTypeAction->currentItem()) {
+    case 0:
+        m_view->document()->setEOLType(TextDocument::EOL_CRLF);
+        break;
 
-        case 1:
-            m_view->document()->setEOLType(TextDocument::EOL_LF);
-            break;
+    case 1:
+        m_view->document()->setEOLType(TextDocument::EOL_LF);
+        break;
 
-        case 2:
-            m_view->document()->setEOLType(TextDocument::EOL_CR);
-            break;
+    case 2:
+        m_view->document()->setEOLType(TextDocument::EOL_CR);
+        break;
     }
 }
 
-void Katy::editCut()
-{
+void Katy::editCut() {
     m_view->editor()->cut();
 }
 
-void Katy::editCopy()
-{
+void Katy::editCopy() {
     m_view->editor()->copy();
 }
 
-void Katy::editPaste()
-{
+void Katy::editPaste() {
     m_view->editor()->paste();
 }
 
-void Katy::editSelectAll()
-{
+void Katy::editSelectAll() {
     m_view->editor()->selectAll();
 }
 
-void Katy::editFind()
-{
+void Katy::editFind() {
     int result = KatyFindImpl::show(this, m_findText, m_backward, m_caseSensitive, m_regularExpression);
 
-    if (result == QDialog::Accepted)
-    {
+    if (result == QDialog::Accepted) {
         int flags = 0;
 
-        if (m_backward)
+        if (m_backward) {
             flags |= TextDocument::Backward;
-        if (m_caseSensitive)
+        }
+        if (m_caseSensitive) {
             flags |= TextDocument::CaseSensitive;
-        if (m_regularExpression)
+        }
+        if (m_regularExpression) {
             flags |= TextDocument::RegularExpression;
+        }
 
         DocumentRange range = m_view->document()->findText(m_findText, m_view->editor()->documentPosition(), flags);
-        if (range.valid)
-        {
+        if (range.valid) {
             m_view->editor()->moveCursorTo(range.startLine, range.startColumn);
             m_view->editor()->moveCursorTo(range.endLine, range.endColumn, TRUE);
         }
     }
 }
 
-void Katy::editFindNext()
-{
+void Katy::editFindNext() {
     int flags = 0;
 
-    if (m_backward)
+    if (m_backward) {
         flags |= TextDocument::Backward;
-    if (m_caseSensitive)
+    }
+    if (m_caseSensitive) {
         flags |= TextDocument::CaseSensitive;
-    if (m_regularExpression)
+    }
+    if (m_regularExpression) {
         flags |= TextDocument::RegularExpression;
+    }
 
     DocumentRange range = m_view->document()->findText(m_findText, m_view->editor()->documentPosition(), flags);
-    if (range.valid)
-    {
+    if (range.valid) {
         m_view->editor()->moveCursorTo(range.startLine, range.startColumn);
         m_view->editor()->moveCursorTo(range.endLine, range.endColumn, TRUE);
     }
 }
 
-void Katy::editReplace()
-{
+void Katy::editReplace() {
     int result = KatyReplaceImpl::show(this, m_findText, m_replaceText, m_backward, m_caseSensitive, m_regularExpression);
 
-    if (result == QDialog::Accepted)
-    {
+    if (result == QDialog::Accepted) {
         int flags = 0;
 
-        if (m_backward)
+        if (m_backward) {
             flags |= TextDocument::Backward;
-        if (m_caseSensitive)
+        }
+        if (m_caseSensitive) {
             flags |= TextDocument::CaseSensitive;
-        if (m_regularExpression)
+        }
+        if (m_regularExpression) {
             flags |= TextDocument::RegularExpression;
+        }
 
         DocumentRange range = m_view->document()->findText(m_findText, m_view->editor()->documentPosition(), flags);
         bool cancel = FALSE;
         bool ask = TRUE;
 
-        while (range.valid && !cancel)
-        {
+        while (range.valid && !cancel) {
             m_view->editor()->moveCursorTo(range.startLine, range.startColumn);
             m_view->editor()->moveCursorTo(range.endLine, range.endColumn, TRUE);
 
             bool replace = FALSE;
 
-            if (ask)
-            {
+            if (ask) {
                 result = KatyReplacingImpl::ask(this);
-                switch (result)
-                {
-                    case KatyReplacingImpl::Replace:
-                        replace = TRUE;
-                        break;
+                switch (result) {
+                case KatyReplacingImpl::Replace:
+                    replace = TRUE;
+                    break;
 
-                    case KatyReplacingImpl::ReplaceAll:
-                        replace = TRUE;
-                        ask = FALSE;
-                        break;
+                case KatyReplacingImpl::ReplaceAll:
+                    replace = TRUE;
+                    ask = FALSE;
+                    break;
 
-                    case KatyReplacingImpl::Skip:
-                        break;
+                case KatyReplacingImpl::Skip:
+                    break;
 
-                    case QDialog::Rejected:
-                        cancel = TRUE;
-                        break;
+                case QDialog::Rejected:
+                    cancel = TRUE;
+                    break;
                 }
-            }
-            else
-            {
+            } else {
                 replace = TRUE;
             }
 
-            if (replace)
+            if (replace) {
                 m_view->editor()->setSelectedText(m_replaceText);
+            }
 
             katyapp->processEvents();
 
-            if (!cancel)
+            if (!cancel) {
                 range = m_view->document()->findText(m_findText, m_view->editor()->documentPosition(), flags);
+            }
         }
     }
 }
 
-void Katy::editTabsToSpaces()
-{
+void Katy::editTabsToSpaces() {
     int spaces;
     bool leadingOnly;
-    if (KatyTabsToSpacesImpl::tabsToSpaces(this, spaces, leadingOnly) == QDialog::Accepted)
-    {
+    if (KatyTabsToSpacesImpl::tabsToSpaces(this, spaces, leadingOnly) == QDialog::Accepted) {
         m_view->document()->tabsToSpaces(spaces, leadingOnly);
     }
 }
 
-void Katy::editSpacesToTabs()
-{
+void Katy::editSpacesToTabs() {
     int spaces;
     bool leadingOnly;
-    if (KatyTabsToSpacesImpl::spacesToTabs(this, spaces, leadingOnly) == QDialog::Accepted)
-    {
+    if (KatyTabsToSpacesImpl::spacesToTabs(this, spaces, leadingOnly) == QDialog::Accepted) {
         m_view->document()->spacesToTabs(spaces, leadingOnly);
     }
 }
 
-void Katy::showToolbar()
-{
+void Katy::showToolbar() {
     // this is all very cut and paste code for showing/hiding the
     // toolbar
-    if (m_toolbarAction->isChecked())
+    if (m_toolbarAction->isChecked()) {
         toolBar()->show();
-    else
+    } else {
         toolBar()->hide();
+    }
 }
 
-void Katy::showStatusbar()
-{
+void Katy::showStatusbar() {
     // this is all very cut and paste code for showing/hiding the
     // statusbar
-    if (m_statusbarAction->isChecked())
+    if (m_statusbarAction->isChecked()) {
         statusBar()->show();
-    else
+    } else {
         statusBar()->hide();
+    }
 }
 
-void Katy::configureKeys()
-{
+void Katy::configureKeys() {
     KKeyDialog::configureKeys(actionCollection(), "katyui.rc");
 }
 
-void Katy::configureToolbars()
-{
+void Katy::configureToolbars() {
     // use the standard toolbar editor
     KEditToolbar dlg(actionCollection());
-    if (dlg.exec())
-    {
+    if (dlg.exec()) {
         // recreate our GUI
         createGUI();
     }
 }
 
-void Katy::preferences()
-{
+void Katy::preferences() {
     // popup some sort of preference dialog, here
     KatyPreferences dlg;
-    if (dlg.exec())
-    {
+    if (dlg.exec()) {
         // redo your settings
     }
 }
 
-void Katy::updateEOLType(const TextDocument::EOLType type)
-{
-    switch (type)
-    {
-        case TextDocument::EOL_CRLF:
-            m_eolTypeAction->setCurrentItem(0);
-            break;
+void Katy::updateEOLType(const TextDocument::EOLType type) {
+    switch (type) {
+    case TextDocument::EOL_CRLF:
+        m_eolTypeAction->setCurrentItem(0);
+        break;
 
-        case TextDocument::EOL_LF:
-            m_eolTypeAction->setCurrentItem(1);
-            break;
+    case TextDocument::EOL_LF:
+        m_eolTypeAction->setCurrentItem(1);
+        break;
 
-        case TextDocument::EOL_CR:
-            m_eolTypeAction->setCurrentItem(2);
-            break;
+    case TextDocument::EOL_CR:
+        m_eolTypeAction->setCurrentItem(2);
+        break;
 
-        default:
-            break;
+    default:
+        break;
     }
 }
 
-void Katy::updateLineColumn(int line, int column)
-{
+void Katy::updateLineColumn(int line, int column) {
     statusBar()->changeItem(i18n("Line %1").arg(QString::number(line + 1)), StatusBar_Line);
     statusBar()->changeItem(i18n("Column %1").arg(QString::number(column + 1)), StatusBar_Column);
 }
 
-void Katy::updateWindowsMenu()
-{
+void Katy::updateWindowsMenu() {
     unplugActionList("window_list");
-    
+
     m_windowsMenuActions.clear();
-    
+
     KatyListIterator it = katyapp->windowsIterator();
-    for (Katy *window = it.toFirst(); window; ++it, window = it.current())
-    {
+    for (Katy *window = it.toFirst(); window; ++it, window = it.current()) {
         m_windowsMenuActions.append(window->windowsMenuItemAction());
     }
-    
+
     plugActionList("window_list", m_windowsMenuActions);
 }
 
-void Katy::activateWindow()
-{
+void Katy::activateWindow() {
     show();
-    
+
     // Nasty hack to to wait for a minimized window to be restored
     // before it can be raised and activated
-    while (isMinimized())
-    {
+    while (isMinimized()) {
         katyapp->processEvents(100);
     }
-    
+
     raise();
     setActiveWindow();
 }

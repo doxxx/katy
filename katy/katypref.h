@@ -27,8 +27,7 @@
 class KatyPrefAppearancePage;
 class KatyPrefIndentingPage;
 
-class KatyPreferences : public KDialogBase
-{
+class KatyPreferences : public KDialogBase {
     Q_OBJECT
 public:
     KatyPreferences();

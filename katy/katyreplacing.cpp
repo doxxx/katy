@@ -15,7 +15,7 @@
 #include <qtooltip.h>
 #include <qwhatsthis.h>
 
-/* 
+/*
  *  Constructs a KatyReplacing which is a child of 'parent', with the 
  *  name 'name' and widget flags set to 'f'.
  *
@@ -23,16 +23,15 @@
  *  TRUE to construct a modal dialog.
  */
 KatyReplacing::KatyReplacing( QWidget* parent,  const char* name, bool modal, WFlags fl )
-    : QDialog( parent, name, modal, fl )
-{
+        : QDialog( parent, name, modal, fl ) {
     if ( !name )
-	setName( "KatyReplacing" );
-    resize( 379, 52 ); 
+        setName( "KatyReplacing" );
+    resize( 379, 52 );
     setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, sizePolicy().hasHeightForWidth() ) );
     setCaption( i18n( "Replacing" ) );
-    KatyReplacingLayout = new QVBoxLayout( this, 11, 6, "KatyReplacingLayout"); 
+    KatyReplacingLayout = new QVBoxLayout( this, 11, 6, "KatyReplacingLayout");
 
-    Layout4 = new QHBoxLayout( 0, 0, 6, "Layout4"); 
+    Layout4 = new QHBoxLayout( 0, 0, 6, "Layout4");
 
     replace = new QPushButton( this, "replace" );
     replace->setText( i18n( "&Replace" ) );
@@ -58,31 +57,26 @@ KatyReplacing::KatyReplacing( QWidget* parent,  const char* name, bool modal, WF
     connect( cancel, SIGNAL( clicked() ), this, SLOT( slotCancel() ) );
 }
 
-/*  
+/*
  *  Destroys the object and frees any allocated resources
  */
-KatyReplacing::~KatyReplacing()
-{
+KatyReplacing::~KatyReplacing() {
     // no need to delete child widgets, Qt does it all for us
 }
 
-void KatyReplacing::slotCancel()
-{
+void KatyReplacing::slotCancel() {
     qWarning( "KatyReplacing::slotCancel(): Not implemented yet!" );
 }
 
-void KatyReplacing::slotReplace()
-{
+void KatyReplacing::slotReplace() {
     qWarning( "KatyReplacing::slotReplace(): Not implemented yet!" );
 }
 
-void KatyReplacing::slotReplaceAll()
-{
+void KatyReplacing::slotReplaceAll() {
     qWarning( "KatyReplacing::slotReplaceAll(): Not implemented yet!" );
 }
 
-void KatyReplacing::slotSkip()
-{
+void KatyReplacing::slotSkip() {
     qWarning( "KatyReplacing::slotSkip(): Not implemented yet!" );
 }
 

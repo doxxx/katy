@@ -17,26 +17,26 @@
 #include <qtooltip.h>
 #include <qwhatsthis.h>
 
-/* 
+/*
  *  Constructs a KatyTabsToSpaces which is a child of 'parent', with the 
  *  name 'name' and widget flags set to 'f'.
  */
 KatyTabsToSpaces::KatyTabsToSpaces( QWidget* parent,  const char* name, WFlags fl )
-    : QWidget( parent, name, fl )
-{
+        : QWidget( parent, name, fl ) {
     if ( !name )
-	setName( "KatyTabsToSpaces" );
-    resize( 188, 73 ); 
+        setName( "KatyTabsToSpaces" );
+    resize( 188, 73 );
     setCaption( i18n( "KatyTabsToSpaces" ) );
-    KatyTabsToSpacesLayout = new QVBoxLayout( this, 11, 6, "KatyTabsToSpacesLayout"); 
+    KatyTabsToSpacesLayout = new QVBoxLayout( this, 11, 6, "KatyTabsToSpacesLayout");
 
     leadingOnly = new QCheckBox( this, "leadingOnly" );
     leadingOnly->setText( i18n( "Leading characters only" ) );
     leadingOnly->setChecked( TRUE );
-    QToolTip::add( leadingOnly, i18n( "Check this to convert only tabs or spaces at the beginning of lines." ) );
+    QToolTip::add
+        ( leadingOnly, i18n( "Check this to convert only tabs or spaces at the beginning of lines." ) );
     KatyTabsToSpacesLayout->addWidget( leadingOnly );
 
-    Layout1 = new QHBoxLayout( 0, 0, 6, "Layout1"); 
+    Layout1 = new QHBoxLayout( 0, 0, 6, "Layout1");
 
     numberOfSpacesLabel = new QLabel( this, "numberOfSpacesLabel" );
     numberOfSpacesLabel->setText( i18n( "Number of spaces:" ) );
@@ -47,11 +47,10 @@ KatyTabsToSpaces::KatyTabsToSpaces( QWidget* parent,  const char* name, WFlags f
     KatyTabsToSpacesLayout->addLayout( Layout1 );
 }
 
-/*  
+/*
  *  Destroys the object and frees any allocated resources
  */
-KatyTabsToSpaces::~KatyTabsToSpaces()
-{
+KatyTabsToSpaces::~KatyTabsToSpaces() {
     // no need to delete child widgets, Qt does it all for us
 }
 

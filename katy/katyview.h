@@ -34,8 +34,7 @@ class TextDocument;
  * @short Main view container
  * @author Gordon Tyler <gordon@doxxx.net>
  */
-class KatyView : public QWidget
-{
+class KatyView : public QWidget {
     Q_OBJECT
 public:
     KatyView(QWidget *parent);
@@ -50,7 +49,7 @@ public:
      * Return the document currently being shown.
      */
     virtual TextDocument *document();
-    
+
     virtual TextEditor *editor();
 
 signals:
@@ -59,7 +58,7 @@ signals:
      * has been modified.
      */
     void documentStatusChanged(const KURL& url, bool modified);
-    
+
     /**
      * Indicates that the status bar line/column should be updated
      */

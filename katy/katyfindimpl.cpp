@@ -4,22 +4,16 @@
 #include <klocale.h>
 
 KatyFindImpl::KatyFindImpl(QWidget *parent)
-    : KDialogBase(parent, NULL, TRUE, i18n("Find"),
-                  Help|Ok|Cancel)
-{
+        : KDialogBase(parent, NULL, TRUE, i18n("Find"), Help | Ok | Cancel) {
     widget = new KatyFind(this);
-
     setMainWidget(widget);
 
     widget->findText->setFocus();
 }
 
-KatyFindImpl::~KatyFindImpl()
-{
-}
+KatyFindImpl::~KatyFindImpl() {}
 
-int KatyFindImpl::show(QWidget *parent, QString &findText, bool &backward, bool &caseSensitive, bool &regularExpression)
-{
+int KatyFindImpl::show(QWidget *parent, QString &findText, bool &backward, bool &caseSensitive, bool &regularExpression) {
     KatyFindImpl dlg(parent);
 
     dlg.setFindText(findText);
@@ -28,8 +22,7 @@ int KatyFindImpl::show(QWidget *parent, QString &findText, bool &backward, bool 
     dlg.setRegularExpression(regularExpression);
 
     int result = dlg.exec();
-    if (result == QDialog::Accepted)
-    {
+    if (result == QDialog::Accepted) {
         findText = dlg.findText();
         backward = dlg.backward();
         caseSensitive = dlg.caseSensitive();

@@ -38,9 +38,7 @@
 #include <qcheckbox.h>
 
 KatyPreferences::KatyPreferences()
-    : KDialogBase(TreeList, "Preferences",
-                  Help|Ok|Apply|Cancel, Ok)
-{
+        : KDialogBase(TreeList, "Preferences", Help | Ok | Apply | Cancel, Ok) {
     enableButtonApply(FALSE);
 
     initAppearancePage();
@@ -49,11 +47,9 @@ KatyPreferences::KatyPreferences()
     m_changed = FALSE;
 }
 
-void KatyPreferences::slotChooseFont()
-{
+void KatyPreferences::slotChooseFont() {
     QFont font(m_appearancePage->fontDescriptionLabel->font());
-    if (KFontDialog::getFont(font, TRUE, this) == KFontDialog::Accepted)
-    {
+    if (KFontDialog::getFont(font, TRUE, this) == KFontDialog::Accepted) {
         m_appearancePage->fontDescriptionLabel->clear();
         m_appearancePage->fontDescriptionLabel->setFont(font);
         m_appearancePage->fontDescriptionLabel->setText(describeFont(font));
@@ -61,8 +57,7 @@ void KatyPreferences::slotChooseFont()
     }
 }
 
-void KatyPreferences::initAppearancePage()
-{
+void KatyPreferences::initAppearancePage() {
     QFrame *page;
     QBoxLayout *layout;
 
@@ -89,8 +84,7 @@ void KatyPreferences::initAppearancePage()
     connect(m_appearancePage->selectedBgButton, SIGNAL(changed(const QColor&)), SLOT(slotChanged()));
 }
 
-void KatyPreferences::initIndentingPage()
-{
+void KatyPreferences::initIndentingPage() {
     QFrame *page;
     QBoxLayout *layout;
 
@@ -111,8 +105,7 @@ void KatyPreferences::initIndentingPage()
     connect(m_indentingPage->indentSize, SIGNAL(valueChanged(int)), SLOT(slotChanged()));
 }
 
-void KatyPreferences::saveAppearancePage()
-{
+void KatyPreferences::saveAppearancePage() {
     katyapp->writeConfig_Font(m_appearancePage->fontDescriptionLabel->font());
     katyapp->writeConfig_NormalForeground(m_appearancePage->normalFgButton->color());
     katyapp->writeConfig_NormalBackground(m_appearancePage->normalBgButton->color());
@@ -120,24 +113,20 @@ void KatyPreferences::saveAppearancePage()
     katyapp->writeConfig_SelectedBackground(m_appearancePage->selectedBgButton->color());
 }
 
-void KatyPreferences::saveIndentingPage()
-{
+void KatyPreferences::saveIndentingPage() {
     katyapp->writeConfig_TabSize(m_indentingPage->tabSize->value());
     katyapp->writeConfig_UseSpaces(m_indentingPage->useSpaces->isChecked());
     katyapp->writeConfig_IndentSize(m_indentingPage->indentSize->value());
 }
 
-QString KatyPreferences::describeFont(QFont font)
-{
+QString KatyPreferences::describeFont(QFont font) {
     QFontDatabase fontDB;
     QString format("%1, %2, %3pt");
     return format.arg(font.family()).arg(fontDB.styleString(font)).arg(font.pointSize());
 }
 
-void KatyPreferences::slotApply()
-{
-    if (m_changed)
-    {
+void KatyPreferences::slotApply() {
+    if (m_changed) {
         saveAppearancePage();
         saveIndentingPage();
         KGlobal::config()->sync();
@@ -147,14 +136,12 @@ void KatyPreferences::slotApply()
     m_changed = FALSE;
 }
 
-void KatyPreferences::slotOk()
-{
+void KatyPreferences::slotOk() {
     slotApply();
     KDialogBase::slotOk();
 }
 
-void KatyPreferences::slotChanged()
-{
+void KatyPreferences::slotChanged() {
     enableButtonApply(TRUE);
     m_changed = TRUE;
 }

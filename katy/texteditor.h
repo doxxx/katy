@@ -31,8 +31,7 @@ class QPainter;
 /**
  *
  */
-class SelectionRange
-{
+class SelectionRange {
 public:
     int startLine, startColumn, endLine, endColumn;
     bool hasSelection;
@@ -45,8 +44,7 @@ public:
  * @short Text Editor widget
  * @author Gordon Tyler <gordon@doxxx.net>
  */
-class TextEditor : public QScrollView
-{
+class TextEditor : public QScrollView {
     Q_OBJECT
 public:
     /**
@@ -62,8 +60,7 @@ public:
     /**
      * Returns the TextDocument used.
      */
-    TextDocument *document()
-    {
+    TextDocument *document() {
         return m_document;
     }
 
@@ -72,8 +69,7 @@ public:
      */
     void setDocument(TextDocument *doc);
 
-    DocumentPosition documentPosition()
-    {
+    DocumentPosition documentPosition() {
         return DocumentPosition(m_cursorLine, m_cursorColumn);
     }
 

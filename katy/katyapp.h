@@ -43,8 +43,7 @@ typedef QPtrListIterator<Katy> KatyListIterator;
  * @short Main application class
  * @author Gordon Tyler <gordon@doxxx.net>
  */
-class KatyApp : public KUniqueApplication
-{
+class KatyApp : public KUniqueApplication {
     Q_OBJECT
 public:
     KatyApp();
@@ -73,7 +72,7 @@ public:
     void writeConfig_TabSize(int tabSize);
     void writeConfig_UseSpaces(bool useSpaces);
     void writeConfig_IndentSize(int indentSize);
-    
+
 protected:
     void updateWindowsMenu();
 

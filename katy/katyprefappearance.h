@@ -11,16 +11,15 @@
 
 #include <qvariant.h>
 #include <qframe.h>
-class QVBoxLayout; 
-class QHBoxLayout; 
-class QGridLayout; 
+class QVBoxLayout;
+class QHBoxLayout;
+class QGridLayout;
 class KColorButton;
 class QGroupBox;
 class QLabel;
 class QPushButton;
 
-class KatyPrefAppearancePage : public QFrame
-{ 
+class KatyPrefAppearancePage : public QFrame {
     Q_OBJECT
 
 public:

@@ -3,13 +3,12 @@
 
 #include <dcopobject.h>
 
-class KatyIface : virtual public DCOPObject
-{
-  K_DCOP
+class KatyIface : virtual public DCOPObject {
+    K_DCOP
 public:
 
 k_dcop:
-  virtual void openURL(QString url) = 0;
+    virtual void openURL(QString url) = 0;
 };
 
 #endif // KATYIFACE_H

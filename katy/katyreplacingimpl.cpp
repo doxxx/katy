@@ -10,49 +10,41 @@
  *  TRUE to construct a modal dialog.
  */
 KatyReplacingImpl::KatyReplacingImpl( QWidget* parent,  const char* name, bool modal, WFlags fl )
-    : KatyReplacing( parent, name, modal, fl )
-{
-}
+        : KatyReplacing( parent, name, modal, fl ) {}
 
 /*
  *  Destroys the object and frees any allocated resources
  */
-KatyReplacingImpl::~KatyReplacingImpl()
-{
+KatyReplacingImpl::~KatyReplacingImpl() {
     // no need to delete child widgets, Qt does it all for us
 }
 
 /*
  * protected slot
  */
-void KatyReplacingImpl::slotCancel()
-{
+void KatyReplacingImpl::slotCancel() {
     reject();
 }
 /*
  * protected slot
  */
-void KatyReplacingImpl::slotReplace()
-{
+void KatyReplacingImpl::slotReplace() {
     done(Replace);
 }
 /*
  * protected slot
  */
-void KatyReplacingImpl::slotReplaceAll()
-{
+void KatyReplacingImpl::slotReplaceAll() {
     done(ReplaceAll);
 }
 /*
  * protected slot
  */
-void KatyReplacingImpl::slotSkip()
-{
+void KatyReplacingImpl::slotSkip() {
     done(Skip);
 }
 
-int KatyReplacingImpl::ask(QWidget *parent)
-{
+int KatyReplacingImpl::ask(QWidget *parent) {
     KatyReplacingImpl dlg(parent);
 
     return dlg.exec();

@@ -21,20 +21,19 @@
 #include <qtooltip.h>
 #include <qwhatsthis.h>
 
-/* 
+/*
  *  Constructs a KatyReplace which is a child of 'parent', with the 
  *  name 'name' and widget flags set to 'f'.
  */
 KatyReplace::KatyReplace( QWidget* parent,  const char* name, WFlags fl )
-    : QWidget( parent, name, fl )
-{
+        : QWidget( parent, name, fl ) {
     if ( !name )
-	setName( "KatyReplace" );
-    resize( 278, 159 ); 
+        setName( "KatyReplace" );
+    resize( 278, 159 );
     setCaption( i18n( "Replace" ) );
-    KatyReplaceLayout = new QVBoxLayout( this, 11, 6, "KatyReplaceLayout"); 
+    KatyReplaceLayout = new QVBoxLayout( this, 11, 6, "KatyReplaceLayout");
 
-    Layout2 = new QHBoxLayout( 0, 0, 6, "Layout2"); 
+    Layout2 = new QHBoxLayout( 0, 0, 6, "Layout2");
 
     findTextLabel = new QLabel( this, "findTextLabel" );
     findTextLabel->setText( i18n( "Find:" ) );
@@ -44,7 +43,7 @@ KatyReplace::KatyReplace( QWidget* parent,  const char* name, WFlags fl )
     Layout2->addWidget( findText );
     KatyReplaceLayout->addLayout( Layout2 );
 
-    Layout3 = new QHBoxLayout( 0, 0, 6, "Layout3"); 
+    Layout3 = new QHBoxLayout( 0, 0, 6, "Layout3");
 
     replaceTextLabel = new QLabel( this, "replaceTextLabel" );
     replaceTextLabel->setText( i18n( "Replace:" ) );
@@ -54,7 +53,7 @@ KatyReplace::KatyReplace( QWidget* parent,  const char* name, WFlags fl )
     Layout3->addWidget( replaceText );
     KatyReplaceLayout->addLayout( Layout3 );
 
-    Layout1 = new QHBoxLayout( 0, 0, 6, "Layout1"); 
+    Layout1 = new QHBoxLayout( 0, 0, 6, "Layout1");
 
     optionsGroup = new QGroupBox( this, "optionsGroup" );
     optionsGroup->setTitle( i18n( "Options" ) );
@@ -92,11 +91,10 @@ KatyReplace::KatyReplace( QWidget* parent,  const char* name, WFlags fl )
     KatyReplaceLayout->addLayout( Layout1 );
 }
 
-/*  
+/*
  *  Destroys the object and frees any allocated resources
  */
-KatyReplace::~KatyReplace()
-{
+KatyReplace::~KatyReplace() {
     // no need to delete child widgets, Qt does it all for us
 }
 

@@ -30,8 +30,7 @@
 #include <kmessagebox.h>
 
 KatyView::KatyView(QWidget *parent)
-    : QWidget(parent)
-{
+        : QWidget(parent) {
     // Setup our layout manager to automatically add our widgets
     QHBoxLayout *top_layout = new QHBoxLayout(this);
     top_layout->setAutoAdd(true);
@@ -39,22 +38,20 @@ KatyView::KatyView(QWidget *parent)
     // Create our TextEditor widget
     m_editor = new TextEditor(this);
     connect(m_editor, SIGNAL(cursorMoved(int, int)), SIGNAL(updateLineColumn(int, int)));
-    
+
     m_document = NULL;
 }
 
-KatyView::~KatyView()
-{
-    if (m_document != NULL)
-    {
+KatyView::~KatyView() {
+    if (m_document != NULL) {
         delete m_document;
     }
 }
 
-void KatyView::showDocument(TextDocument *document)
-{
-    if (m_document != NULL)
+void KatyView::showDocument(TextDocument *document) {
+    if (m_document != NULL) {
         delete m_document;
+    }
 
     m_document = document;
 
@@ -67,37 +64,32 @@ void KatyView::showDocument(TextDocument *document)
     slotDocumentNotModified();
 }
 
-TextDocument *KatyView::document()
-{
+TextDocument *KatyView::document() {
     return m_document;
 }
 
-TextEditor *KatyView::editor()
-{
+TextEditor *KatyView::editor() {
     return m_editor;
 }
 
-void KatyView::slotDocumentModified()
-{
+void KatyView::slotDocumentModified() {
     emit documentStatusChanged(m_document->url(), TRUE);
 }
 
-void KatyView::slotDocumentNotModified()
-{
+void KatyView::slotDocumentNotModified() {
     emit documentStatusChanged(m_document->url(), FALSE);
 }
 
-void KatyView::slotDocumentExternallyChanged()
-{
+void KatyView::slotDocumentExternallyChanged() {
     QString msg;
 
-    if (m_document->modified())
+    if (m_document->modified()) {
         msg = i18n("Document has been externally modified. Reload and lose your changes?");
-    else
+    } else {
         msg = i18n("Document has been externally modified. Reload?");
+    }
 
-    if (KMessageBox::questionYesNo(this, msg) == KMessageBox::Yes)
-    {
+    if (KMessageBox::questionYesNo(this, msg) == KMessageBox::Yes) {
         m_document->openURL(m_document->url());
         m_editor->resetView();
     }

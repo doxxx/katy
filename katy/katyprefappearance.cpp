@@ -20,52 +20,52 @@
 #include <qimage.h>
 #include <qpixmap.h>
 
-static const char* const image0_data[] = { 
-"22 22 2 1",
-". c None",
-"# c #a4c610",
-"........######........",
-".....###########......",
-"....##############....",
-"...################...",
-"..######......######..",
-"..#####........#####..",
-".#####.......#..#####.",
-".####.......###..####.",
-"####.......#####..####",
-"####......#####...####",
-"####....#######...####",
-"####....######....####",
-"####...########...####",
-".####.##########..####",
-".####..####.#########.",
-".#####..##...########.",
-"..#####.......#######.",
-"..######......######..",
-"...###################",
-"....##################",
-"......###########.###.",
-"........######.....#.."};
+static const char* const image0_data[] = {
+            "22 22 2 1",
+            ". c None",
+            "# c #a4c610",
+            "........######........",
+            ".....###########......",
+            "....##############....",
+            "...################...",
+            "..######......######..",
+            "..#####........#####..",
+            ".#####.......#..#####.",
+            ".####.......###..####.",
+            "####.......#####..####",
+            "####......#####...####",
+            "####....#######...####",
+            "####....######....####",
+            "####...########...####",
+            ".####.##########..####",
+            ".####..####.#########.",
+            ".#####..##...########.",
+            "..#####.......#######.",
+            "..######......######..",
+            "...###################",
+            "....##################",
+            "......###########.###.",
+            "........######.....#.."
+        };
 
 
-/* 
+/*
  *  Constructs a KatyPrefAppearancePage which is a child of 'parent', with the 
  *  name 'name'.' 
  */
 KatyPrefAppearancePage::KatyPrefAppearancePage( QWidget* parent,  const char* name )
-    : QFrame( parent, name )
-{
+        : QFrame( parent, name ) {
     QPixmap image0( ( const char** ) image0_data );
     if ( !name )
-	setName( "KatyPrefAppearancePage" );
-    resize( 388, 125 ); 
+        setName( "KatyPrefAppearancePage" );
+    resize( 388, 125 );
     setFrameShadow( QFrame::Plain );
     setFrameShape( QFrame::NoFrame );
     setCaption( i18n( "Appearance" ) );
     setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)1, (QSizePolicy::SizeType)1, 0, 0, sizePolicy().hasHeightForWidth() ) );
-    KatyPrefAppearancePageLayout = new QVBoxLayout( this, 11, 6, "KatyPrefAppearancePageLayout"); 
+    KatyPrefAppearancePageLayout = new QVBoxLayout( this, 11, 6, "KatyPrefAppearancePageLayout");
 
-    Layout17 = new QHBoxLayout( 0, 0, 6, "Layout17"); 
+    Layout17 = new QHBoxLayout( 0, 0, 6, "Layout17");
 
     fontLabel = new QLabel( this, "fontLabel" );
     fontLabel->setText( i18n( "&Font:" ) );
@@ -90,7 +90,7 @@ KatyPrefAppearancePage::KatyPrefAppearancePage( QWidget* parent,  const char* na
     Layout17->addWidget( fontDialogButton );
     KatyPrefAppearancePageLayout->addLayout( Layout17 );
 
-    Layout14 = new QHBoxLayout( 0, 0, 6, "Layout14"); 
+    Layout14 = new QHBoxLayout( 0, 0, 6, "Layout14");
 
     normalTextBox = new QGroupBox( this, "normalTextBox" );
     normalTextBox->setTitle( i18n( "Normal Text Colour" ) );
@@ -101,7 +101,7 @@ KatyPrefAppearancePage::KatyPrefAppearancePage( QWidget* parent,  const char* na
     normalTextBoxLayout = new QVBoxLayout( normalTextBox->layout() );
     normalTextBoxLayout->setAlignment( Qt::AlignTop );
 
-    Layout14_2 = new QHBoxLayout( 0, 0, 6, "Layout14_2"); 
+    Layout14_2 = new QHBoxLayout( 0, 0, 6, "Layout14_2");
 
     normalFgLabel = new QLabel( normalTextBox, "normalFgLabel" );
     normalFgLabel->setText( i18n( "F&oreground:" ) );
@@ -111,7 +111,7 @@ KatyPrefAppearancePage::KatyPrefAppearancePage( QWidget* parent,  const char* na
     Layout14_2->addWidget( normalFgButton );
     normalTextBoxLayout->addLayout( Layout14_2 );
 
-    Layout11 = new QHBoxLayout( 0, 0, 6, "Layout11"); 
+    Layout11 = new QHBoxLayout( 0, 0, 6, "Layout11");
 
     normalBgLabel = new QLabel( normalTextBox, "normalBgLabel" );
     normalBgLabel->setText( i18n( "Bac&kground:" ) );
@@ -131,7 +131,7 @@ KatyPrefAppearancePage::KatyPrefAppearancePage( QWidget* parent,  const char* na
     selectedTextBoxLayout = new QVBoxLayout( selectedTextBox->layout() );
     selectedTextBoxLayout->setAlignment( Qt::AlignTop );
 
-    Layout12 = new QHBoxLayout( 0, 0, 6, "Layout12"); 
+    Layout12 = new QHBoxLayout( 0, 0, 6, "Layout12");
 
     selectedFgLabel = new QLabel( selectedTextBox, "selectedFgLabel" );
     selectedFgLabel->setText( i18n( "Fo&reground:" ) );
@@ -141,7 +141,7 @@ KatyPrefAppearancePage::KatyPrefAppearancePage( QWidget* parent,  const char* na
     Layout12->addWidget( selectedFgButton );
     selectedTextBoxLayout->addLayout( Layout12 );
 
-    Layout13 = new QHBoxLayout( 0, 0, 6, "Layout13"); 
+    Layout13 = new QHBoxLayout( 0, 0, 6, "Layout13");
 
     selectedBgLabel = new QLabel( selectedTextBox, "selectedBgLabel" );
     selectedBgLabel->setText( i18n( "Back&ground:" ) );
@@ -161,11 +161,10 @@ KatyPrefAppearancePage::KatyPrefAppearancePage( QWidget* parent,  const char* na
     selectedBgLabel->setBuddy( selectedBgButton );
 }
 
-/*  
+/*
  *  Destroys the object and frees any allocated resources
  */
-KatyPrefAppearancePage::~KatyPrefAppearancePage()
-{
+KatyPrefAppearancePage::~KatyPrefAppearancePage() {
     // no need to delete child widgets, Qt does it all for us
 }
 

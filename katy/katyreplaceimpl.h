@@ -8,66 +8,56 @@
 #include <qlineedit.h>
 #include <qradiobutton.h>
 
-class KatyReplaceImpl : public KDialogBase
-{
+class KatyReplaceImpl : public KDialogBase {
     Q_OBJECT
 
 public:
     KatyReplaceImpl(QWidget *parent = 0);
     ~KatyReplaceImpl();
 
-    void setFindText(QString findText)
-    {
+    void setFindText(QString findText) {
         widget->findText->setText(findText);
         widget->findText->setSelection(0, findText.length());
     }
 
-    QString findText()
-    {
+    QString findText() {
         return widget->findText->text();
     }
 
-    void setReplaceText(QString replaceText)
-    {
+    void setReplaceText(QString replaceText) {
         widget->replaceText->setText(replaceText);
         widget->replaceText->setSelection(0, replaceText.length());
     }
 
-    QString replaceText()
-    {
+    QString replaceText() {
         return widget->replaceText->text();
     }
 
-    void setBackward(bool backward)
-    {
-        if (backward)
+    void setBackward(bool backward) {
+        if (backward) {
             widget->backward->setChecked(TRUE);
-        else
+        } else {
             widget->forward->setChecked(TRUE);
+        }
     }
 
-    bool backward()
-    {
+    bool backward() {
         return widget->backward->isChecked();
     }
 
-    void setCaseSensitive(bool caseSensitive)
-    {
+    void setCaseSensitive(bool caseSensitive) {
         widget->caseSensitive->setChecked(caseSensitive);
     }
 
-    bool caseSensitive()
-    {
+    bool caseSensitive() {
         return widget->caseSensitive->isChecked();
     }
 
-    bool regularExpression()
-    {
+    bool regularExpression() {
         return widget->regularExpression->isChecked();
     }
 
-    void setRegularExpression(bool regularExpression)
-    {
+    void setRegularExpression(bool regularExpression) {
         widget->regularExpression->setChecked(regularExpression);
     }
 

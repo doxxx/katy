@@ -4,22 +4,16 @@
 #include <klocale.h>
 
 KatyReplaceImpl::KatyReplaceImpl(QWidget *parent)
-    : KDialogBase(parent, NULL, TRUE, i18n("Replace"),
-                  Help|Ok|Cancel)
-{
+        : KDialogBase(parent, NULL, TRUE, i18n("Replace"), Help | Ok | Cancel) {
     widget = new KatyReplace(this);
-
     setMainWidget(widget);
 
     widget->findText->setFocus();
 }
 
-KatyReplaceImpl::~KatyReplaceImpl()
-{
-}
+KatyReplaceImpl::~KatyReplaceImpl() {}
 
-int KatyReplaceImpl::show(QWidget *parent, QString &findText, QString &replaceText, bool &backward, bool &caseSensitive, bool &regularExpression)
-{
+int KatyReplaceImpl::show(QWidget *parent, QString &findText, QString &replaceText, bool &backward, bool &caseSensitive, bool &regularExpression) {
     KatyReplaceImpl dlg(parent);
 
     dlg.setFindText(findText);
@@ -29,8 +23,7 @@ int KatyReplaceImpl::show(QWidget *parent, QString &findText, QString &replaceTe
     dlg.setRegularExpression(regularExpression);
 
     int result = dlg.exec();
-    if (result == QDialog::Accepted)
-    {
+    if (result == QDialog::Accepted) {
         findText = dlg.findText();
         replaceText = dlg.replaceText();
         backward = dlg.backward();

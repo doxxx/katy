@@ -6,21 +6,18 @@
 #include <qspinbox.h>
 #include <qcheckbox.h>
 
-class KatyTabsToSpacesImpl : public KDialogBase
-{
+class KatyTabsToSpacesImpl : public KDialogBase {
     Q_OBJECT
 
 public:
     KatyTabsToSpacesImpl(bool spacesToTabs = FALSE, QWidget *parent = 0);
     ~KatyTabsToSpacesImpl();
 
-    int numberOfSpaces()
-    {
+    int numberOfSpaces() {
         return widget->numberOfSpaces->value();
     }
 
-    bool isLeadingOnly()
-    {
+    bool isLeadingOnly() {
         return widget->leadingOnly->isChecked();
     }
 

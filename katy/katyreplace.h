@@ -11,9 +11,9 @@
 
 #include <qvariant.h>
 #include <qwidget.h>
-class QVBoxLayout; 
-class QHBoxLayout; 
-class QGridLayout; 
+class QVBoxLayout;
+class QHBoxLayout;
+class QGridLayout;
 class QButtonGroup;
 class QCheckBox;
 class QGroupBox;
@@ -21,8 +21,7 @@ class QLabel;
 class QLineEdit;
 class QRadioButton;
 
-class KatyReplace : public QWidget
-{ 
+class KatyReplace : public QWidget {
     Q_OBJECT
 
 public:

@@ -11,13 +11,12 @@
 
 #include <qvariant.h>
 #include <qdialog.h>
-class QVBoxLayout; 
-class QHBoxLayout; 
-class QGridLayout; 
+class QVBoxLayout;
+class QHBoxLayout;
+class QGridLayout;
 class QPushButton;
 
-class KatyReplacing : public QDialog
-{ 
+class KatyReplacing : public QDialog {
     Q_OBJECT
 
 public:

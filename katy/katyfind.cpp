@@ -21,20 +21,19 @@
 #include <qtooltip.h>
 #include <qwhatsthis.h>
 
-/* 
+/*
  *  Constructs a KatyFind which is a child of 'parent', with the 
  *  name 'name' and widget flags set to 'f'.
  */
-KatyFind::KatyFind( QWidget* parent,  const char* name, WFlags fl )
-    : QWidget( parent, name, fl )
-{
+KatyFind::KatyFind( QWidget* parent, const char* name, WFlags fl )
+        : QWidget( parent, name, fl ) {
     if ( !name )
-	setName( "KatyFind" );
-    resize( 278, 129 ); 
+        setName( "KatyFind" );
+    resize( 278, 129 );
     setCaption( i18n( "Find" ) );
-    KatyFindLayout = new QVBoxLayout( this, 11, 6, "KatyFindLayout"); 
+    KatyFindLayout = new QVBoxLayout( this, 11, 6, "KatyFindLayout");
 
-    Layout2 = new QHBoxLayout( 0, 0, 6, "Layout2"); 
+    Layout2 = new QHBoxLayout( 0, 0, 6, "Layout2");
 
     findTextLabel = new QLabel( this, "findTextLabel" );
     findTextLabel->setText( i18n( "Find:" ) );
@@ -44,7 +43,7 @@ KatyFind::KatyFind( QWidget* parent,  const char* name, WFlags fl )
     Layout2->addWidget( findText );
     KatyFindLayout->addLayout( Layout2 );
 
-    Layout1 = new QHBoxLayout( 0, 0, 6, "Layout1"); 
+    Layout1 = new QHBoxLayout( 0, 0, 6, "Layout1");
 
     optionsGroup = new QGroupBox( this, "optionsGroup" );
     optionsGroup->setTitle( i18n( "Options" ) );
@@ -82,11 +81,10 @@ KatyFind::KatyFind( QWidget* parent,  const char* name, WFlags fl )
     KatyFindLayout->addLayout( Layout1 );
 }
 
-/*  
+/*
  *  Destroys the object and frees any allocated resources
  */
-KatyFind::~KatyFind()
-{
+KatyFind::~KatyFind() {
     // no need to delete child widgets, Qt does it all for us
 }
 
