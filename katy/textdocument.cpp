@@ -272,7 +272,10 @@ void TextDocument::removeLines(int line, int count)
     int i;
 
     for (i = count; i > 0 && it != m_lines.end(); --i)
+    {
         m_lines.remove(it);
+        it = m_lines.at(line);
+    }
 
     emit linesRemoved(line, count - i);
 }
