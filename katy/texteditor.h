@@ -72,7 +72,9 @@ protected:
     void drawCursor();
     void ensureCursorVisible();
     void extendSelectionTo(int line, int column);
-    void updateLines(int start, int end);
+    void repaintLines(int start, int end);
+    int calculateTextWidth(QFontMetrics fontMetrics, QString text, int length = -1);
+    void paintText(QPainter *p, int x, int y, int w, int h, QString text, int length = -1);
 
 private:
     // runtime data
