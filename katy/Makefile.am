@@ -49,6 +49,6 @@ messages:
 
 KDE_ICON = katy
 
- # this is where the kdelnk file will go 
+# this is where the kdelnk file will go 
 kdelnkdir   = $(kde_appsdir)/Utilities
 kdelnk_DATA = katy.desktop
