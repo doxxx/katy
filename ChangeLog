@@ -1,14 +1,22 @@
-2001-03-08  Gordon Tyler  <gordon@doxxx.net>
+2002-05-05  Gordon Tyler <gordon@doxxx.net>
+
+	* Ported to KDE 3.0.
+	* Added Windows menu.
+	* Fixed File-Open Recent to open the file in a new window
+	* Changed minimum view size to 100x100 and save window size
+	  on exit.
+
+2001-03-08  Gordon Tyler <gordon@doxxx.net>
 
 	* Added Line and Column statusbar indicators.
 	* Fixed File->Open to open the file in a new window.
 	* Changed File->Open to use standard KDE Open File dialog.
 
-2001-03-07  Gordon Tyler  <gordon@doxxx.net>
+2001-03-07  Gordon Tyler <gordon@doxxx.net>
 
 	* Added external change detection.
 
-2001-03-07  Gordon Tyler  <gordon@doxxx.net>
+2001-03-07  Gordon Tyler <gordon@doxxx.net>
 
 	* Version 0.3 released.
 	
