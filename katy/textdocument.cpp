@@ -593,54 +593,54 @@ DocumentPosition TextDocument::findWordStart(DocumentPosition start, bool left) 
     QString text;
     QChar c; // current character
     QChar prevc; // previous character
-    bool stop = FALSE;
 
     text = m_lines[pos.line].text;
 
     if (left) {
         if (pos.column == 0) {
-            stop = TRUE;
-        } else {
-            pos.column--;
-            c = text[pos.column];
+            return pos;
         }
 
-        while (!stop) {
-            if (pos.column > 0) {
-                prevc = c;
-                pos.column--;
-                c = text[pos.column];
-            } else {
-                stop = TRUE;
+        pos.column--;
+        c = text[pos.column];
+
+        while (true) {
+            if (pos.column == 0) {
+                break;
             }
 
-            if ((prevc.isLetterOrNumber() && !c.isLetterOrNumber()) || (prevc.isPunct() && !c.isPunct())) {
+            prevc = c;
+            pos.column--;
+            c = text[pos.column];
+
+            if ((prevc.isLetterOrNumber() && !c.isLetterOrNumber()) 
+                    || ((prevc.isPunct() || prevc.isSymbol()) 
+                            && !(c.isPunct() || c.isSymbol()))) {
                 pos.column++;
-                stop = TRUE;
-                continue;
+		break;
             }
         }
     } else {
-        if (pos.column == text.length()) {
-            stop = TRUE;
-        } else {
+        if (pos.column < text.length()) {
             c = text[pos.column];
         }
 
-        while (!stop) {
-            if (pos.column < text.length()) {
-                prevc = c;
-                pos.column++;
-                c = text[pos.column];
-            } else {
-                stop = TRUE;
+        while (true) {
+            if (pos.column == text.length()) {
+                break;
             }
 
-            if ((!prevc.isLetterOrNumber() && c.isLetterOrNumber()) || (!prevc.isPunct() && c.isPunct())) {
-                stop = TRUE;
-                continue;
+            prevc = c;
+            pos.column++;
+            c = text[pos.column];
+
+            if ((!prevc.isLetterOrNumber() && c.isLetterOrNumber()) 
+                    || (!(prevc.isPunct() || prevc.isSymbol()) 
+                            && (c.isPunct() || c.isSymbol()))) {
+                break;
             }
         }
+
     }
 
     return pos;
