@@ -1,0 +1,25 @@
+MDI mode
+
+Double-click selection of a word should not select right-hand space
+
+Find/Replace in selection
+
+Insert/overwrite mode
+
+Statusbar tracking of insert/overwrite
+
+Tabs to Spaces/Spaces to Tabs on selection
+
+Tabs to Spaces to replace tabs with variable number of spaces to keep text at next tabstop
+
+Syntax highlighting
+
+Continuous wrap
+
+Make a distinction between character position and column position on a line
+
+Default button in preferences
+
+Select to end of line, can't unselect if you click beyond end of same line (cursor doesn't move, therefore selection stays)
+
+Smart Home/End

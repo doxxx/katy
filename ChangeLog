@@ -2,6 +2,7 @@
 
 	* Added Line and Column statusbar indicators.
 	* Fixed File->Open to open the file in a new window.
+	* Changed File->Open to use standard KDE Open File dialog.
 
 2001-03-07  Gordon Tyler  <gordon@doxxx.net>
 
