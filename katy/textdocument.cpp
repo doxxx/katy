@@ -30,6 +30,8 @@
 #include <qtextstream.h>
 #include <qregexp.h>
 
+#define STAT_TIMER_INTERVAL 3000
+
 TextDocument::TextDocument()
 {
     m_url = KURL();
@@ -37,10 +39,14 @@ TextDocument::TextDocument()
     m_loaded = FALSE;
     m_modified = FALSE;
     m_lines.append(TextLine(QString("")));
+    m_statTimerId = -1;
+    m_lastModifiedTime = -1;
 }
 
 TextDocument::TextDocument(const KURL& url)
 {
+    TextDocument();
+
     openURL(url);
 }
 
@@ -143,6 +149,10 @@ void TextDocument::openURL(const KURL& url)
             m_url = url;
             m_loaded = true;
             setModified(FALSE);
+
+            // start external change detection
+            KIO::StatJob *job = KIO::stat(m_url, FALSE);
+            connect(job, SIGNAL(result(KIO::Job*)), SLOT(slotStatJobResult(KIO::Job*)));
         }
 
         // and remove the temp file
@@ -228,6 +238,8 @@ bool TextDocument::loadTempFile(QString filename)
     if (line.length() > 0)
         lines.append(line);
 
+    m_lines.clear();
+
     for (QStringList::Iterator it = lines.begin(); it != lines.end(); ++it)
     {
         TextLine textLine((*it));
@@ -290,6 +302,8 @@ void TextDocument::saveURL(const KURL& url)
     setModified(FALSE);
 
     tempfile.unlink();
+
+    m_lastModifiedTime = -1;
 }
 
 bool TextDocument::saveTempFile(QString filename)
@@ -634,3 +648,45 @@ DocumentRange TextDocument::findText(QString text, DocumentPosition start, int f
 
     return DocumentRange();
 }
+
+void TextDocument::timerEvent(QTimerEvent *event)
+{
+    if (event->timerId() == m_statTimerId)
+    {
+        killTimer(m_statTimerId);
+        KIO::StatJob *job = KIO::stat(m_url, FALSE);
+        connect(job, SIGNAL(result(KIO::Job*)), SLOT(slotStatJobResult(KIO::Job*)));
+    }
+}
+
+void TextDocument::slotStatJobResult(KIO::Job *job)
+{
+    KIO::StatJob *statJob = (KIO::StatJob*)job;
+
+    if (statJob->error() == 0)
+    {
+        const KIO::UDSEntry& entry = statJob->statResult();
+        KIO::UDSEntry::ConstIterator it;
+        for (it = entry.begin(); it != entry.end(); ++it)
+        {
+            KIO::UDSAtom atom = *it;
+            if ((atom.m_uds & KIO::UDS_MODIFICATION_TIME) == KIO::UDS_MODIFICATION_TIME)
+            {
+                if (m_lastModifiedTime < 0)
+                {
+                    m_lastModifiedTime = atom.m_long;
+                    break;
+                }
+                else if (atom.m_long > m_lastModifiedTime)
+                {
+                    emit documentExternallyChanged();
+                    m_lastModifiedTime = atom.m_long;
+                    break;
+                }
+            }
+        }
+    }
+
+    m_statTimerId = startTimer(STAT_TIMER_INTERVAL);
+}
+

@@ -24,6 +24,7 @@
 #include <qobject.h>
 #include <kurl.h>
 #include <qvaluelist.h>
+#include <kio/job.h>
 
 class FormatRange
 {
@@ -169,6 +170,10 @@ signals:
     void linesRemoved(int line, int count);
     void documentModified();
     void documentNotModified();
+    void documentExternallyChanged();
+
+protected slots:
+    void slotStatJobResult(KIO::Job *job);
 
 protected:
     bool loadTempFile(QString filename);
@@ -176,12 +181,16 @@ protected:
 
     void setModified(bool modified);
 
+    void timerEvent(QTimerEvent *event);
+
 protected:
     KURL m_url;
     TextLineList m_lines;
     EOLType m_eolType;
     bool m_loaded;
     bool m_modified;
+    long m_lastModifiedTime;
+    int m_statTimerId;
 };
 
 #endif
