@@ -19,8 +19,12 @@
  */
 
 #include "katyapp.h"
+#include "katy.h"
 
 #include <kcmdlineargs.h>
+#include <kconfig.h>
+#include <kglobalsettings.h>
+#include <kglobal.h>
 
 KatyApp::KatyApp()
     : alreadyRestored(false)
@@ -71,5 +75,114 @@ Katy *KatyApp::newWindow()
 void KatyApp::removeWindow(Katy *window)
 {
     windowList.removeRef(window);
+}
+
+QFont KatyApp::readConfig_Font()
+{
+    KConfigGroupSaver configGroupSaver(KGlobal::config(), "Appearance");
+    QFont *defaultFont = new QFont(KGlobalSettings::fixedFont());
+    return KGlobal::config()->readFontEntry("Font", defaultFont);
+}
+
+QColor KatyApp::readConfig_NormalForeground()
+{
+    KConfigGroupSaver configGroupSaver(KGlobal::config(), "Appearance");
+    QColor *defaultColour = new QColor(KGlobalSettings::textColor());
+    return KGlobal::config()->readColorEntry("NormalForeground", defaultColour);
+}
+
+QColor KatyApp::readConfig_NormalBackground()
+{
+    KConfigGroupSaver configGroupSaver(KGlobal::config(), "Appearance");
+    QColor *defaultColour = new QColor(KGlobalSettings::baseColor());
+    return KGlobal::config()->readColorEntry("NormalBackground", defaultColour);
+}
+
+QColor KatyApp::readConfig_SelectedForeground()
+{
+    KConfigGroupSaver configGroupSaver(KGlobal::config(), "Appearance");
+    QColor *defaultColour = new QColor(KGlobalSettings::highlightedTextColor());
+    return KGlobal::config()->readColorEntry("SelectedForeground", defaultColour);
+}
+
+QColor KatyApp::readConfig_SelectedBackground()
+{
+    KConfigGroupSaver configGroupSaver(KGlobal::config(), "Appearance");
+    QColor *defaultColour = new QColor(KGlobalSettings::highlightColor());
+    return KGlobal::config()->readColorEntry("SelectedBackground", defaultColour);
+}
+
+int KatyApp::readConfig_TabSize()
+{
+    KConfigGroupSaver configGroupSaver(KGlobal::config(), "Indenting");
+    return KGlobal::config()->readNumEntry("TabSize", 8);
+}
+
+bool KatyApp::readConfig_UseSpaces()
+{
+    KConfigGroupSaver configGroupSaver(KGlobal::config(), "Indenting");
+    return KGlobal::config()->readBoolEntry("UseSpaces", FALSE);
+}
+
+int KatyApp::readConfig_IndentSize()
+{
+    KConfigGroupSaver configGroupSaver(KGlobal::config(), "Indenting");
+    return KGlobal::config()->readNumEntry("IndentSize", 8);
+}
+
+void KatyApp::writeConfig_Font(QFont font)
+{
+    KConfigGroupSaver configGroupSaver(KGlobal::config(), "Appearance");
+    KGlobal::config()->writeEntry("Font", font);
+    emit configChanged();
+}
+
+void KatyApp::writeConfig_NormalForeground(QColor color)
+{
+    KConfigGroupSaver configGroupSaver(KGlobal::config(), "Appearance");
+    KGlobal::config()->writeEntry("NormalForeground", color);
+    emit configChanged();
+}
+
+void KatyApp::writeConfig_NormalBackground(QColor color)
+{
+    KConfigGroupSaver configGroupSaver(KGlobal::config(), "Appearance");
+    KGlobal::config()->writeEntry("NormalBackground", color);
+    emit configChanged();
+}
+
+void KatyApp::writeConfig_SelectedForeground(QColor color)
+{
+    KConfigGroupSaver configGroupSaver(KGlobal::config(), "Appearance");
+    KGlobal::config()->writeEntry("SelectedForeground", color);
+    emit configChanged();
+}
+
+void KatyApp::writeConfig_SelectedBackground(QColor color)
+{
+    KConfigGroupSaver configGroupSaver(KGlobal::config(), "Appearance");
+    KGlobal::config()->writeEntry("SelectedBackground", color);
+    emit configChanged();
+}
+
+void KatyApp::writeConfig_TabSize(int tabSize)
+{
+    KConfigGroupSaver configGroupSaver(KGlobal::config(), "Indenting");
+    KGlobal::config()->writeEntry("TabSize", tabSize);
+    emit configChanged();
+}
+
+void KatyApp::writeConfig_UseSpaces(bool useSpaces)
+{
+    KConfigGroupSaver configGroupSaver(KGlobal::config(), "Indenting");
+    KGlobal::config()->writeEntry("UseSpaces", useSpaces);
+    emit configChanged();
+}
+
+void KatyApp::writeConfig_IndentSize(int indentSize)
+{
+    KConfigGroupSaver configGroupSaver(KGlobal::config(), "Indenting");
+    KGlobal::config()->writeEntry("IndentSize", indentSize);
+    emit configChanged();
 }
 

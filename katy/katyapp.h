@@ -29,7 +29,9 @@
 
 #include <qlist.h>
 
-#include "katy.h"
+#define katyapp ((KatyApp*)kapp)
+
+class Katy;
 
 /**
  * This class serves as the main application class for Katy.
@@ -40,6 +42,7 @@
  */
 class KatyApp : public KUniqueApplication
 {
+    Q_OBJECT
 public:
     KatyApp();
     ~KatyApp();
@@ -48,6 +51,27 @@ public:
 
     Katy *newWindow();
     void removeWindow(Katy *window);
+
+    QFont readConfig_Font();
+    QColor readConfig_NormalForeground();
+    QColor readConfig_NormalBackground();
+    QColor readConfig_SelectedForeground();
+    QColor readConfig_SelectedBackground();
+    int readConfig_TabSize();
+    bool readConfig_UseSpaces();
+    int readConfig_IndentSize();
+
+    void writeConfig_Font(QFont font);
+    void writeConfig_NormalForeground(QColor color);
+    void writeConfig_NormalBackground(QColor color);
+    void writeConfig_SelectedForeground(QColor color);
+    void writeConfig_SelectedBackground(QColor color);
+    void writeConfig_TabSize(int tabSize);
+    void writeConfig_UseSpaces(bool useSpaces);
+    void writeConfig_IndentSize(int indentSize);
+
+signals:
+    void configChanged();
 
 private:
     bool alreadyRestored;
